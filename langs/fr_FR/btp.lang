@@ -1,0 +1,53 @@
+# <one line to give the program's name and a brief idea of what it does.>
+# Copyright (C) <year>  <name of author>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#
+# Générique
+#
+
+# Module label 'ModuleXXXName'
+# (where XXX is value of numeric property 'numero' of module)
+Module104911Name = BTP
+# Module description 'ModuleXXXDesc'
+# (where XXX is value of numeric property 'numero' of module)
+Module104911Desc = Active et configure Dolibarr pour le BTP
+
+#
+# Page d'administration
+#
+BtpSetup = Configuration du module btp
+Settings = Réglages
+BtpSetupPage = Page de réglage du module btp
+ATMAbout = Ce module a été développé par <a href="http://www.atm-consulting.fr" target="_blank">ATM Consulting</a><br>Vous pouvez retrouver la documentation sur notre <a href="http://wiki.atm-consulting.fr/index.php/Accueil" target="_blank">wiki</a><br><br>Pour toute question technique ou retour, contactez-nous sur <a href="mailto:support@atm-consulting.fr">support@atm-consulting.fr</a><br><br>Pour toute question commerciale, contactez-nous sur <a href="mailto:contact@atm-consulting.fr">contact@atm-consulting.fr</a> ou au +33 9 77 19 50 70<br><br>Retrouvez nos autres modules sur <a href="http://www.dolistore.com/search.php?orderby=position&orderway=desc&search_query=atm&submit_search=Rechercher" target="_blank">Dolistore</a>
+
+#
+# Page À propos
+#
+About = À propos
+BtpAbout = À propos de btp
+BtpAboutPage = Page à propos de btp
+
+
+PDFCrabeBtpDescription=Modèle pdf spécifique Situation
+PDFCrabeBtpTitle=Situation n° %d
+BtpWarningsObjectIsNotASituation=Attention : la génération de ce modèle est réservé aux factures de type "situation"
+BtpMainWork=Travaux principaux
+BtpAdditionalWork=Travaux supplémentaires
+BtpNewCumul=Nouveau cumul
+BtpAnteCumul=Cumul antérieur
+BtpTotalSituationTTC=TOTAL SITUATION - TTC
+BtpRetenueGarantie=Retenue Garantie - TTC
+BtpRayToRest=MONTANT A PAYER - TTC
