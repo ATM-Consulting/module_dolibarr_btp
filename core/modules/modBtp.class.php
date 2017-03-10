@@ -123,7 +123,7 @@ class modBtp extends DolibarrModules
 
 		// Config pages. Put here list of php pages
 		// stored into btp/admin directory, used to setup module.
-		$this->config_page_url = array("admin_btp.php@btp");
+		$this->config_page_url = array("about_btp.php@btp");
 
 		// Dependencies
 		// A condition to hide module
