@@ -146,15 +146,15 @@ class modBtp extends DolibarrModules
 		// (name, type ['chaine' or ?], value, description, visibility, entity ['current' or 'allentities'], delete on unactive)
 		// Example:
 		$this->const = array(
-				0 => array(
-					'PRODUCT_USE_UNITS',
-					'chaine',
+				array('PRODUCT_USE_UNITS',		'chaine',
 					'1',
 					'product use unit',
 					1,
 			      'current',
 			      0,
-				),
+				)
+				,array('MAIN_FORCELANGDIR','chaine','/btp/customlangs','Directory where custom translations will be stored',1,'current',1)
+				
 			//	1 => array(
 			//		'MYMODULE_MYNEWCONST2',
 			//		'chaine',

@@ -1,0 +1,112 @@
+Module104580Name = Ouvrage
+Module104580Desc = Définissez votre composition de fabrication, relevé votre prix de revient
+
+ATMAbout = Ce module a été développé par <a href="http://www.atm-consulting.fr" target="_blank">ATM Consulting</a><br>Vous pouvez retrouver la documentation sur notre <a href="http://wiki.atm-consulting.fr/index.php/Accueil" target="_blank">wiki</a><br><br>Pour toute question technique ou retour, contactez-nous sur <a href="mailto:support@atm-consulting.fr">support@atm-consulting.fr</a><br><br>Pour toute question commerciale, contactez-nous sur <a href="mailto:contact@atm-consulting.fr">contact@atm-consulting.fr</a> ou au +33 9 77 19 50 70<br><br>Retrouvez nos autres modules sur <a href="http://www.dolistore.com/search.php?orderby=position&orderway=desc&search_query=atm&submit_search=Rechercher" target="_blank">Dolistore</a>
+
+nomenclatureSetup = Configuration du module nomenclature
+nomenclatureAbout = A propos du module nomenclature
+
+Nomenclature=Ouvrage
+
+nomenclatureAllowFreeLine=Autoriser l'ajout de nomenclature sur un service ou ligne libre
+
+AddNomenclature=Ajouter un ouvrage
+AddProductNomenclature=Ajouter le produit
+SaveNomenclature=Enregistrer
+nomenclatureIsDefault=Définir par défaut
+nomenclatureQtyReference=Qté de référence
+
+WillUseProductWorkstationIfNotSpecified=Utilisera la définition globale du produit si non précisée
+QtyPrepare=Temps de préparation
+QtyFabrication=Temps de fabrication
+nb_days_before_beginning=Délai avant démarrage
+Worstations=Mains d'oeuvre
+AmountCost=Coût de revient
+AmountCostWithCharge=Coût de revient chargé
+TotalAmountCostWithCharge=Coût de revient chargé pour %s exemplaire(s)
+TotalAmountCostWithChargePMP=Coût de revient chargé théorique pour %s exemplaire(s)
+TotalAmountCostWithChargeOF=Coût de revient chargé réel pour %s exemplaire(s)
+AmountCostWithChargeCustom=Coût perso
+PriceConseil=Prix de vente conseillé (Marge %s %%) pour %s exemplaire(s)
+
+NomenclatureSaved=Ouvrage enregistrée
+WorkstationAlreadyAssociated=Cette MO est déjà associée à cet ouvrage
+
+NomenclatureLineSaved=Ouvrage spécifique sauvegardée
+DeleteThisNomenclature=Supprimer cet ouvrage
+NomenclatureDeleted=Ouvrage supprimée
+addWorkstation=Ajouter une MO
+AddWorkstation=Ajouter une MO
+
+ApplyNomenclaturePrice=Appliquer le prix de vente
+ApplyNewCoefToObjectLine=Recalculer le prix de vente des lignes
+CloneNomenclatureFromProduct=Importer nomenclature 
+NomenclatureCloned=Ouvrage(s) importé(s)
+
+ListUseNomenclaure=Liste des ouvrages utilisant ce produit
+
+AddCoef=Ajouter un coefficient
+ModifyCoef=Modifier un coefficient
+CreateCoef=Renseigner son libellé et son code de base de donnée (pas d'espace n'y de caractère accentué) ainsi que son taux
+NomenclatureCreateLabel=Libellé : 
+NomenclatureCreateCode=Code type : 
+NomenclatureCreateTx=Taux :
+
+NomenclatureSuccessAddCoef=Ajout d'un nouveau coefficient
+NomenclatureDeleteSuccess=Suppression de l'enregistrement
+
+NomenclatureErrorAddCoef=Erreur : ajout d'un coefficient impossible.
+NomenclatureErrorAddCoefDoublon=Erreur : le code renseigné existe déjà en base de donnée.
+NomenclatureErrorCantDelete=Erreur : impossible de supprimer l'enregistrement car une/plusieurs liaison(s) enfant(s) existe(s).
+
+CoefList=Liste des coefficients
+nomenclatureCoefUpdated=Coefficients mis à jours
+nomenclatureApplyAllCoefOnPriceError=Impossible de mettre les prix à jour, le status du document n'est pas en brouillon
+
+SaveAll=Sauvegarder les modifications
+PseudoNomenclature=Ouvrage virtuelle du produit 
+PseudoNomenclatureInfo=Ouvrage du produit, pas de la ligne. Le premier niveau sera rattachée à la ligne à sauvegarde, les niveaux inférieurs seront des ouvrages communs de produits
+
+EditLine=Editer la ligne
+ThisProductCreateAnInfinitLoop=Ce produit ne peut être ajouté car il créé une boucle infinie
+ThisIsAnInfinitLoop=Il y a une boucle infinie dans ce produit, merci de corriger l'appel erroné
+ThereIsTooLevelHere=Trop de niveau a afficher (boucle infinie ?)
+
+nomenclatureJustMP=Permettre la liaison uniquement avec des matières première
+
+CoefGenericSaveForSpecific=Coefficient générique. Sauvegardez pour rendre spécifique à cet objet.
+
+NonLocalNomenclature=Ouvrage chargée depuis le produit, sauvegardez pour créér un ouvrage locale
+
+NOMENCLATURE_ACTIVATE_DETAILS_COSTS=Activer les prix de revient détaillés
+PricePA=Budget, prix d'achat fixe défini sur la fiche article
+PricePMP=Théorique, prix moyen pondéré (PMP) du produit
+PriceOF=Réel, analyse des OF sur la période
+TotalPricePMP=Total Matière Théorique
+TotalPriceOF=Total Matière Réel
+priceMO_OF=Réel, analyse des OF sur la période
+TotalMO_OF=Total M.O. Réel
+massUpdate=Mettre les nomenclature à jour en masse
+massUpdateMenu=Ouvrage mise à jour en masse
+nomenclatureSpeedSelectClick=Ouvrage Rapide, sélection au clic
+PercentUP=Augmentation en %
+ShowImpact=Montrer l'impact
+QtyAfter=Qté après
+MakeIt=Faire la mise à jour
+
+NOMENCLATURE_TAKE_PRICE_FROM_CHILD_FIRST=Utiliser le prix de l'ouvrage enfant avant le prix d'achat pour le calcul
+NOMENCLATURE_PERSO_PRICE_HAS_TO_BE_CHARGED=Le prix personnalisé d'un composant est un déboursé
+NOMENCLATURE_PERSO_PRICE_APPLY_QTY=Ce déboursé prend en compte la quantité de la ligne
+NOMENCLATURE_HIDE_ADVISED_PRICE=Masquer la ligne de prix conseillé dans la nomenclature
+NOMENCLATURE_USE_ON_INVOICE=Utilise les cout de reviens de nomenclature avec les factures
+NOMENCLATURE_USE_SELL_PRICE_INSTEADOF_CALC=Forcer l'utilsation du prix de vente plutot que le cout margé (lors de l'ajout d'une ligne propal/commande/facture)
+NOMENCLATURE_USE_QTYREF_TO_ONE=Toujorus utilisé la quanté de référence à 1 pour le calcul du cout de reviens
+
+CantAddProductBecauseOfAnInfiniteLoop=Ce produit ne peut être ajouté car cela créé une boucle infinie
+SetPriceInfiniteLoop=Boucle infinie détectée dans la récupération du prix
+
+DeleteSpecificCoef=Supprimer les coef. spécifiques
+
+nomenclatureRead=Consulter les nomenclatures
+nomenclatureWrite=Créer/modifier les nomenclatures
+nomenclatureShowPrice=Voir le prix du détail d'un ouvrage
