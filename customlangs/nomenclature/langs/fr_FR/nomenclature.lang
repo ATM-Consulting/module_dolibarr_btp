@@ -7,6 +7,7 @@ nomenclatureSetup = Configuration du module nomenclature
 nomenclatureAbout = A propos du module nomenclature
 
 Nomenclature=Ouvrage
+nomenclature=ouvrage
 
 nomenclatureAllowFreeLine=Autoriser l'ajout de nomenclature sur un service ou ligne libre
 
@@ -40,7 +41,7 @@ AddWorkstation=Ajouter une MO
 
 ApplyNomenclaturePrice=Appliquer le prix de vente
 ApplyNewCoefToObjectLine=Recalculer le prix de vente des lignes
-CloneNomenclatureFromProduct=Importer nomenclature 
+CloneNomenclatureFromProduct=Importer l'ouvrage 
 NomenclatureCloned=Ouvrage(s) importé(s)
 
 ListUseNomenclaure=Liste des ouvrages utilisant ce produit
