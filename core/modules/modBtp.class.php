@@ -154,14 +154,7 @@ class modBtp extends DolibarrModules
 			      0,
 				)
 				,array('MAIN_FORCELANGDIR','chaine','/btp/customlangs','Directory where custom translations will be stored',1,'current',1)
-				
-			//	1 => array(
-			//		'MYMODULE_MYNEWCONST2',
-			//		'chaine',
-			//		'myvalue',
-			//		'This is another constant to add',
-			//		0,
-			//	)
+				,array('INVOICE_USE_SITUATION','chaine','1','Enable invoice situation',1,'current',1)
 		);
 
 		// Array to add new pages in new tabs
