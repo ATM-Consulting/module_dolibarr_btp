@@ -3,13 +3,13 @@ Module104580Desc = Définissez votre composition de fabrication, relevé votre p
 
 ATMAbout = Ce module a été développé par <a href="http://www.atm-consulting.fr" target="_blank">ATM Consulting</a><br>Vous pouvez retrouver la documentation sur notre <a href="http://wiki.atm-consulting.fr/index.php/Accueil" target="_blank">wiki</a><br><br>Pour toute question technique ou retour, contactez-nous sur <a href="mailto:support@atm-consulting.fr">support@atm-consulting.fr</a><br><br>Pour toute question commerciale, contactez-nous sur <a href="mailto:contact@atm-consulting.fr">contact@atm-consulting.fr</a> ou au +33 9 77 19 50 70<br><br>Retrouvez nos autres modules sur <a href="http://www.dolistore.com/search.php?orderby=position&orderway=desc&search_query=atm&submit_search=Rechercher" target="_blank">Dolistore</a>
 
-nomenclatureSetup = Configuration du module nomenclature
-nomenclatureAbout = A propos du module nomenclature
+nomenclatureSetup = Configuration du module ouvrage
+nomenclatureAbout = A propos du module ouvrage
 
 Nomenclature=Ouvrage
 nomenclature=ouvrage
 
-nomenclatureAllowFreeLine=Autoriser l'ajout de nomenclature sur un service ou ligne libre
+nomenclatureAllowFreeLine=Autoriser l'ajout d'ouvrages sur un service ou ligne libre
 
 AddNomenclature=Ajouter un ouvrage
 AddProductNomenclature=Ajouter le produit
@@ -19,7 +19,7 @@ nomenclatureQtyReference=Qté de référence
 
 WillUseProductWorkstationIfNotSpecified=Utilisera la définition globale du produit si non précisée
 QtyPrepare=Temps de préparation
-QtyFabrication=Temps de fabrication
+QtyFabrication=Temps de pose
 nb_days_before_beginning=Délai avant démarrage
 Worstations=Mains d'oeuvre
 AmountCost=Coût de revient
@@ -65,7 +65,7 @@ nomenclatureCoefUpdated=Coefficients mis à jours
 nomenclatureApplyAllCoefOnPriceError=Impossible de mettre les prix à jour, le status du document n'est pas en brouillon
 
 SaveAll=Sauvegarder les modifications
-PseudoNomenclature=Ouvrage virtuelle du produit 
+PseudoNomenclature=Ouvrage virtuel du produit 
 PseudoNomenclatureInfo=Ouvrage du produit, pas de la ligne. Le premier niveau sera rattachée à la ligne à sauvegarde, les niveaux inférieurs seront des ouvrages communs de produits
 
 EditLine=Editer la ligne
@@ -87,7 +87,7 @@ TotalPricePMP=Total Matière Théorique
 TotalPriceOF=Total Matière Réel
 priceMO_OF=Réel, analyse des OF sur la période
 TotalMO_OF=Total M.O. Réel
-massUpdate=Mettre les nomenclature à jour en masse
+massUpdate=Mettre les ouvrages à jour en masse
 massUpdateMenu=Ouvrage mise à jour en masse
 nomenclatureSpeedSelectClick=Ouvrage Rapide, sélection au clic
 PercentUP=Augmentation en %
@@ -98,8 +98,8 @@ MakeIt=Faire la mise à jour
 NOMENCLATURE_TAKE_PRICE_FROM_CHILD_FIRST=Utiliser le prix de l'ouvrage enfant avant le prix d'achat pour le calcul
 NOMENCLATURE_PERSO_PRICE_HAS_TO_BE_CHARGED=Le prix personnalisé d'un composant est un déboursé
 NOMENCLATURE_PERSO_PRICE_APPLY_QTY=Ce déboursé prend en compte la quantité de la ligne
-NOMENCLATURE_HIDE_ADVISED_PRICE=Masquer la ligne de prix conseillé dans la nomenclature
-NOMENCLATURE_USE_ON_INVOICE=Utilise les cout de reviens de nomenclature avec les factures
+NOMENCLATURE_HIDE_ADVISED_PRICE=Masquer la ligne de prix conseillé dans l'ouvrage
+NOMENCLATURE_USE_ON_INVOICE=Utilise les cout de revient de l'ouvrage avec les factures
 NOMENCLATURE_USE_SELL_PRICE_INSTEADOF_CALC=Forcer l'utilsation du prix de vente plutot que le cout margé (lors de l'ajout d'une ligne propal/commande/facture)
 NOMENCLATURE_USE_QTYREF_TO_ONE=Toujorus utilisé la quanté de référence à 1 pour le calcul du cout de reviens
 
@@ -108,6 +108,8 @@ SetPriceInfiniteLoop=Boucle infinie détectée dans la récupération du prix
 
 DeleteSpecificCoef=Supprimer les coef. spécifiques
 
-nomenclatureRead=Consulter les nomenclatures
-nomenclatureWrite=Créer/modifier les nomenclatures
+nomenclatureRead=Consulter les ouvrages
+nomenclatureWrite=Créer/modifier les ouvrages
 nomenclatureShowPrice=Voir le prix du détail d'un ouvrage
+
+Nomenclatures=Ouvrages

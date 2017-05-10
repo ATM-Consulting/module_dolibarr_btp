@@ -1,0 +1,12 @@
+
+WorkstationSetup = Configuration du module Workstation
+WorkstationAbout = A propos du module Workstation
+
+WorkStation=MO
+NewWorkStation=Nouvelle MO
+WorkStations=MOs
+
+paramWORKSTATION_LINK_SUBPRODUCT=Permettre la liaison des sous-produit aux MOs
+
+WorstationRead=Consulter les MOs
+WorstationWrite=Créer/modifier les MOs
