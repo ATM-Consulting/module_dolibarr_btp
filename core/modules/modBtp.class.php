@@ -255,13 +255,13 @@ class modBtp extends DolibarrModules
 		// Add here list of php file(s) stored in core/boxes that contains class to show a box.
 		$this->boxes = array(); // Boxes list
 		// Example:
-		$this->boxes = array(
+		/*$this->boxes = array(
 			0 => array(
 				'file' => 'mybox@btp',
 				'note' => '',
 				'enabledbydefaulton' => 'Home'
 			)
-		);
+		);*/
 
 		// Permissions
 		$this->rights = array(); // Permission array used by this module
