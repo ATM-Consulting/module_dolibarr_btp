@@ -145,6 +145,7 @@ class modBtp extends DolibarrModules
 				,'modFckeditor'
 				,'modBookmark'
 				,'modSubtotal'
+				,'modDoc2Project'
 				
 		);
 		// List of modules id to disable if this one is disabled
