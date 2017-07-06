@@ -135,18 +135,18 @@ class modBtp extends DolibarrModules
 				,'modCommande'
 				,'modFournisseur'
 				,'modFacture'
-				,'modBanque'
 				,'modMargin'
 				,'modProduct'
+				/* sujet à discuter
+				,'modBanque'
 				,'modService'
 				,'modStock'
 				,'modProjet'
 				,'modCategorie'
 				,'modFckeditor'
 				,'modBookmark'
-				,'modSubtotal'
 				,'modDoc2Project'
-				,'modSearchProductCategory'
+				,'modSearchProductCategory'*/
 				
 		);
 		// List of modules id to disable if this one is disabled
