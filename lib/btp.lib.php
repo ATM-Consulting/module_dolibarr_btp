@@ -17,13 +17,13 @@
  */
 
 /**
- *	\file		lib/metre.lib.php
- *	\ingroup	metre
+ *	\file		lib/btp.lib.php
+ *	\ingroup	btp
  *	\brief		This file is an example module library
  *				Put some comments here
  */
 
-function metreAdminPrepareHead()
+function btpAdminPrepareHead()
 {
     global $langs, $conf;
 
@@ -32,11 +32,16 @@ function metreAdminPrepareHead()
     $h = 0;
     $head = array();
 
-    $head[$h][0] = dol_buildpath("/btp/admin/metre_about.php", 1);
+    $head[$h][0] = dol_buildpath("/btp/admin/setup_btp.php", 1);
+    $head[$h][1] = $langs->trans("Setup");
+    $head[$h][2] = 'setup';
+    $h++;
+    
+    $head[$h][0] = dol_buildpath("/btp/admin/about_btp.php", 1);
     $head[$h][1] = $langs->trans("About");
     $head[$h][2] = 'about';
     $h++;
-
+    
     // Show more tabs from modules
     // Entries must be declared in modules descriptor with line
     //$this->tabs = array(
