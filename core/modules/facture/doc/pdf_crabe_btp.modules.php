@@ -598,14 +598,17 @@ class pdf_crabe_btp extends ModelePDFFactures
     					$pdf->SetXY($this->posxprogress_current, $curY);
     					$pdf->MultiCell($this->posxmonth_current-$this->posxprogress_current-0.8, 4, $progress, 0, 'R');
 					}
+					
 					// "Progession actuelle mois"
 					$pdf->SetXY($this->posxmonth_current, $curY);
 					$pdf->MultiCell($this->posxprogress_prec-$this->posxmonth_current-0.8, 4, price($object->lines[$i]->total_ht), 0, 'R');
 
 					// "Progession précédente line"
+					if(! $object->lines[$i]->fk_product == null){
 					$pdf->SetXY($this->posxprogress_prec, $curY);
 					$pdf->MultiCell($this->posxmonth_prec-$this->posxprogress_prec-0.8, 4, $TInfosLigneSituationPrecedente['progress_prec'], 0, 'R');
-
+					}
+					
 					// "Progession précédente mois"
 					$pdf->SetXY($this->posxmonth_prec, $curY);
 					$pdf->MultiCell($this->posxdiscount-$this->posxmonth_prec-0.8, 4, price($TInfosLigneSituationPrecedente['total_ht']), 0, 'R');
