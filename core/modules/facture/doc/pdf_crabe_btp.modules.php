@@ -591,12 +591,13 @@ class pdf_crabe_btp extends ModelePDFFactures
 					// "Sommes"
 					$pdf->SetXY($this->posxsommes, $curY);
 					$pdf->MultiCell($this->posxprogress_current-$this->posxsommes-0.8, 4, price($TInfosLigneSituationPrecedente['total_ht_without_progress']), 0, 'L');
-
+					
 					// "Progession actuelle line"
-					$progress = pdf_getlineprogress($object, $i, $outputlangs, $hidedetails);
-					$pdf->SetXY($this->posxprogress_current, $curY);
-					$pdf->MultiCell($this->posxmonth_current-$this->posxprogress_current-0.8, 4, $progress, 0, 'R');
-
+					if(! $object->lines[$i]->fk_product == null){
+    					$progress = pdf_getlineprogress($object, $i, $outputlangs, $hidedetails);
+    					$pdf->SetXY($this->posxprogress_current, $curY);
+    					$pdf->MultiCell($this->posxmonth_current-$this->posxprogress_current-0.8, 4, $progress, 0, 'R');
+					}
 					// "Progession actuelle mois"
 					$pdf->SetXY($this->posxmonth_current, $curY);
 					$pdf->MultiCell($this->posxprogress_prec-$this->posxmonth_current-0.8, 4, price($object->lines[$i]->total_ht), 0, 'R');
@@ -1390,6 +1391,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 	 */
 	function _tableau(&$pdf, $tab_top, $tab_height, $nexY, $outputlangs, $hidetop=0, $hidebottom=0, $currency='')
 	{
+	    
 		global $conf, $object;
 
 		// Force to disable hidetop and hidebottom
