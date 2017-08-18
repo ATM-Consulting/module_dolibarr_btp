@@ -123,7 +123,7 @@ class modBtp extends DolibarrModules
 
 		// Config pages. Put here list of php pages
 		// stored into btp/admin directory, used to setup module.
-		$this->config_page_url = array("about_btp.php@btp");
+		$this->config_page_url = array("setup_btp.php@btp");
 
 		// Dependencies
 		// A condition to hide module
@@ -173,6 +173,7 @@ class modBtp extends DolibarrModules
 				)
 				,array('MAIN_FORCELANGDIR','chaine','/btp/customlangs','Directory where custom translations will be stored',1,'current',1)
 				,array('INVOICE_USE_SITUATION','chaine','1','Enable invoice situation',1,'current',1)
+		        ,array('BTP_SIMPLE_DISPLAY','chaine','1','Display only the usefull informations for BTP users',1,'current',1)
 		);
 
 		// Array to add new pages in new tabs
