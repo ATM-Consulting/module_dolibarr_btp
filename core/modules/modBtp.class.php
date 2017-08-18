@@ -24,6 +24,7 @@
  * 	\brief		Description and activation file for module Btp
  */
 include_once DOL_DOCUMENT_ROOT . "/core/modules/DolibarrModules.class.php";
+require_once DOL_DOCUMENT_ROOT.'/core/lib/admin.lib.php';
 
 /**
  * Description and activation class for module Btp
@@ -480,11 +481,27 @@ class modBtp extends DolibarrModules
 	 * 	@return		int					1 if OK, 0 if KO
 	 */
 	public function init($options = '')
-	{
+	{	    
+	    global $db, $conf;
+	    
 		$sql = array();
 
 		$result = $this->loadTables();
-
+		
+		if (dolibarr_set_const($db, "FACTURE_ADDON_PDF",'crabe_btp','chaine',0,'',$conf->entity))
+		{
+		    // La constante qui a ete lue en avant du nouveau set
+		    // on passe donc par une variable pour avoir un affichage coherent
+		    $conf->global->FACTURE_ADDON_PDF = 'crabe_btp';
+		}
+		
+		// On active le modele
+		$ret = delDocumentModel('crabe_btp', 'invoice');
+		if ($ret > 0)
+		{
+		    $ret = addDocumentModel('crabe_btp', 'invoice', 'crabe_btp', null);
+		}
+		
 		return $this->_init($sql, $options);
 	}
 
@@ -497,9 +514,17 @@ class modBtp extends DolibarrModules
 	 * 	@return		int					1 if OK, 0 if KO
 	 */
 	public function remove($options = '')
-	{
+	{	    
+	    global $db, $conf;
+	    
 		$sql = array();
 
+		$ret = delDocumentModel('crabe_btp', 'invoice');
+		if ($ret > 0)
+		{
+		    if ($conf->global->FACTURE_ADDON_PDF == "crabe_btp") dolibarr_del_const($db, 'FACTURE_ADDON_PDF',$conf->entity);
+		}
+		
 		return $this->_remove($sql, $options);
 	}
 
