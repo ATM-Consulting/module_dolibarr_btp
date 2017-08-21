@@ -35,8 +35,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
 // TSubtotal
-if(file_exists(DOL_DOCUMENT_ROOT.'/subtotal/class/subtotal.class.php')) include_once DOL_DOCUMENT_ROOT.'/subtotal/class/subtotal.class.php';
-if (!class_exists('TSubtotal')) include_once DOL_DOCUMENT_ROOT.'/custom/subtotal/class/subtotal.class.php';
+if (!empty($conf->subtotal->enabled)) dol_include_once('/subtotal/class/subtotal.class.php');
 
 
 /**
@@ -596,7 +595,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 					$pdf->MultiCell($this->posxprogress_current-$this->posxsommes-0.8, 4, price($TInfosLigneSituationPrecedente['total_ht_without_progress']), 0, 'L');
 					
 					// "Progession actuelle line"
-					if(!TSubtotal::isModSubtotalLine($object->lines[$i])){
+					if(!class_exists('TSubtotal') || !TSubtotal::isModSubtotalLine($object->lines[$i])){
     					$progress = pdf_getlineprogress($object, $i, $outputlangs, $hidedetails);
     					$pdf->SetXY($this->posxprogress_current, $curY);
     					$pdf->MultiCell($this->posxmonth_current-$this->posxprogress_current-0.8, 4, $progress, 0, 'R');
@@ -607,7 +606,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 					$pdf->MultiCell($this->posxprogress_prec-$this->posxmonth_current-0.8, 4, price($object->lines[$i]->total_ht), 0, 'R');
 
 					// "Progession précédente line"
-					if(!TSubtotal::isModSubtotalLine($object->lines[$i])){
+					if(!class_exists('TSubtotal') || !TSubtotal::isModSubtotalLine($object->lines[$i])){
 					$pdf->SetXY($this->posxprogress_prec, $curY);
 					$pdf->MultiCell($this->posxmonth_prec-$this->posxprogress_prec-0.8, 4, $TInfosLigneSituationPrecedente['progress_prec'], 0, 'R');
 					}

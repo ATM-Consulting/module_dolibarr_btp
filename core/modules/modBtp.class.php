@@ -101,7 +101,7 @@ class modBtp extends DolibarrModules
 			// Set this to relative path of js file if module must load a js on all pages
 			// 'js' => array('btp/js/btp.js'),
 			// Set here all hooks context managed by module
-			// 'hooks' => array('hookcontext1','hookcontext2'),
+			'hooks' => array('invoicecard'),
 			// To force the default directories names
 			// 'dir' => array('output' => 'othermodulename'),
 			// Set here all workflow context managed by module
@@ -487,14 +487,7 @@ class modBtp extends DolibarrModules
 		$sql = array();
 
 		$result = $this->loadTables();
-		
-		if (dolibarr_set_const($db, "FACTURE_ADDON_PDF",'crabe_btp','chaine',0,'',$conf->entity))
-		{
-		    // La constante qui a ete lue en avant du nouveau set
-		    // on passe donc par une variable pour avoir un affichage coherent
-		    $conf->global->FACTURE_ADDON_PDF = 'crabe_btp';
-		}
-		
+				
 		// On active le modele
 		$ret = delDocumentModel('crabe_btp', 'invoice');
 		if ($ret > 0)
