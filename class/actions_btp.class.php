@@ -85,14 +85,6 @@ class ActionsBtp
             
         }
         
-        if (! $error) {
-            $this->results = array('myreturn' => 999);
-            $this->resprints = 'A text to show';
-            return 0;                                    // or return 1 to replace standard code
-        } else {
-            $this->errors[] = 'Error message';
-            return -1;
-        }
     }
     
     
@@ -110,7 +102,6 @@ class ActionsBtp
             ?>
             <script type="text/javascript">
             $(document).ready(function(){
-				console.log($('#model option'));
 				$('#model option').each(function(){
 					if($(this).val() == 'crabe_btp') {
 						$(this).attr('selected',true);
@@ -123,15 +114,7 @@ class ActionsBtp
             <?php
             }
         }
-        
-        if (! $error) {
-            $this->results = array('myreturn' => 999);
-            $this->resprints = 'A text to show';
-            return 0;                                    // or return 1 to replace standard code
-        } else {
-            $this->errors[] = 'Error message';
-            return -1;
-        }
+
     }
     
     /**
@@ -157,15 +140,7 @@ class ActionsBtp
                 
             }
         }
-        
-        if (! $error) {
-            $this->results = array('myreturn' => 999);
-            $this->resprints = 'A text to show';
-            return 0;                                    // or return 1 to replace standard code
-        } else {
-            $this->errors[] = 'Error message';
-            return -1;
-        }
+
     }
     
     
@@ -189,12 +164,6 @@ class ActionsBtp
             $this->resprints = '<option value="0"'.($disabled?' disabled="disabled"':'').'>'.$langs->trans("MyModuleMassAction").'</option>';
         }
         
-        if (! $error) {
-            return 0;                                    // or return 1 to replace standard code
-        } else {
-            $this->errors[] = 'Error message';
-            return -1;
-        }
     }
     
     
