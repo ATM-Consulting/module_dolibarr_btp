@@ -34,6 +34,8 @@ require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
+// TSubtotal
+if (!empty($conf->subtotal->enabled)) dol_include_once('/subtotal/class/subtotal.class.php');
 
 
 /**
@@ -591,20 +593,24 @@ class pdf_crabe_btp extends ModelePDFFactures
 					// "Sommes"
 					$pdf->SetXY($this->posxsommes, $curY);
 					$pdf->MultiCell($this->posxprogress_current-$this->posxsommes-0.8, 4, price($TInfosLigneSituationPrecedente['total_ht_without_progress']), 0, 'L');
-
+					
 					// "Progession actuelle line"
-					$progress = pdf_getlineprogress($object, $i, $outputlangs, $hidedetails);
-					$pdf->SetXY($this->posxprogress_current, $curY);
-					$pdf->MultiCell($this->posxmonth_current-$this->posxprogress_current-0.8, 4, $progress, 0, 'R');
-
+					if(!class_exists('TSubtotal') || !TSubtotal::isModSubtotalLine($object->lines[$i])){
+    					$progress = pdf_getlineprogress($object, $i, $outputlangs, $hidedetails);
+    					$pdf->SetXY($this->posxprogress_current, $curY);
+    					$pdf->MultiCell($this->posxmonth_current-$this->posxprogress_current-0.8, 4, $progress, 0, 'R');
+					}
+					
 					// "Progession actuelle mois"
 					$pdf->SetXY($this->posxmonth_current, $curY);
 					$pdf->MultiCell($this->posxprogress_prec-$this->posxmonth_current-0.8, 4, price($object->lines[$i]->total_ht), 0, 'R');
 
 					// "Progession précédente line"
+					if(!class_exists('TSubtotal') || !TSubtotal::isModSubtotalLine($object->lines[$i])){
 					$pdf->SetXY($this->posxprogress_prec, $curY);
 					$pdf->MultiCell($this->posxmonth_prec-$this->posxprogress_prec-0.8, 4, $TInfosLigneSituationPrecedente['progress_prec'], 0, 'R');
-
+					}
+					
 					// "Progession précédente mois"
 					$pdf->SetXY($this->posxmonth_prec, $curY);
 					$pdf->MultiCell($this->posxdiscount-$this->posxmonth_prec-0.8, 4, price($TInfosLigneSituationPrecedente['total_ht']), 0, 'R');
@@ -1390,6 +1396,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 	 */
 	function _tableau(&$pdf, $tab_top, $tab_height, $nexY, $outputlangs, $hidetop=0, $hidebottom=0, $currency='')
 	{
+	    
 		global $conf, $object;
 
 		// Force to disable hidetop and hidebottom

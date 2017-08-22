@@ -24,6 +24,7 @@
  * 	\brief		Description and activation file for module Btp
  */
 include_once DOL_DOCUMENT_ROOT . "/core/modules/DolibarrModules.class.php";
+require_once DOL_DOCUMENT_ROOT.'/core/lib/admin.lib.php';
 
 /**
  * Description and activation class for module Btp
@@ -100,7 +101,7 @@ class modBtp extends DolibarrModules
 			// Set this to relative path of js file if module must load a js on all pages
 			// 'js' => array('btp/js/btp.js'),
 			// Set here all hooks context managed by module
-			// 'hooks' => array('hookcontext1','hookcontext2'),
+			'hooks' => array('invoicecard'),
 			// To force the default directories names
 			// 'dir' => array('output' => 'othermodulename'),
 			// Set here all workflow context managed by module
@@ -480,11 +481,20 @@ class modBtp extends DolibarrModules
 	 * 	@return		int					1 if OK, 0 if KO
 	 */
 	public function init($options = '')
-	{
+	{	    
+	    global $db, $conf;
+	    
 		$sql = array();
 
 		$result = $this->loadTables();
-
+				
+		// On active le modele
+		$ret = delDocumentModel('crabe_btp', 'invoice');
+		if ($ret > 0)
+		{
+		    $ret = addDocumentModel('crabe_btp', 'invoice', 'crabe_btp', null);
+		}
+		
 		return $this->_init($sql, $options);
 	}
 
@@ -497,9 +507,17 @@ class modBtp extends DolibarrModules
 	 * 	@return		int					1 if OK, 0 if KO
 	 */
 	public function remove($options = '')
-	{
+	{	    
+	    global $db, $conf;
+	    
 		$sql = array();
 
+		$ret = delDocumentModel('crabe_btp', 'invoice');
+		if ($ret > 0)
+		{
+		    if ($conf->global->FACTURE_ADDON_PDF == "crabe_btp") dolibarr_del_const($db, 'FACTURE_ADDON_PDF',$conf->entity);
+		}
+		
 		return $this->_remove($sql, $options);
 	}
 
