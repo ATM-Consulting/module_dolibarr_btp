@@ -591,14 +591,14 @@ class pdf_crabe_btp extends ModelePDFFactures
 					$TInfosLigneSituationPrecedente = $this->_getInfosLineDerniereSituation($object, $object->lines[$i]);
 
 					// "Sommes"
-					$pdf->SetXY($this->posxsommes, $curY);
-					$pdf->MultiCell($this->posxprogress_current-$this->posxsommes-0.8, 4, price($TInfosLigneSituationPrecedente['total_ht_without_progress']), 0, 'L');
+					if(!class_exists('TSubtotal') || !TSubtotal::isModSubtotalLine($object->lines[$i])){
+    					$pdf->SetXY($this->posxsommes, $curY);
+    					$pdf->MultiCell($this->posxprogress_current-$this->posxsommes-0.8, 4, price($TInfosLigneSituationPrecedente['total_ht_without_progress']), 0, 'L');
 					
 					// "Progession actuelle line"
-					if(!class_exists('TSubtotal') || !TSubtotal::isModSubtotalLine($object->lines[$i])){
-    					$progress = pdf_getlineprogress($object, $i, $outputlangs, $hidedetails);
-    					$pdf->SetXY($this->posxprogress_current, $curY);
-    					$pdf->MultiCell($this->posxmonth_current-$this->posxprogress_current-0.8, 4, $progress, 0, 'R');
+        				$progress = pdf_getlineprogress($object, $i, $outputlangs, $hidedetails);
+        				$pdf->SetXY($this->posxprogress_current, $curY);
+        				$pdf->MultiCell($this->posxmonth_current-$this->posxprogress_current-0.8, 4, $progress, 0, 'R');
 					}
 					
 					// "Progession actuelle mois"
