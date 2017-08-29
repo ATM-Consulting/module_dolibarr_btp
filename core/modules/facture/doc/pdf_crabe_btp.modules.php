@@ -1867,6 +1867,11 @@ class pdf_crabe_btp extends ModelePDFFactures
 		// On cherche la ligne précédente de la ligne sur laquelle on se trouve :
 		foreach($facDerniereSituation->lines as $l) {
 			if ($l->special_code == 9) continue;
+			$subtotal_ht += $l->total_ht;
+			if(class_exists('TSubtotal') && TSubtotal::isSubtotal($l)){
+			    $l->total_ht = $subtotal_ht;
+			    $subtotal_ht = 0;
+			}
 			
 			if($l->rowid == $current_line->fk_prev_id) {
 				
