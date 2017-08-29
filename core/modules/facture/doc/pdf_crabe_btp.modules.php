@@ -602,18 +602,29 @@ class pdf_crabe_btp extends ModelePDFFactures
 					}
 					
 					// "Progession actuelle mois"
-					$pdf->SetXY($this->posxmonth_current, $curY);
-					$pdf->MultiCell($this->posxprogress_prec-$this->posxmonth_current-0.8, 4, price($object->lines[$i]->total_ht), 0, 'R');
-
+					if(!class_exists('TSubtotal') || !TSubtotal::isTitle($object->lines[$i])){
+    					$pdf->SetXY($this->posxmonth_current, $curY);
+    					$pdf->MultiCell($this->posxprogress_prec-$this->posxmonth_current-0.8, 4, price($object->lines[$i]->total_ht), 0, 'R');
+					}
 					// "Progession précédente line"
 					if(!class_exists('TSubtotal') || !TSubtotal::isModSubtotalLine($object->lines[$i])){
-					$pdf->SetXY($this->posxprogress_prec, $curY);
-					$pdf->MultiCell($this->posxmonth_prec-$this->posxprogress_prec-0.8, 4, $TInfosLigneSituationPrecedente['progress_prec'], 0, 'R');
+    					$pdf->SetXY($this->posxprogress_prec, $curY);
+    					$pdf->MultiCell($this->posxmonth_prec-$this->posxprogress_prec-0.8, 4, $TInfosLigneSituationPrecedente['progress_prec'].'%', 0, 'R');
 					}
 					
 					// "Progession précédente mois"
-					$pdf->SetXY($this->posxmonth_prec, $curY);
-					$pdf->MultiCell($this->posxdiscount-$this->posxmonth_prec-0.8, 4, price($TInfosLigneSituationPrecedente['total_ht']), 0, 'R');
+					if(!class_exists('TSubtotal') || !TSubtotal::isTitle($object->lines[$i])){
+    					$pdf->SetXY($this->posxmonth_prec, $curY);
+    					$pdf->MultiCell($this->posxdiscount-$this->posxmonth_prec-0.8, 4, price($TInfosLigneSituationPrecedente['total_ht']), 0, 'R');
+					}
+					
+					// correction de présentation (la ligne n'était pas grisée jusqu'au bout)
+					if(class_exists('TSubtotal') && TSubtotal::isSubtotal($object->lines[$i])){
+    					$pdf->SetFillColor(220,220,220);
+    					$cell_height = $pdf->getStringHeight($w, $label);
+    					$pdf->SetXY($this->posxmonth_current, $curY);
+    					$pdf->MultiCell(200-$this->posxprogress_prec, $cell_height, '', 0, '', 1);
+					}
 
 					// Discount on line
 					if ($object->lines[$i]->remise_percent)
@@ -1107,7 +1118,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 		$pdf->SetFont('','', $default_font_size - 1);
 
 		// Tableau total
-		$col1x = 120; $col2x = 170;
+		$col1x = 120; $col2x = 180;
 		if ($this->page_largeur < 210) // To work with US executive format
 		{
 			$col2x-=20;
@@ -1116,14 +1127,67 @@ class pdf_crabe_btp extends ModelePDFFactures
 
 		$useborder=0;
 		$index = 0;
+		
+		$object->fetchPreviousNextSituationInvoice();
+		$TPreviousIncoice = $object->tab_previous_situation_invoice;
 
+		if(!empty($TPreviousIncoice)){
+		    foreach ($TPreviousIncoice as $fac){
+		        $pdf->SetFont('','B', $default_font_size - 1);
+		        $pdf->SetFillColor(255,255,255);
+		        $pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
+		        $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities('BtpPreviousInvoice') . ' ' . $fac->ref, 0, 'L', 1);
+		        $pdf->SetFont('','', $default_font_size - 2);
+		        $index++;
+		        
+		        // cumul précédent
+		        $pdf->SetFillColor(255,255,255);
+		        $pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
+		        $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities('TotalHT'), 0, 'L', 1);
+		        
+		        $total_ht = ($conf->multicurrency->enabled && $object->mylticurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
+		        $pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
+		        $pdf->MultiCell($largcol2, $tab2_hl, price($fac->total_ht, 0, $outputlangs), 0, 'R', 1);
+		        
+		        // cumul TVA précédent
+		        $index++;
+		        $pdf->SetFillColor(255,255,255);
+		        $pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
+		        $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("TotalVAT"), 0, 'L', 1);
+		        
+		        $total_ht = ($conf->multicurrency->enabled && $object->mylticurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
+		        $pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
+		        $pdf->MultiCell($largcol2, $tab2_hl, price($fac->total_tva, 0, $outputlangs), 0, 'R', 1);
+		        
+		        // cumul ttc précédent
+		        $index++;
+		        $pdf->SetFillColor(255,255,255);
+		        $pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
+		        $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("TotalTTC"), 0, 'L', 1);
+		        
+		        $total_ht = ($conf->multicurrency->enabled && $object->mylticurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
+		        $pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
+		        $pdf->MultiCell($largcol2, $tab2_hl, price($fac->total_ttc, 0, $outputlangs), 0, 'R', 1);
+		        
+		        $index++;
+		    }
+		    
+		    $index++;
+		    $pdf->SetFont('','B', $default_font_size - 1);
+		    $pdf->SetFillColor(255,255,255);
+		    $pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
+		    $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("BtpRayToRest"), 0, 'L', 1);
+		    $pdf->SetFont('','', $default_font_size - 2);
+		}
+		
 		// Total HT
+		$index++;
 		$pdf->SetFillColor(255,255,255);
-		$pdf->SetXY($col1x, $tab2_top + 0);
+		$pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
 		$pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("TotalHT"), 0, 'L', 1);
 		
 		$total_ht = ($conf->multicurrency->enabled && $object->mylticurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
-		$pdf->SetXY($col2x, $tab2_top + 0);
+		$pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
 		$pdf->MultiCell($largcol2, $tab2_hl, price($sign * ($total_ht + (! empty($object->remise)?$object->remise:0)), 0, $outputlangs), 0, 'R', 1);
 
 		// Show VAT by rates and total
@@ -1818,6 +1882,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 				return array(
 								'progress_prec'=>$l->situation_percent
 								,'total_ht_without_progress'=>$total_ht
+				                ,'total_ht'=>$l->total_ht
 							);
 				
 			}
