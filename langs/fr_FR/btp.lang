@@ -44,6 +44,7 @@ BtpAboutPage = Page à propos de btp
 
 PDFCrabeBtpDescription=Modèle pdf spécifique Situation
 PDFCrabeBtpTitle=Situation n° %d
+BtpPreviousInvoice=Facture Prédédente
 BtpWarningsObjectIsNotASituation=Attention : la génération de ce modèle est réservé aux factures de type "situation"
 BtpMainWork=Travaux principaux
 BtpAdditionalWork=Travaux supplémentaires
