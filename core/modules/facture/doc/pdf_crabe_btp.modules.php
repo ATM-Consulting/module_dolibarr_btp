@@ -752,10 +752,10 @@ class pdf_crabe_btp extends ModelePDFFactures
 
 				// Affiche zone infos
 				$posy=$this->_tableau_info($pdf, $object, $bottomlasttab, $outputlangs);
-				
+
 				// Affiche zone totaux
 				$posy=$this->_tableau_tot($pdf, $object, $deja_regle, $bottomlasttab, $outputlangs);
-				
+
 				// Affiche zone versements
 				if ($deja_regle || $amount_credit_notes_included || $amount_deposits_included)
 				{
@@ -1175,6 +1175,12 @@ class pdf_crabe_btp extends ModelePDFFactures
 		            $posy = $pdf->GetY();
 		        }
 		        
+		        $total_ht = ($conf->multicurrency->enabled && $object->mylticurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
+		        $pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
+		        $pdf->MultiCell($largcol2, $tab2_hl, price($fac->total_ht, 0, $outputlangs), 0, 'R', 1);
+		        
+		        // cumul TVA précédent
+		        $index++;
 		        $pdf->SetFillColor(255,255,255);
 		        $pdf->SetXY($col1x, $posy);
 		        $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("PDFCrabeBtpTitle", $i).' '.$outputlangs->transnoentities("TotalHT"), 0, 'L', 1);
