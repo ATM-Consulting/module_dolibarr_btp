@@ -1174,11 +1174,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 		            $pdf->setY($this->marge_haute);
 		            $posy = $pdf->GetY();
 		        }
-		        
-		        $total_ht = ($conf->multicurrency->enabled && $object->mylticurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
-		        $pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
-		        $pdf->MultiCell($largcol2, $tab2_hl, price($fac->total_ht, 0, $outputlangs), 0, 'R', 1);
-		        
+		        	        
 		        // cumul TVA précédent
 		        $index++;
 		        $pdf->SetFillColor(255,255,255);
