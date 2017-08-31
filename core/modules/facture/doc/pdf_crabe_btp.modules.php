@@ -1151,59 +1151,38 @@ class pdf_crabe_btp extends ModelePDFFactures
 		if(!empty($TPreviousIncoice)){
 		    
 		    $pdf->setY($tab2_top);
+		    $posy = $pdf->GetY();
+		    
+		    $pdf->SetFont('','', $default_font_size - 1);
+		    $pdf->SetFillColor(255,255,255);
+		    $pdf->SetXY($col1x, $posy);
+		    $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("BtpTotalProgress", $avancementGlobal), 0, 'L', 1);
+		   
+		    $pdf->SetXY($col2x,$posy);
+		    $pdf->MultiCell($largcol2, $tab2_hl, price($total_a_payer*$avancementGlobal/100, 0, $outputlangs), 0, 'R', 1);
+		    $pdf->SetFont('','', $default_font_size - 2);
+		    
+		    $posy += $tab2_hl;
 		    
 		    foreach ($TPreviousIncoice as &$fac){	        
 		        
-		        $posy = $pdf->GetY() + $tab2_hl;
-		        
 		        if($posy  > 180 ) {
+		            $this->_pagefoot($pdf,$object,$outputlangs,1);
 		            $pdf->addPage();
 		            $pdf->setY($this->marge_haute);
 		            $posy = $pdf->GetY();
 		        }
 		        
-		        
-		        $pdf->SetFont('','B', $default_font_size - 1);
 		        $pdf->SetFillColor(255,255,255);
 		        $pdf->SetXY($col1x, $posy);
-		        $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("PDFCrabeBtpTitle", $i), 0, 'L', 1);
+		        $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("PDFCrabeBtpTitle", $i).' '.$outputlangs->transnoentities("TotalHT"), 0, 'L', 1);
 
-		        $i++;
-		        $pdf->SetFont('','', $default_font_size - 2);
-		        
-		        $posy+=$tab2_hl;
-		        
-		        // cumul précédent
-		        $pdf->SetFillColor(255,255,255);
-		        $pdf->SetXY($col1x, $posy);
-		        $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("BtpAnteCumul").' HT', 0, 'L', 1);
-		        
-		        $total_ht = ($conf->multicurrency->enabled && $object->mylticurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
 		        $pdf->SetXY($col2x,$posy);
-		        $pdf->MultiCell($largcol2, $tab2_hl, price($deja_paye, 0, $outputlangs), 0, 'R', 1);
+		        $pdf->MultiCell($largcol2, $tab2_hl, ' - '.price($fac->total_ht, 0, $outputlangs), 0, 'R', 1);
+		        
+		        $i++;
 		        $deja_paye += $fac->total_ht;
-		        		        
-		        // payé HT précédent
-		        $posy+=$tab2_hl;
-		        
-		        $pdf->SetFillColor(255,255,255);
-		        $pdf->SetXY($col1x, $posy);
-		        $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("TotalHT"), 0, 'L', 1);
-		        
-		        $total_ht = ($conf->multicurrency->enabled && $object->mylticurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
-		        $pdf->SetXY($col2x, $posy);
-		        $pdf->MultiCell($largcol2, $tab2_hl, price($fac->total_ht, 0, $outputlangs), 0, 'R', 1);
-		        
-		        // reste à payer précédent
-		        $posy+=$tab2_hl;
-		        
-		        $pdf->SetFillColor(255,255,255);
-		        $pdf->SetXY($col1x, $posy);
-		        $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities('BtpTotalRayToRest'), 0, 'L', 1);
-		        
-		        $total_ht = ($conf->multicurrency->enabled && $object->mylticurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
-		        $pdf->SetXY($col2x, $posy);
-		        $pdf->MultiCell($largcol2, $tab2_hl, price($total_a_payer-$deja_paye, 0, $outputlangs), 0, 'R', 1);
+		        $posy += $tab2_hl;
 		        
 		        $pdf->setY($posy);
 	       
@@ -1216,13 +1195,8 @@ class pdf_crabe_btp extends ModelePDFFactures
 		    }
 		    
 		    $tab2_top = $posy;
+		    $index=0;
 		    
-		    $index=2;
-		    $pdf->SetFont('','B', $default_font_size - 1);
-		    $pdf->SetFillColor(255,255,255);
-		    $pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
-		    $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("BtpRayToRest"), 0, 'L', 1);
-		    $pdf->SetFont('','', $default_font_size - 2);
 		}
 		
 		// Total HT
@@ -1436,6 +1410,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 				    // reste à payer total
 				    $index++;
 				    
+				    $pdf->SetFont('','', $default_font_size - 1);
 				    $pdf->SetFillColor(255,255,255);
 				    $pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
 				    $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities('BtpTotalRayToRest'), 0, 'L', 1);

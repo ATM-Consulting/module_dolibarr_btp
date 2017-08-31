@@ -53,4 +53,5 @@ BtpAnteCumul=Cumul antérieur
 BtpTotalSituationTTC=TOTAL SITUATION - TTC
 BtpRetenueGarantie=Retenue Garantie - TTC
 BtpRayToRest=MONTANT A PAYER - TTC
+BtpTotalProgress=Total progression %d %%
 BtpTotalRayToRest=Reste à payer total HT
