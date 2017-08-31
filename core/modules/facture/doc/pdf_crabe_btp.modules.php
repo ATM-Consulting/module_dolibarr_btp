@@ -1133,8 +1133,10 @@ class pdf_crabe_btp extends ModelePDFFactures
 		$i=0;
 		foreach ($object->lines as $line)
 		{
-		    $percent += $line->situation_percent;
-		    $i++;
+		    if(!class_exists('TSubtotal') || !TSubtotal::isModSubtotalLine($line)){
+		        $percent += $line->situation_percent;
+		        $i++;
+		    }
 		}
 		$avancementGlobal = $percent/$i;
 				
