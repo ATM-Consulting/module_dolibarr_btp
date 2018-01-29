@@ -494,6 +494,9 @@ class modBtp extends DolibarrModules
 		{
 		    $ret = addDocumentModel('crabe_btp', 'invoice', 'crabe_btp', null);
 		}
+
+		// Crabe_btp par défaut
+		dolibarr_set_const($db, "FACTURE_ADDON_PDF",'crabe_btp','chaine',0,'',$conf->entity);
 		
 		dol_include_once('/core/class/extrafields.class.php');
 	        $extrafields=new ExtraFields($this->db);
