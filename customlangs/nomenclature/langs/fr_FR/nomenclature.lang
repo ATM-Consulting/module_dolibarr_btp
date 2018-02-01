@@ -30,12 +30,12 @@ TotalAmountCostWithChargeOF=Coût de revient chargé réel pour %s exemplaire(s)
 AmountCostWithChargeCustom=Coût perso
 PriceConseil=Prix de vente conseillé (Marge %s %%) pour %s exemplaire(s)
 
-NomenclatureSaved=Ouvrage enregistrée
+NomenclatureSaved=Ouvrage enregistré
 WorkstationAlreadyAssociated=Cette MO est déjà associée à cet ouvrage
 
-NomenclatureLineSaved=Ouvrage spécifique sauvegardée
+NomenclatureLineSaved=Ouvrage spécifique sauvegardé
 DeleteThisNomenclature=Supprimer cet ouvrage
-NomenclatureDeleted=Ouvrage supprimée
+NomenclatureDeleted=Ouvrage supprimé
 addWorkstation=Ajouter une MO
 AddWorkstation=Ajouter une MO
 
@@ -66,7 +66,7 @@ nomenclatureApplyAllCoefOnPriceError=Impossible de mettre les prix à jour, le s
 
 SaveAll=Sauvegarder les modifications
 PseudoNomenclature=Ouvrage virtuel du produit 
-PseudoNomenclatureInfo=Ouvrage du produit, pas de la ligne. Le premier niveau sera rattachée à la ligne à sauvegarde, les niveaux inférieurs seront des ouvrages communs de produits
+PseudoNomenclatureInfo=Ouvrage du produit, pas de la ligne. Le premier niveau sera rattaché à la ligne à sauvegarde, les niveaux inférieurs seront des ouvrages communs de produits
 
 EditLine=Editer la ligne
 ThisProductCreateAnInfinitLoop=Ce produit ne peut être ajouté car il créé une boucle infinie
@@ -77,7 +77,7 @@ nomenclatureJustMP=Permettre uniquement la liaison avec des matières premières
 
 CoefGenericSaveForSpecific=Coefficient générique. Sauvegardez pour rendre spécifique à cet objet.
 
-NonLocalNomenclature=Ouvrage chargée depuis le produit, sauvegardez pour créér un ouvrage locale
+NonLocalNomenclature=Ouvrage chargé depuis le produit, sauvegardez pour créér un ouvrage local
 
 NOMENCLATURE_ACTIVATE_DETAILS_COSTS=Activer les prix de revient détaillés
 PricePA=Budget, prix d'achat fixe défini sur la fiche article
@@ -88,7 +88,7 @@ TotalPriceOF=Total Matière Réel
 priceMO_OF=Réel, analyse des OF sur la période
 TotalMO_OF=Total M.O. Réel
 massUpdate=Mettre les ouvrages à jour en masse
-massUpdateMenu=Ouvrage mise à jour en masse
+massUpdateMenu=Ouvrage mis à jour en masse
 nomenclatureSpeedSelectClick=Ouvrage Rapide, sélection au clic
 PercentUP=Augmentation en %
 ShowImpact=Montrer l'impact
