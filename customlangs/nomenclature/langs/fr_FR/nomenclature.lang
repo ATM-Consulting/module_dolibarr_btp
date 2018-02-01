@@ -22,7 +22,7 @@ QtyPrepare=Temps de préparation
 QtyFabrication=Temps de pose
 nb_days_before_beginning=Délai avant démarrage
 Worstations=Mains d'oeuvre
-AmountCost=Coût de revient
+AmountCost=Déboursé sec
 AmountCostWithCharge=Coût de revient chargé
 TotalAmountCostWithCharge=Coût de revient chargé pour %s exemplaire(s)
 TotalAmountCostWithChargePMP=Coût de revient chargé théorique pour %s exemplaire(s)
@@ -113,3 +113,4 @@ nomenclatureWrite=Créer/modifier les ouvrages
 nomenclatureShowPrice=Voir le prix du détail d'un ouvrage
 
 Nomenclatures=Ouvrages
+TotalAmountCost=Déboursé sec
