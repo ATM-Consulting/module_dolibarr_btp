@@ -371,7 +371,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 				$pdf->SetTextColor(0,0,0);
 				
 				$tab_top = 42;
-				$tab_top_newpage = (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)?42:10);
+				$tab_top_newpage = (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)?52:10);
 				$tab_height = 130;
 				$tab_height_newpage = 150;
 
@@ -711,7 +711,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 						}
 						else
 						{
-							$this->_tableau($pdf, $tab_top_newpage, $this->page_hauteur - $tab_top_newpage - $heightforfooter, 0, $outputlangs, $hidetop, 1, $object->multicurrency_code);
+							$this->_tableau($pdf, $tab_top_newpage-5, $this->page_hauteur - $tab_top_newpage - $heightforfooter+5, 0, $outputlangs, $hidetop, 1, $object->multicurrency_code);
 						}
 						$this->_pagefoot($pdf,$object,$outputlangs,1);
 						$pagenb++;
@@ -746,7 +746,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 				}
 				else
 				{
-					$this->_tableau($pdf, $tab_top_newpage, $this->page_hauteur - $tab_top_newpage - $heightforinfotot - $heightforfreetext - $heightforfooter, 0, $outputlangs, $hidetop, 0, $object->multicurrency_code);
+					$this->_tableau($pdf, $tab_top_newpage-5, $this->page_hauteur - $tab_top_newpage - $heightforinfotot - $heightforfreetext - $heightforfooter+5, 0, $outputlangs, $hidetop, 0, $object->multicurrency_code);
 					$bottomlasttab=$this->page_hauteur - $heightforinfotot - $heightforfreetext - $heightforfooter + 1;
 				}
 
