@@ -444,7 +444,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 					$curY = $nexY;
 					$pdf->SetFont('','', $default_font_size - 1);   // Into loop to work with multipage
 					$pdf->SetTextColor(0,0,0);
-echo $i;
+
 					// Define size of image if we need it
 					$imglinesize=array();
 					if (! empty($realpatharray[$i])) $imglinesize=pdf_getSizeForImage($realpatharray[$i]);
