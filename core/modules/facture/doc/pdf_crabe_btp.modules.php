@@ -134,13 +134,13 @@ class pdf_crabe_btp extends ModelePDFFactures
 			$this->posxqty=145;
 		}
 		$this->posxdiscount=245;
-		
+
 		$this->posxprogress_current=178; // Only displayed for situation invoices
 		$this->posxmonth_current=194;
-		
+
 		$this->posxprogress_prec=211;
 		$this->posxmonth_prec=228;
-		
+
 		$this->postotalht=257;
 		if (! empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT)) $this->posxtva=$this->posxunit;
 		$this->posxpicture=$this->posxtva - (empty($conf->global->MAIN_DOCUMENTS_WITH_PICTURE_WIDTH)?20:$conf->global->MAIN_DOCUMENTS_WITH_PICTURE_WIDTH);	// width of images
@@ -163,7 +163,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 		$this->atleastoneratenotnull=0;
 		$this->atleastonediscount=0;
 		$this->situationinvoice=False;
-		
+
 		if (!empty($object)) $this->TDataSituation = $this->_getDataSituation($object);
 	}
 
@@ -187,13 +187,13 @@ class pdf_crabe_btp extends ModelePDFFactures
 		// For backward compatibility with FPDF, force output charset to ISO, because FPDF expect text to be encoded in ISO
 		if (! empty($conf->global->MAIN_USE_FPDF)) $outputlangs->charset_output='ISO-8859-1';
 
-		
+
 		if (empty($object) || $object->type != Facture::TYPE_SITUATION)
 		{
 			setEventMessage($langs->trans('BtpWarningsObjectIsNotASituation'), 'warnings');
 			return 1;
 		}
-		
+
 		$outputlangs->load("main");
 		$outputlangs->load("dict");
 		$outputlangs->load("companies");
@@ -275,16 +275,16 @@ class pdf_crabe_btp extends ModelePDFFactures
 				// Set nblignes with the new facture lines content after hook
 				$nblignes = count($object->lines);
 				$nbpayments = count($object->getListOfPayments());
-				
+
 				// Create pdf instance
 				$pdf=pdf_getInstance($this->format);
                 $default_font_size = pdf_getPDFFontSize($outputlangs);	// Must be after pdf_getInstance
                 $pdf->SetAutoPageBreak(1,0);
-                
+
                 $heightforinfotot = 50+(4*$nbpayments);	// Height reserved to output the info and total part and payment part
 		        $heightforfreetext= (isset($conf->global->MAIN_PDF_FREETEXT_HEIGHT)?$conf->global->MAIN_PDF_FREETEXT_HEIGHT:5);	// Height reserved to output the free text on last page
 	            $heightforfooter = $this->marge_basse + 8;	// Height reserved to output the footer (value include bottom margin)
-                
+
                 if (class_exists('TCPDF'))
                 {
                     $pdf->setPrintHeader(false);
@@ -341,35 +341,35 @@ class pdf_crabe_btp extends ModelePDFFactures
 				$pdf->MultiCell(0, 3, '');		// Set interline to 3
 				$pdf->SetTextColor(0,0,0);
 
-				
+
 		/**** DEBUT TABLEAU SPECIFIQUE ****/
-				
+
 				$tab_top = 90;
 				$tab_top_newpage = (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)?42:10);
 				$tab_height = 130;
 				$tab_height_newpage = 150;
-				
+
 				$this->_tableauBtp($pdf, $tab_top, $this->page_hauteur - 90 + $height_note - $heightforinfotot - $heightforfreetext - $heightforfooter, 0, $outputlangs, 0, 0, $object->multicurrency_code);
 				$bottomlasttab=$this->page_hauteur - $heightforinfotot - $heightforfreetext - $heightforfooter + 1;
-				
+
 				$this->_pagefoot($pdf,$object,$outputlangs,1);
-				
+
 				$pdf->AddPage();
 				$pdf->setPage(2);
 				$pagenb++;
-				
+
 				$this->page_largeur = 297;
 				$this->page_hauteur = 210;
-				
+
 				$pdf->setPageOrientation('L', 1, $heightforfooter+$heightforfreetext+$heightforinfotot);
-				
+
 		/**** FIN TABLEAU SPECIFIQUE ****/
-				
+
 				$this->_pagehead($pdf, $object, 0, $outputlangs);
 				$pdf->SetFont('','', $default_font_size - 1);
 				$pdf->MultiCell(0, 3, '');		// Set interline to 3
 				$pdf->SetTextColor(0,0,0);
-				
+
 				$tab_top = 42;
 				$tab_top_newpage = (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)?52:10);
 				$tab_height = 130;
@@ -435,9 +435,9 @@ class pdf_crabe_btp extends ModelePDFFactures
 				$iniY = $tab_top + 7;
 				$curY = $tab_top + 7;
 				$nexY = $tab_top + 7;
-				
+
 				$hidetop = 0;
-					
+
 				// Loop on each lines
 				for ($i = 0; $i < $nblignes; $i++)
 				{
@@ -579,7 +579,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 						}
 
 					}
-					
+
 					// Unit price before discount
 					if(empty($object->lines[$i]->is_line_paiement)) {
 						$up_excl_tax = pdf_getlineupexcltax($object, $i, $outputlangs, $hidedetails);
@@ -594,13 +594,13 @@ class pdf_crabe_btp extends ModelePDFFactures
 					if(!class_exists('TSubtotal') || !TSubtotal::isModSubtotalLine($object->lines[$i])){
     					$pdf->SetXY($this->posxsommes, $curY);
     					$pdf->MultiCell($this->posxprogress_current-$this->posxsommes-0.8, 4, price($TInfosLigneSituationPrecedente['total_ht_without_progress']), 0, 'L');
-					
+
 					// "Progession actuelle line"
         				$progress = pdf_getlineprogress($object, $i, $outputlangs, $hidedetails);
         				$pdf->SetXY($this->posxprogress_current, $curY);
         				$pdf->MultiCell($this->posxmonth_current-$this->posxprogress_current-0.8, 4, $progress, 0, 'R');
 					}
-					
+
 					// "Progession actuelle mois"
 					if(!class_exists('TSubtotal') || !TSubtotal::isTitle($object->lines[$i])){
     					$pdf->SetXY($this->posxmonth_current, $curY);
@@ -611,13 +611,13 @@ class pdf_crabe_btp extends ModelePDFFactures
     					$pdf->SetXY($this->posxprogress_prec, $curY);
     					$pdf->MultiCell($this->posxmonth_prec-$this->posxprogress_prec-0.8, 4, $TInfosLigneSituationPrecedente['progress_prec'].'%', 0, 'R');
 					}
-					
+
 					// "Progession précédente mois"
 					if(!class_exists('TSubtotal') || !TSubtotal::isTitle($object->lines[$i])){
     					$pdf->SetXY($this->posxmonth_prec, $curY);
     					$pdf->MultiCell($this->posxdiscount-$this->posxmonth_prec-0.8, 4, price($TInfosLigneSituationPrecedente['total_ht']), 0, 'R');
 					}
-					
+
 					// correction de présentation (la ligne n'était pas grisée jusqu'au bout)
 					if(class_exists('TSubtotal') && TSubtotal::isSubtotal($object->lines[$i])){
     					$pdf->SetFillColor(220,220,220);
@@ -793,6 +793,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 			return 0;
 		}
 		$this->error=$langs->transnoentities("ErrorUnknown");
+
 		return 0;   // Erreur par defaut
 	}
 
@@ -849,7 +850,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 
 		$pdf->SetFont('','', $default_font_size - 4);
 
-		
+
 		// Loop on each deposits and credit notes included
 		$sql = "SELECT re.rowid, re.amount_ht, re.amount_tva, re.amount_ttc,";
 		$sql.= " re.description, re.fk_facture_source,";
@@ -902,7 +903,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 		$sql.= " WHERE pf.fk_paiement = p.rowid AND pf.fk_facture = ".$object->id;
 		//$sql.= " WHERE pf.fk_paiement = p.rowid AND pf.fk_facture = 1";
 		$sql.= " ORDER BY p.datep";
-		
+
 		$resql=$this->db->query($sql);
 		if ($resql)
 		{
@@ -1127,55 +1128,66 @@ class pdf_crabe_btp extends ModelePDFFactures
 
 		$useborder=0;
 		$index = 0;
-			
+
 		// pourcentage global d'avancement
-		$percent = 0;
+		$totalFacture = 0;
+		$totalAvancement = 0;
 		$i=0;
 		foreach ($object->lines as $line)
 		{
 		    if(!class_exists('TSubtotal') || !TSubtotal::isModSubtotalLine($line)){
-		        $percent += $line->situation_percent;
-		        $i++;
+
+		        $totalFacture += $line->total_ht / ($line->situation_percent / 100);
+		        $totalAvancement+=$line->total_ht;
 		    }
 		}
-		$avancementGlobal = $percent/$i;
-				
+
+		$avancementGlobal = $totalAvancement / $totalFacture * 100;
+		//var_dump($avancementGlobal);exit;
 		$object->fetchPreviousNextSituationInvoice();
-		$TPreviousIncoice = $object->tab_previous_situation_invoice;
-				
+		$TPreviousInvoice = $object->tab_previous_situation_invoice;
+
 		$total_a_payer = 0;
-		foreach ($TPreviousIncoice as &$fac) $total_a_payer += $fac->total_ht;
+		foreach ($TPreviousInvoice as &$fac) {
+		    $total_a_payer += $fac->total_ht;
+		}
+
 		$total_a_payer += $object->total_ht;
-		if (empty($avancementGlobal)) $total_a_payer = 0;
-		else $total_a_payer = $total_a_payer * 100 / $avancementGlobal;
-		
+
+		if (empty($avancementGlobal)) {
+		    $total_a_payer = 0;
+		}
+		else {
+		    $total_a_payer = $total_a_payer * 100 / $avancementGlobal;
+		}
+
 		$deja_paye = 0;
 		$i = 1;
-		if(!empty($TPreviousIncoice)){
-		    
+		if(!empty($TPreviousInvoice)){
+
 		    $pdf->setY($tab2_top);
 		    $posy = $pdf->GetY();
-		    
+
 		    $pdf->SetFont('','', $default_font_size - 1);
 		    $pdf->SetFillColor(255,255,255);
 		    $pdf->SetXY($col1x, $posy);
 		    $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("BtpTotalProgress", $avancementGlobal), 0, 'L', 1);
-		   
+
 		    $pdf->SetXY($col2x,$posy);
 		    $pdf->MultiCell($largcol2, $tab2_hl, price($total_a_payer*$avancementGlobal/100, 0, $outputlangs), 0, 'R', 1);
 		    $pdf->SetFont('','', $default_font_size - 2);
-		    
+
 		    $posy += $tab2_hl;
-		    
-		    foreach ($TPreviousIncoice as &$fac){	        
-		        
+
+		    foreach ($TPreviousInvoice as &$fac){
+
 		        if($posy  > 180 ) {
 		            $this->_pagefoot($pdf,$object,$outputlangs,1);
 		            $pdf->addPage();
 		            $pdf->setY($this->marge_haute);
 		            $posy = $pdf->GetY();
 		        }
-		        	        
+
 		        // cumul TVA précédent
 		        $index++;
 		        $pdf->SetFillColor(255,255,255);
@@ -1184,32 +1196,32 @@ class pdf_crabe_btp extends ModelePDFFactures
 
 		        $pdf->SetXY($col2x,$posy);
 		        $pdf->MultiCell($largcol2, $tab2_hl, ' - '.price($fac->total_ht, 0, $outputlangs), 0, 'R', 1);
-		        
+
 		        $i++;
 		        $deja_paye += $fac->total_ht;
 		        $posy += $tab2_hl;
-		        
+
 		        $pdf->setY($posy);
-	       
+
 		    }
-		    
+
 		    if($posy  > 180 ) {
 		        $pdf->addPage();
 		        $pdf->setY($this->marge_haute);
 		        $posy = $pdf->GetY();
 		    }
-		    
+
 		    $tab2_top = $posy;
 		    $index=0;
-		    
+
 		}
-		
+
 		// Total HT
 		$index++;
 		$pdf->SetFillColor(255,255,255);
 		$pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
 		$pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("TotalHT"), 0, 'L', 1);
-		
+
 		$total_ht = ($conf->multicurrency->enabled && $object->multicurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
 		$pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
 		$pdf->MultiCell($largcol2, $tab2_hl, price($sign * ($total_ht + (! empty($object->remise)?$object->remise:0)), 0, $outputlangs), 0, 'R', 1);
@@ -1409,17 +1421,17 @@ class pdf_crabe_btp extends ModelePDFFactures
 				$total_ttc = ($conf->multicurrency->enabled && $object->multiccurency_tx != 1) ? $object->multicurrency_total_ttc : $object->total_ttc;
 				$pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
 				$pdf->MultiCell($largcol2, $tab2_hl, price($sign * $total_ttc, 0, $outputlangs), $useborder, 'R', 1);
-				
+
 				if($object->type == Facture::TYPE_SITUATION)
 				{
 				    // reste à payer total
 				    $index++;
-				    
+
 				    $pdf->SetFont('','', $default_font_size - 1);
 				    $pdf->SetFillColor(255,255,255);
 				    $pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
 				    $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities('BtpTotalRayToRest'), 0, 'L', 1);
-				    
+
 				    $total_ht = ($conf->multicurrency->enabled && $object->multicurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
 				    $pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
 				    $pdf->MultiCell($largcol2, $tab2_hl, price($total_a_payer-$deja_paye-$object->total_ht, 0, $outputlangs), 0, 'R', 1);
@@ -1499,7 +1511,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 	 */
 	function _tableau(&$pdf, $tab_top, $tab_height, $nexY, $outputlangs, $hidetop=0, $hidebottom=0, $currency='')
 	{
-	    
+
 		global $conf, $object;
 
 		// Force to disable hidetop and hidebottom
@@ -1568,7 +1580,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 		if (empty($hidetop))
 		{
 			$pdf->SetXY($this->posxqty-1, $tab_top+1);
-			
+
 			/*if($this->situationinvoice)
 			{
 				$pdf->MultiCell($this->posxprogress-$this->posxqty-1,2, $outputlangs->transnoentities("Qty"),'','C');
@@ -1582,14 +1594,14 @@ class pdf_crabe_btp extends ModelePDFFactures
 				$pdf->MultiCell($this->posxdiscount-$this->posxqty-1,2, $outputlangs->transnoentities("Qty"),'','C');
 			}
 		}
-		
+
 		/*if ($this->situationinvoice) {
 			$pdf->line($this->posxprogress - 1, $tab_top, $this->posxprogress - 1, $tab_top + $tab_height);
-			
+
 			if (empty($hidetop)) {
-				
+
 				$pdf->SetXY($this->posxprogress, $tab_top+1);
-				
+
 				if($conf->global->PRODUCT_USE_UNITS)
 				{
 					$pdf->MultiCell($this->posxup-$this->posxprogress,2, $outputlangs->transnoentities("Progress"),'','C');
@@ -1602,9 +1614,9 @@ class pdf_crabe_btp extends ModelePDFFactures
 				{
 					$pdf->MultiCell($this->postotalht-$this->posxprogress,2, $outputlangs->transnoentities("Progress"),'','C');
 				}
-			
+
 			}
-			
+
 		}*/
 
 		$pdf->line($this->posxup - 1, $tab_top, $this->posxup - 1, $tab_top + $tab_height);
@@ -1653,7 +1665,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 			$pdf->MultiCell($this->posxdiscount - $this->posxmonth_prec, 2, $outputlangs->transnoentities(date('F', $this->TDataSituation['date_derniere_situation'])), '',
 				'C');
 		}
-		
+
 		// Col réduc
 		$pdf->line($this->posxdiscount-1, $tab_top, $this->posxdiscount-1, $tab_top + $tab_height);
 		if (empty($hidetop))
@@ -1674,7 +1686,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 			$pdf->MultiCell(30,2, $outputlangs->transnoentities("TotalHT"),'','C');
 		}
 	}
-	
+
 	/**
 	 *   Show table for lines
 	 *
@@ -1691,15 +1703,15 @@ class pdf_crabe_btp extends ModelePDFFactures
 	function _tableauBtp(&$pdf, $tab_top, $tab_height, $nexY, $outputlangs, $hidetop=0, $hidebottom=0, $currency='')
 	{
 		global $conf, $object;
-		
+
 		// TODO à mettre dans le construct
 		$this->posx_new_cumul = 94;
 		$this->posx_cumul_anterieur = 130;
 		$this->posx_month = 166;
-		
+
 		$tab_height -= 29; // Réduction de la hauteur global du tableau
-		
-		
+
+
 		// Force to disable hidetop and hidebottom
 		$hidebottom=0;
 		if ($hidetop) $hidetop=-1;
@@ -1718,7 +1730,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 			$pdf->MultiCell(($pdf->GetStringWidth($titre) + 3), 2, $titre);
 
 			$width = $this->page_largeur-$this->marge_gauche-$this->marge_droite-83;
-			
+
 			//$conf->global->MAIN_PDF_TITLE_BACKGROUND_COLOR='230,230,230';
 			if (! empty($conf->global->MAIN_PDF_TITLE_BACKGROUND_COLOR))
 			{
@@ -1741,66 +1753,66 @@ class pdf_crabe_btp extends ModelePDFFactures
 			$pdf->SetXY($this->posx_new_cumul-1, $tab_top+0.5);
 			$pdf->MultiCell(35,2, $outputlangs->transnoentities("BtpNewCumul"),'','C');
 		}
-		
+
 		$pdf->line($this->posx_cumul_anterieur-1, $tab_top, $this->posx_cumul_anterieur-1, $tab_top + $tab_height);
 		if (empty($hidetop))
 		{
 			$pdf->SetXY($this->posx_cumul_anterieur-1, $tab_top+0.5);
 			$pdf->MultiCell(35,2, $outputlangs->transnoentities("BtpAnteCumul"),'','C');
 		}
-		
+
 		$pdf->line($this->posx_month-1, $tab_top, $this->posx_month-1, $tab_top + $tab_height);
 		if (empty($hidetop))
 		{
 			$pdf->SetXY($this->posx_month-1, $tab_top+0.5);
 			$pdf->MultiCell(35,2, $outputlangs->transnoentities("Month"),'','C');
 		}
-		
+
 		// ADD HORIZONTALE LINES
 		$pdf->line($this->posx_new_cumul-1, $tab_top+5, $this->page_largeur-$this->marge_droite, $tab_top+5);
-		
+
 		$pdf->line($this->posx_new_cumul-1, $tab_top+25, $this->page_largeur-$this->marge_droite, $tab_top+25);
-		
+
 		$pdf->line($this->marge_gauche, $tab_top+45, $this->page_largeur-$this->marge_droite, $tab_top+45);
-		
+
 		$pdf->line($this->marge_gauche, $tab_top+65, $this->page_largeur-$this->marge_droite, $tab_top+65);
-		
+
 		$pdf->line($this->marge_gauche, $tab_top+85, $this->page_largeur-$this->marge_droite, $tab_top+85);
-		
-		
+
+
 		// ADD TEXT INTO CELL
 		/**********************Titres*******************************/
 		$pdf->SetXY($this->marge_gauche+2, $tab_top+8);
 		$pdf->MultiCell(80,2, $outputlangs->transnoentities("BtpMainWork"),'','L');
-		
+
 		$pdf->SetXY($this->marge_gauche+2, $tab_top+12);
 		$pdf->MultiCell(80,2, $outputlangs->transnoentities("BtpAdditionalWork"),'','L');
-		
+
 		$pdf->SetXY($this->marge_gauche+2, $tab_top+26);
 		$pdf->MultiCell(80,2, $outputlangs->transnoentities("TotalHT"),'','C');
-		
+
 		$pdf->SetXY($this->marge_gauche+2, $tab_top+30);
 		$pdf->MultiCell(80,2, $outputlangs->transnoentities("VAT"),'','C');
-		
+
 		$pdf->SetXY($this->marge_gauche+2, $tab_top+34);
 		$pdf->MultiCell(80,2, $outputlangs->transnoentities("TotalTTC"),'','C');
 
-		
+
 		$pdf->SetFont('','B', $default_font_size - 1);
 		$pdf->SetXY($this->marge_gauche+2, $tab_top+53);
 		$pdf->MultiCell(80,2, $outputlangs->transnoentities("BtpTotalSituationTTC"),'','C');
 		$pdf->SetFont('','', $default_font_size - 2);
-		
-		
+
+
 		$pdf->SetXY($this->marge_gauche+2, $tab_top+74);
 		$pdf->MultiCell(80,2, $outputlangs->transnoentities("BtpRetenueGarantie"),'','C');
-		
+
 		$pdf->SetFont('','B', $default_font_size - 1);
 		$pdf->SetXY($this->marge_gauche+2, $tab_top+93);
 		$pdf->MultiCell(80,2, $outputlangs->transnoentities("BtpRayToRest"),'','L');
 		$pdf->SetFont('','', $default_font_size - 2);
 		/***********************************************************/
-		
+
 		/**********************Données*******************************/
 		$TToDpisplay = array(
 								0=>array(
@@ -1813,46 +1825,46 @@ class pdf_crabe_btp extends ModelePDFFactures
 											'mois', 'mois', 'mois_tva', 'mois_ttc', 'mois_ttc', 'retenue_garantie_mois', 'total_ttc_mois'
 										)
 							);
-		
+
 		$x = $this->marge_gauche+95;
 		foreach($TToDpisplay as $Tab) {
-			
+
 			$pdf->SetXY($x, $tab_top+8);
 			$pdf->MultiCell(80,2, price($this->TDataSituation[$Tab[0]]),'','L');
-			
+
 			$pdf->SetXY($x, $tab_top+26);
 			$pdf->MultiCell(80,2, price($this->TDataSituation[$Tab[1]]),'','L');
-			
+
 			$pdf->SetXY($x, $tab_top+30);
 			$pdf->MultiCell(80,2, price($this->TDataSituation[$Tab[2]]),'','L');
-			
+
 			$pdf->SetXY($x, $tab_top+34);
 			$pdf->MultiCell(80,2, price($this->TDataSituation[$Tab[3]]),'','L');
-	
-			
+
+
 			$pdf->SetFont('','B', $default_font_size - 1);
 			$pdf->SetXY($x, $tab_top+53);
 			$pdf->MultiCell(80,2, price($this->TDataSituation[$Tab[4]]),'','L');
 			$pdf->SetFont('','', $default_font_size - 2);
-		
-		
+
+
 			$pdf->SetXY($x, $tab_top+74);
 			$pdf->MultiCell(80,2, price($this->TDataSituation[$Tab[5]]),'','L');
-		
+
 			$pdf->SetFont('','B', $default_font_size - 1);
 			$pdf->SetXY($x, $tab_top+93);
 			$pdf->MultiCell(80,2, price($this->TDataSituation[$Tab[6]]),'','L');
 			$pdf->SetFont('','', $default_font_size - 2);
-			
+
 			$x+=35;
 
 		}
 		/************************************************************/
-		
+
 	}
 
 	function _getDataSituation(&$object) {
-		
+
 		$object->fetchPreviousNextSituationInvoice();
 		$TPreviousIncoice = &$object->tab_previous_situation_invoice;
 		$facDerniereSituation = &end($TPreviousIncoice);
@@ -1860,9 +1872,9 @@ class pdf_crabe_btp extends ModelePDFFactures
 									'derniere_situation'=>$facDerniereSituation
 									,'date_derniere_situation'=>$facDerniereSituation->date
 								);
-		
+
 		$cumul_anterieur_ht = $cumul_anterieur_tva = $retenue_garantie = 0;
-		
+
 		if(!empty($TPreviousIncoice)) {
 			foreach($TPreviousIncoice as $fac) {
 				$cumul_anterieur_ht += $fac->total_ht;
@@ -1870,37 +1882,37 @@ class pdf_crabe_btp extends ModelePDFFactures
 				$retenue_garantie_anterieure += $fac->total_ttc * $fac->array_options['options_retenue_garantie'] / 100;
 			}
 		}
-		
+
 		$nouveau_cumul = $cumul_anterieur_ht + $object->total_ht;
 		$nouveau_cumul_tva = $cumul_anterieur_tva + $object->total_tva;
 		$retenue_garantie = $retenue_garantie_anterieure + ($object->total_ttc * $object->array_options['options_retenue_garantie'] / 100);
-		
+
 		$TDataSituation['cumul_anterieur'] = $cumul_anterieur_ht;
 		$TDataSituation['cumul_anterieur_tva'] = $cumul_anterieur_tva;
 		$TDataSituation['cumul_anterieur_ttc'] = $cumul_anterieur_ht + $cumul_anterieur_tva;
 		$TDataSituation['retenue_garantie_anterieure'] = $retenue_garantie_anterieure;
 		$TDataSituation['total_ttc_anterieur'] = $TDataSituation['cumul_anterieur_ttc'] - $TDataSituation['retenue_garantie_anterieure'];
-		
+
 		$TDataSituation['nouveau_cumul'] = $nouveau_cumul;
 		$TDataSituation['nouveau_cumul_tva'] = $nouveau_cumul_tva;
 		$TDataSituation['nouveau_cumul_ttc'] = $nouveau_cumul + $nouveau_cumul_tva;
 		$TDataSituation['retenue_garantie'] = $retenue_garantie;
 		$TDataSituation['total_ttc'] = $TDataSituation['nouveau_cumul_ttc'] - $TDataSituation['retenue_garantie'];
-		
+
 		$TDataSituation['mois'] = $object->total_ht;
 		$TDataSituation['mois_tva'] = $object->total_tva;
 		$TDataSituation['mois_ttc'] = $TDataSituation['mois'] + $TDataSituation['mois_tva'];
 		$TDataSituation['retenue_garantie_mois'] = $retenue_garantie - $retenue_garantie_anterieure;
 		$TDataSituation['total_ttc_mois'] = $TDataSituation['mois_ttc'] - $TDataSituation['retenue_garantie_mois'];
-		
+
 		return $TDataSituation;
-		
+
 	}
 
 	function _getInfosLineDerniereSituation(&$object, &$current_line)
 	{
 		if (empty($object->situation_cycle_ref) || $object->situation_counter <= 1) return;
-		
+
 		$facDerniereSituation = &$this->TDataSituation['derniere_situation'];
 		//var_dump($current_line);exit;
 		// On cherche la ligne précédente de la ligne sur laquelle on se trouve :
@@ -1911,9 +1923,9 @@ class pdf_crabe_btp extends ModelePDFFactures
 			    $l->total_ht = $subtotal_ht;
 			    $subtotal_ht = 0;
 			}
-			
+
 			if($l->rowid == $current_line->fk_prev_id) {
-				
+
 				// Récupération du total_ht sans prendre en compte la progression (pour la colonne "sommes")
 				$tabprice = $this->calcul_price_total($l->qty, $l->subprice, $l->remise_percent, $l->tva_tx, $l->localtax1_tx, $l->localtax2_tx, 0, 'HT', $l->info_bits, $l->product_type);
 				$total_ht  = $tabprice[0];
@@ -1928,18 +1940,18 @@ class pdf_crabe_btp extends ModelePDFFactures
 								,'total_ht_without_progress'=>$total_ht
 				                ,'total_ht'=>$l->total_ht
 							);
-				
+
 			}
-			
+
 		}
 	}
-	
+
 	function calcul_price_total($qty, $pu, $remise_percent_ligne, $txtva, $uselocaltax1_rate, $uselocaltax2_rate, $remise_percent_global, $price_base_type, $info_bits, $type, $seller = '',$localtaxes_array='')
 	{
 		global $conf,$mysoc,$db;
-	
+
 		$result=array();
-	
+
 		// Clean parameters
 		if (empty($txtva)) $txtva=0;
 		if (empty($seller) || ! is_object($seller))
@@ -1959,15 +1971,15 @@ class pdf_crabe_btp extends ModelePDFFactures
 		}
 		// Too verbose. Enable for debug only
 		//dol_syslog("calcul_price_total qty=".$qty." pu=".$pu." remiserpercent_ligne=".$remise_percent_ligne." txtva=".$txtva." uselocaltax1_rate=".$uselocaltax1_rate." uselocaltax2_rate=".$uselocaltax2_rate);
-	
+
 		$countryid=$seller->country_id;
 		if ($uselocaltax1_rate < 0) $uselocaltax1_rate=$seller->localtax1_assuj;
 		if ($uselocaltax2_rate < 0) $uselocaltax2_rate=$seller->localtax2_assuj;
-	
+
 	    // Now we search localtaxes information ourself (rates and types).
 		$localtax1_type=0;
 		$localtax2_type=0;
-	
+
 		if (is_array($localtaxes_array))
 		{
 			$localtax1_type = $localtaxes_array[0];
@@ -2001,12 +2013,12 @@ class pdf_crabe_btp extends ModelePDFFactures
 		$tot_sans_remise = $pu * $qty;
 		$tot_avec_remise_ligne = $tot_sans_remise       * (1 - ($remise_percent_ligne / 100));
 		$tot_avec_remise       = $tot_avec_remise_ligne * (1 - ($remise_percent_global / 100));
-	    
+
 		// initialize result array
 		for ($i=0; $i <= 15; $i++) $result[$i] = 0;
-	
+
 		// if there's some localtax including vat, we calculate localtaxes (we will add later)
-	
+
 	    //If input unit price is 'HT', we need to have the totals with main VAT for a correct calculation
 	    if ($price_base_type != 'TTC')
 	    {
@@ -2020,9 +2032,9 @@ class pdf_crabe_btp extends ModelePDFFactures
 	    	$tot_avec_remise_wt = $tot_avec_remise;
 	    	$pu_wt = $pu;
 	    }
-		
+
 		//print 'rr'.$price_base_type.'-'.$txtva.'-'.$tot_sans_remise_wt."-".$pu_wt."-".$uselocaltax1_rate."-".$localtax1_rate."-".$localtax1_type."\n";
-		
+
 	    $localtaxes = array(0,0,0);
 	    $apply_tax = false;
 	  	switch($localtax1_type) {
@@ -2039,14 +2051,14 @@ class pdf_crabe_btp extends ModelePDFFactures
 	    if ($uselocaltax1_rate && $apply_tax) {
 	  		$result[14] = price2num(($tot_sans_remise_wt * (1 + ( $localtax1_rate / 100))) - $tot_sans_remise_wt, 'MT');
 	  		$localtaxes[0] += $result[14];
-	
+
 	  		$result[9] = price2num(($tot_avec_remise_wt * (1 + ( $localtax1_rate / 100))) - $tot_avec_remise_wt, 'MT');
 	  		$localtaxes[1] += $result[9];
-	
+
 	  		$result[11] = price2num(($pu_wt * (1 + ( $localtax1_rate / 100))) - $pu_wt, 'MU');
 	  		$localtaxes[2] += $result[11];
 	    }
-	
+
 	    $apply_tax = false;
 	  	switch($localtax2_type) {
 	      case '2':     // localtax on product or service
@@ -2062,14 +2074,14 @@ class pdf_crabe_btp extends ModelePDFFactures
 	    if ($uselocaltax2_rate && $apply_tax) {
 	  		$result[15] = price2num(($tot_sans_remise_wt * (1 + ( $localtax2_rate / 100))) - $tot_sans_remise_wt, 'MT');
 	  		$localtaxes[0] += $result[15];
-	
+
 	  		$result[10] = price2num(($tot_avec_remise_wt * (1 + ( $localtax2_rate / 100))) - $tot_avec_remise_wt, 'MT');
 	  		$localtaxes[1] += $result[10];
-	
+
 	  		$result[12] = price2num(($pu_wt * (1 + ( $localtax2_rate / 100))) - $pu_wt, 'MU');
 	  		$localtaxes[2] += $result[12];
 	    }
-	
+
 		//dol_syslog("price.lib::calcul_price_total $qty, $pu, $remise_percent_ligne, $txtva, $price_base_type $info_bits");
 		if ($price_base_type == 'HT')
 		{
@@ -2078,12 +2090,12 @@ class pdf_crabe_btp extends ModelePDFFactures
 			$result[8] = price2num($tot_sans_remise * (1 + ( (($info_bits & 1)?0:$txtva) / 100)) + $localtaxes[0], 'MT');	// Selon TVA NPR ou non
 			$result8bis= price2num($tot_sans_remise * (1 + ( $txtva / 100)) + $localtaxes[0], 'MT');	// Si TVA consideree normale (non NPR)
 			$result[7] = price2num($result8bis - ($result[6] + $localtaxes[0]), 'MT');
-	
+
 			$result[0] = price2num($tot_avec_remise, 'MT');
 			$result[2] = price2num($tot_avec_remise * (1 + ( (($info_bits & 1)?0:$txtva) / 100)) + $localtaxes[1], 'MT');	// Selon TVA NPR ou non
 			$result2bis= price2num($tot_avec_remise * (1 + ( $txtva / 100)) + $localtaxes[1], 'MT');	// Si TVA consideree normale (non NPR)
 			$result[1] = price2num($result2bis - ($result[0] + $localtaxes[1]), 'MT');	// Total VAT = TTC - (HT + localtax)
-			
+
 			$result[3] = price2num($pu, 'MU');
 			$result[5] = price2num($pu * (1 + ( (($info_bits & 1)?0:$txtva) / 100)) + $localtaxes[2], 'MU');	// Selon TVA NPR ou non
 			$result5bis= price2num($pu * (1 + ($txtva / 100)) + $localtaxes[2], 'MU');	// Si TVA consideree normale (non NPR)
@@ -2096,20 +2108,20 @@ class pdf_crabe_btp extends ModelePDFFactures
 			$result[6] = price2num($tot_sans_remise / (1 + ((($info_bits & 1)?0:$txtva) / 100)), 'MT');	// Selon TVA NPR ou non
 			$result6bis= price2num($tot_sans_remise / (1 + ($txtva / 100)), 'MT');	// Si TVA consideree normale (non NPR)
 			$result[7] = price2num($result[8] - ($result6bis + $localtaxes[0]), 'MT');
-	
+
 			$result[2] = price2num($tot_avec_remise + $localtaxes[1], 'MT');
 			$result[0] = price2num($tot_avec_remise / (1 + ((($info_bits & 1)?0:$txtva) / 100)), 'MT');	// Selon TVA NPR ou non
 			$result0bis= price2num($tot_avec_remise / (1 + ($txtva / 100)), 'MT');	// Si TVA consideree normale (non NPR)
 			$result[1] = price2num($result[2] - ($result0bis + $localtaxes[1]), 'MT');	// Total VAT = TTC - (HT + localtax)
-	
+
 			$result[5] = price2num($pu + $localtaxes[2], 'MU');
 			$result[3] = price2num($pu / (1 + ((($info_bits & 1)?0:$txtva) / 100)), 'MU');	// Selon TVA NPR ou non
 			$result3bis= price2num($pu / (1 + ($txtva / 100)), 'MU');	// Si TVA consideree normale (non NPR)
 			$result[4] = price2num($result[5] - ($result3bis + $localtaxes[2]), 'MU');
 		}
-	
+
 		// if there's some localtax without vat, we calculate localtaxes (we will add them at end)
-	
+
 	    //If input unit price is 'TTC', we need to have the totals without main VAT for a correct calculation
 	    if ($price_base_type == 'TTC')
 	    {
@@ -2117,7 +2129,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 	    	$tot_avec_remise= price2num($tot_avec_remise / (1 + ($txtva / 100)),'MU');
 	    	$pu = price2num($pu / (1 + ($txtva / 100)),'MU');
 	    }
-	
+
 		$apply_tax = false;
 	    switch($localtax1_type) {
 	      case '1':     // localtax on product or service
@@ -2133,14 +2145,14 @@ class pdf_crabe_btp extends ModelePDFFactures
 	    if ($uselocaltax1_rate && $apply_tax) {
 	  		$result[14] = price2num(($tot_sans_remise * (1 + ( $localtax1_rate / 100))) - $tot_sans_remise, 'MT');	// amount tax1 for total_ht_without_discount
 	  		$result[8] += $result[14];																				// total_ttc_without_discount + tax1
-	
+
 	  		$result[9] = price2num(($tot_avec_remise * (1 + ( $localtax1_rate / 100))) - $tot_avec_remise, 'MT');	// amount tax1 for total_ht
 	  		$result[2] += $result[9];																				// total_ttc + tax1
-	
+
 	  		$result[11] = price2num(($pu * (1 + ( $localtax1_rate / 100))) - $pu, 'MU');							// amount tax1 for pu_ht
 	  		$result[5] += $result[11];																				// pu_ht + tax1
 	    }
-	
+
 	    $apply_tax = false;
 	  	switch($localtax2_type) {
 	      case '1':     // localtax on product or service
@@ -2156,14 +2168,14 @@ class pdf_crabe_btp extends ModelePDFFactures
 	    if ($uselocaltax2_rate && $apply_tax) {
 	  		$result[15] = price2num(($tot_sans_remise * (1 + ( $localtax2_rate / 100))) - $tot_sans_remise, 'MT');	// amount tax2 for total_ht_without_discount
 	  		$result[8] += $result[15];																				// total_ttc_without_discount + tax2
-	
+
 	  		$result[10] = price2num(($tot_avec_remise * (1 + ( $localtax2_rate / 100))) - $tot_avec_remise, 'MT');	// amount tax2 for total_ht
 	  		$result[2] += $result[10];																				// total_ttc + tax2
-	
+
 	  		$result[12] = price2num(($pu * (1 + ( $localtax2_rate / 100))) - $pu, 'MU');							// amount tax2 for pu_ht
 	  		$result[5] += $result[12];																				// pu_ht + tax2
 	    }
-	
+
 		// If rounding is not using base 10 (rare)
 		if (! empty($conf->global->MAIN_ROUNDING_RULE_TOT))
 		{
@@ -2184,12 +2196,12 @@ class pdf_crabe_btp extends ModelePDFFactures
 				$result[10]=round($result[10]/$conf->global->MAIN_ROUNDING_RULE_TOT, 0)*$conf->global->MAIN_ROUNDING_RULE_TOT;
 			}
 		}
-	
+
 		// initialize result array
 		//for ($i=0; $i <= 15; $i++) $result[$i] = (float) $result[$i];
-		
+
 		dol_syslog('Price.lib::calcul_price_total MAIN_ROUNDING_RULE_TOT='.$conf->global->MAIN_ROUNDING_RULE_TOT.' pu='.$pu.' qty='.$qty.' price_base_type='.$price_base_type.' total_ht='.$result[0].'-total_vat='.$result[1].'-total_ttc='.$result[2]);
-	
+
 		return $result;
 	}
 
@@ -2332,7 +2344,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 			$pdf->SetTextColor(0,0,60);
 			$pdf->MultiCell($w, 3, $outputlangs->transnoentities("DatePointOfTax")." : " . dol_print_date($object->date_pointoftax,"day",false,$outputlangs), '', 'R');
 		}
-		
+
 		if ($object->type != 2)
 		{
 			$posy+=3;
@@ -2457,8 +2469,8 @@ class pdf_crabe_btp extends ModelePDFFactures
 		$showdetails=$conf->global->MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS;
 		return pdf_pagefoot($pdf,$outputlangs,'INVOICE_FREE_TEXT',$this->emetteur,$this->marge_basse,$this->marge_gauche,$this->page_hauteur,$object,$showdetails,$hidefreetext);
 	}
-	
-	
+
+
 	/**
 	 * Rect pdf
 	 *
