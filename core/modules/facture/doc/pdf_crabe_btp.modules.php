@@ -129,9 +129,9 @@ class pdf_crabe_btp extends ModelePDFFactures
 		}
 		else
 		{
-			$this->posxtva=112;
-			$this->posxunit=126;
-			$this->posxqty=145;
+			$this->posxtva=126;
+			$this->posxunit=147;
+			$this->posxqty=147;
 		}
 		$this->posxdiscount=245;
 
@@ -156,7 +156,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 			$this->posxprogress_prec-=20;
 		    $this->postotalht-=20;
 		}
-
+		
 		$this->tva=array();
 		$this->localtax1=array();
 		$this->localtax2=array();
@@ -329,7 +329,6 @@ class pdf_crabe_btp extends ModelePDFFactures
 					$this->posxdiscount+=($this->postotalht - $this->posxdiscount);
 					//$this->postotalht;
 				}
-
 
 				// New page
 				$pdf->AddPage();
@@ -562,7 +561,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 					if(empty($object->lines[$i]->do_not_display_qty)) {
 
 						$qty = pdf_getlineqty($object, $i, $outputlangs, $hidedetails);
-						$pdf->SetXY($this->posxqty, $curY);
+						$pdf->SetXY($this->marge_gauche, $curY);
 						// Enough for 6 chars
 
 						if ($this->situationinvoice)
@@ -575,7 +574,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 						}
 						else
 						{
-							$pdf->MultiCell($this->posxdiscount-$this->posxqty-0.8, 4, $qty, 0, 'R');
+							$pdf->MultiCell($this->posxqty+8, 4, $qty, 0, 'R');
 						}
 
 					}
@@ -584,22 +583,22 @@ class pdf_crabe_btp extends ModelePDFFactures
 					if(empty($object->lines[$i]->is_line_paiement)) {
 						$up_excl_tax = pdf_getlineupexcltax($object, $i, $outputlangs, $hidedetails);
 						$pdf->SetXY($this->posxup, $curY);
-						$pdf->MultiCell($this->posxdiscount-$this->posxup-0.8, 4, $up_excl_tax, 0, 'L');
+// 						$pdf->MultiCell($this->posxdiscount-$this->posxup-0.8, 4, $up_excl_tax, 0, 'L');
 					}
 
 					// Récupération des infos de la ligne précédente
 					$TInfosLigneSituationPrecedente = $this->_getInfosLineDerniereSituation($object, $object->lines[$i]);
 
 					// "Sommes"
-					if(!class_exists('TSubtotal') || !TSubtotal::isModSubtotalLine($object->lines[$i])){
-    					$pdf->SetXY($this->posxsommes, $curY);
-    					$pdf->MultiCell($this->posxprogress_current-$this->posxsommes-0.8, 4, price($TInfosLigneSituationPrecedente['total_ht_without_progress']), 0, 'L');
+// 					if(!class_exists('TSubtotal') || !TSubtotal::isModSubtotalLine($object->lines[$i])){
+//     					$pdf->SetXY($this->posxsommes, $curY);
+//      					$pdf->MultiCell($this->posxprogress_current-$this->posxsommes-0.8, 4, price($TInfosLigneSituationPrecedente['total_ht_without_progress']), 0, 'L');
 
-					// "Progession actuelle line"
-        				$progress = pdf_getlineprogress($object, $i, $outputlangs, $hidedetails);
-        				$pdf->SetXY($this->posxprogress_current, $curY);
-        				$pdf->MultiCell($this->posxmonth_current-$this->posxprogress_current-0.8, 4, $progress, 0, 'R');
-					}
+// 					// "Progession actuelle line"
+//         				$progress = pdf_getlineprogress($object, $i, $outputlangs, $hidedetails);
+//         				$pdf->SetXY($this->posxprogress_current, $curY);
+//         				$pdf->MultiCell($this->posxmonth_current-$this->posxprogress_current-0.8, 4, $progress, 0, 'R');
+// 					}
 
 					// "Progession actuelle mois"
 					if(!class_exists('TSubtotal') || !TSubtotal::isTitle($object->lines[$i])){
@@ -1568,14 +1567,14 @@ class pdf_crabe_btp extends ModelePDFFactures
 				$pdf->MultiCell($this->posxunit-$this->posxtva+3,2, $outputlangs->transnoentities("VAT"),'','C');
 			}
 		}
-
-		$pdf->line($this->posxunit-1, $tab_top, $this->posxunit-1, $tab_top + $tab_height);
-		if (empty($hidetop))
-		{
-			$pdf->SetXY($this->posxunit-1, $tab_top+1);
-			$pdf->MultiCell($this->posxqty-$this->posxunit-1,2, $outputlangs->transnoentities("Unit"),'','C');
+		if ($conf->global->PRODUCT_USE_UNITS){
+    		$pdf->line($this->posxunit-1, $tab_top, $this->posxunit-1, $tab_top + $tab_height);
+    		if (empty($hidetop))
+    		{
+    			$pdf->SetXY($this->posxunit-1, $tab_top+1);
+    			$pdf->MultiCell($this->posxqty-$this->posxunit-1,2, $outputlangs->transnoentities("Unit"),'','C');
+    		}
 		}
-
 		$pdf->line($this->posxqty-1, $tab_top, $this->posxqty-1, $tab_top + $tab_height);
 		if (empty($hidetop))
 		{
@@ -1591,7 +1590,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 			}
 			else
 			{
-				$pdf->MultiCell($this->posxdiscount-$this->posxqty-1,2, $outputlangs->transnoentities("Qty"),'','C');
+			    $pdf->MultiCell($this->marge_gauche+8,2, $outputlangs->transnoentities("Qty"),'','C');
 			}
 		}
 
