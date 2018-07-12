@@ -107,7 +107,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	 */
 	function __construct($db)
 	{
-		global $conf,$langs,$mysoc;
+	    global $conf,$langs,$mysoc,$object;
 		
 		// Translations
 		$langs->loadLangs(array("main", "bills"));
@@ -159,6 +159,9 @@ class pdf_sponge_btp extends ModelePDFFactures
 		$this->atleastoneratenotnull=0;
 		$this->atleastonediscount=0;
 		$this->situationinvoice=false;
+		
+		
+		if (!empty($object)) $this->TDataSituation = $this->_getDataSituation($object);
 	}
 
 
@@ -720,6 +723,77 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                    $this->printStdColumnContent($pdf, $curY, 'totalexcltax', $total_excl_tax);
 	                    $nexY = max($pdf->GetY(),$nexY);
 	                }
+	                
+	                
+	                
+	                // Récupération des infos de la ligne précédente
+	                $TInfosLigneSituationPrecedente = $this->_getInfosLineDerniereSituation($object, $object->lines[$i]);
+	                
+	                // "Sommes"
+	                if(!class_exists('TSubtotal') || !TSubtotal::isModSubtotalLine($object->lines[$i])){
+	                    
+	                    $columkey = 'btpsomme';
+	                    if ($this->getColumnStatus($columkey))
+	                    {
+	                        $printval = price($TInfosLigneSituationPrecedente['total_ht_without_progress']);
+	                        $this->printStdColumnContent($pdf, $curY, $columkey, $printval);
+	                        $nexY = max($pdf->GetY(),$nexY);
+	                    }
+	                    
+	                    // "Progession actuelle ligne"
+	                    /*$columkey = 'progress_amount';
+	                    if ($this->getColumnStatus($columkey))
+	                    {
+	                        $printval = pdf_getlineprogress($object, $i, $outputlangs, $hidedetails);
+	                        $this->printStdColumnContent($pdf, $curY, $columkey, $printval);
+	                        $nexY = max($pdf->GetY(),$nexY);
+	                    }*/
+	                    
+	                    
+	                    
+	                    // "Progession actuelle mois"
+	                    $columkey = 'progress_amount';
+	                    if ($this->getColumnStatus($columkey))
+	                    {
+	                        $printval = price($object->lines[$i]->total_ht);
+	                        $this->printStdColumnContent($pdf, $curY, $columkey, $printval);
+	                        $nexY = max($pdf->GetY(),$nexY);
+	                    }
+	                    
+	                    // "Progession précédente line"
+	                    $columkey = 'prev_progress';
+	                    if ($this->getColumnStatus($columkey))
+	                    {
+	                        $printval = $TInfosLigneSituationPrecedente['progress_prec'].'%';
+	                        $this->printStdColumnContent($pdf, $curY, $columkey, $printval);
+	                        $nexY = max($pdf->GetY(),$nexY);
+	                    }
+	                    
+	                    // "Progession précédente mois"
+	                    $columkey = 'prev_progress_amount';
+	                    if ($this->getColumnStatus($columkey))
+	                    {
+	                        $printval = price($TInfosLigneSituationPrecedente['total_ht']);
+	                        $this->printStdColumnContent($pdf, $curY, $columkey, $printval);
+	                        $nexY = max($pdf->GetY(),$nexY);
+	                    }
+	                    
+	                    
+	                }
+	                
+	      
+	                
+	                /*// correction de présentation (la ligne n'était pas grisée jusqu'au bout)
+	                if(class_exists('TSubtotal') && TSubtotal::isSubtotal($object->lines[$i])){
+	                    $pdf->SetFillColor(220,220,220);
+	                    $cell_height = $pdf->getStringHeight($w, $label);
+	                    $pdf->SetXY($this->posxmonth_current, $curY);
+	                    $pdf->MultiCell(200-$this->posxprogress_prec, $cell_height, '', 0, '', 1);
+	                }*/
+	                
+	                
+	                
+	                
 	                
 	                
 	                $parameters=array(
@@ -1299,6 +1373,8 @@ class pdf_sponge_btp extends ModelePDFFactures
 		    $index=0;
 		    
 		}
+		
+		$tab2_top += 3;
 		
 		// Total HT
 		$pdf->SetFillColor(255,255,255);
@@ -2065,15 +2141,18 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    }
 	    
 	    $rank = $rank + 10;
-	    $this->cols['subprice'] = array(
+	    $this->cols['unit'] = array(
 	        'rank' => $rank,
-	        'width' => 19, // in mm
-	        'status' => true,
+	        'width' => 11, // in mm
+	        'status' => false,
 	        'title' => array(
-	            'textkey' => 'PriceUHT'
+	            'textkey' => 'Unit'
 	        ),
 	        'border-left' => true, // add left line separator
 	    );
+	    if($conf->global->PRODUCT_USE_UNITS){
+	        $this->cols['unit']['status'] = true;
+	    }
 	    
 	    $rank = $rank + 10;
 	    $this->cols['qty'] = array(
@@ -2087,12 +2166,57 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    );
 	    
 	    $rank = $rank + 10;
+	    $this->cols['subprice'] = array(
+	        'rank' => $rank,
+	        'width' => 19, // in mm
+	        'status' => true,
+	        'title' => array(
+	            'textkey' => 'PriceUHT'
+	        ),
+	        'border-left' => true, // add left line separator
+	    );
+	    
+	    
+	    
+	    // BTP SITUATION
+	    
+
+	    // Colonne "Sommes"
+	    $rank = $rank + 10;
+	    $this->cols['btpsomme'] = array(
+	        'rank' => $rank,
+	        'width' => 26, // in mm
+	        'status' => true,
+	        'title' => array(
+	            'textkey' => 'Sommes'
+	        ),
+	        'border-left' => true, // add left line separator
+	    );
+	    
+	    // Colonne "Progression actuelle"
+	    $rank = $rank + 10;
+	    $this->cols['progress_amount'] = array(
+	        'rank' => $rank,
+	        'width' => 19, // in mm
+	        'status' => true,
+	        'title' => array(
+	            'textkey' => date('F',$object->date)
+	        ),
+	        'border-left' => true, // add left line separator
+	    );
+	    if($this->situationinvoice)
+	    {
+	        $this->cols['progress_amount']['status'] = true;
+	    }
+	    
+	    // Colonne "Pourcentage Progression actuelle"
+	    $rank = $rank + 10;
 	    $this->cols['progress'] = array(
 	        'rank' => $rank,
 	        'width' => 19, // in mm
 	        'status' => false,
 	        'title' => array(
-	            'textkey' => 'Progress'
+	            'label' => '%'
 	        ),
 	        'border-left' => true, // add left line separator
 	    );
@@ -2102,19 +2226,51 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        $this->cols['progress']['status'] = true;
 	    }
 	    
+	    
+	    // Colonne "Progression précédente"
 	    $rank = $rank + 10;
-	    $this->cols['unit'] = array(
+	    $this->cols['prev_progress_amount'] = array(
 	        'rank' => $rank,
-	        'width' => 11, // in mm
-	        'status' => false,
+	        'width' => 19, // in mm
+	        'status' => true,
 	        'title' => array(
-	            'textkey' => 'Unit'
+	            'textkey' => date('F', $this->TDataSituation['date_derniere_situation'])
 	        ),
 	        'border-left' => true, // add left line separator
 	    );
-	    if($conf->global->PRODUCT_USE_UNITS){
-	        $this->cols['unit']['status'] = true;
+	    if($this->situationinvoice)
+	    {
+	        $this->cols['prev_progress_amount']['status'] = true;
 	    }
+	    
+	    // Colonne "Pourcentage Progression précédente"
+	    $rank = $rank + 10;
+	    $this->cols['prev_progress'] = array(
+	        'rank' => $rank,
+	        'width' => 19, // in mm
+	        'status' => false,
+	        'title' => array(
+	            'label' => '%'
+	        ),
+	        'border-left' => true, // add left line separator
+	    );
+	    
+	    if($this->situationinvoice)
+	    {
+	        $this->cols['prev_progress']['status'] = true;
+	    }
+	   
+
+	    
+	    
+	    
+	    
+	    // FIN BTP SITUATION
+	    
+	    
+	    
+	    
+	    
 	    
 	    $rank = $rank + 10;
 	    $this->cols['discount'] = array(
