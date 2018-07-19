@@ -35,6 +35,8 @@ require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
+// TSubtotal
+if (!empty($conf->subtotal->enabled)) dol_include_once('/subtotal/class/subtotal.class.php');
 
 
 /**
@@ -183,6 +185,12 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    if (! is_object($outputlangs)) $outputlangs=$langs;
 	    // For backward compatibility with FPDF, force output charset to ISO, because FPDF expect text to be encoded in ISO
 	    if (! empty($conf->global->MAIN_USE_FPDF)) $outputlangs->charset_output='ISO-8859-1';
+	    
+	    if (empty($object) || $object->type != Facture::TYPE_SITUATION)
+	    {
+	        setEventMessage($langs->trans('BtpWarningsObjectIsNotASituation'), 'warnings');
+	        return 1;
+	    }
 	    
 	    // Translations
 	    $outputlangs->loadLangs(array("main", "bills", "products", "dict", "companies"));
@@ -740,16 +748,6 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                        $nexY = max($pdf->GetY(),$nexY);
 	                    }
 	                    
-	                    // "Progession actuelle ligne"
-	                    /*$columkey = 'progress_amount';
-	                    if ($this->getColumnStatus($columkey))
-	                    {
-	                        $printval = pdf_getlineprogress($object, $i, $outputlangs, $hidedetails);
-	                        $this->printStdColumnContent($pdf, $curY, $columkey, $printval);
-	                        $nexY = max($pdf->GetY(),$nexY);
-	                    }*/
-	                    
-	                    
 	                    
 	                    // "Progession actuelle mois"
 	                    $columkey = 'progress_amount';
@@ -781,19 +779,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                    
 	                }
 	                
-	      
-	                
-	                /*// correction de présentation (la ligne n'était pas grisée jusqu'au bout)
-	                if(class_exists('TSubtotal') && TSubtotal::isSubtotal($object->lines[$i])){
-	                    $pdf->SetFillColor(220,220,220);
-	                    $cell_height = $pdf->getStringHeight($w, $label);
-	                    $pdf->SetXY($this->posxmonth_current, $curY);
-	                    $pdf->MultiCell(200-$this->posxprogress_prec, $cell_height, '', 0, '', 1);
-	                }*/
-	                
-	                
-	                
-	                
+
 	                
 	                
 	                $parameters=array(
