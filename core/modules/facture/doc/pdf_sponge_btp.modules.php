@@ -186,7 +186,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    // For backward compatibility with FPDF, force output charset to ISO, because FPDF expect text to be encoded in ISO
 	    if (! empty($conf->global->MAIN_USE_FPDF)) $outputlangs->charset_output='ISO-8859-1';
 	    
-	    if (empty($object) || $object->type != Facture::TYPE_SITUATION)
+	    if (empty($object) || ( $object->type != Facture::TYPE_SITUATION && ($object->type != Facture::TYPE_CREDIT_NOTE &&  !empty($object->situation_cycle_ref))))
 	    {
 	        setEventMessage($langs->trans('BtpWarningsObjectIsNotASituation'), 'warnings');
 	        return 1;
@@ -1312,16 +1312,8 @@ class pdf_sponge_btp extends ModelePDFFactures
 		    $pdf->setY($tab2_top);
 		    $posy = $pdf->GetY();
 		    
-		    $pdf->SetFont('','', $default_font_size - 1);
-		    $pdf->SetFillColor(255,255,255);
-		    $pdf->SetXY($col1x, $posy);
-		    $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("BtpTotalProgress", $avancementGlobal), 0, 'L', 1);
 		    
-		    $pdf->SetXY($col2x,$posy);
-		    $pdf->MultiCell($largcol2, $tab2_hl, price($total_a_payer*$avancementGlobal/100, 0, $outputlangs), 0, 'R', 1);
-		    $pdf->SetFont('','', $default_font_size - 2);
 		    
-		    $posy += $tab2_hl;
 		    
 		    foreach ($TPreviousIncoice as &$fac){
 		        
@@ -1336,10 +1328,18 @@ class pdf_sponge_btp extends ModelePDFFactures
 		        $index++;
 		        $pdf->SetFillColor(255,255,255);
 		        $pdf->SetXY($col1x, $posy);
-		        $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("PDFCrabeBtpTitle", $i).' '.$outputlangs->transnoentities("TotalHT"), 0, 'L', 1);
+		        $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("PDFCrabeBtpTitle", $fac->situation_counter).' '.$outputlangs->transnoentities("TotalHT"), 0, 'L', 1);
 		        
 		        $pdf->SetXY($col2x,$posy);
-		        $pdf->MultiCell($largcol2, $tab2_hl, ' - '.price($fac->total_ht, 0, $outputlangs), 0, 'R', 1);
+		        
+		        $facSign = '';
+		        if($i>1){
+		          $facSign = $fac->total_ht>=0?'+':'-';
+		        }
+		        
+		        $displayAmount = ' '.$facSign.' '.price($fac->total_ht, 0, $outputlangs);
+		        
+		        $pdf->MultiCell($largcol2, $tab2_hl, $displayAmount, 0, 'R', 1);
 		        
 		        $i++;
 		        $deja_paye += $fac->total_ht;
@@ -1348,6 +1348,39 @@ class pdf_sponge_btp extends ModelePDFFactures
 		        $pdf->setY($posy);
 		        
 		    }
+		    
+		    // Display curent total
+		    $pdf->SetFillColor(255,255,255);
+		    $pdf->SetXY($col1x, $posy);
+		    $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("PDFCrabeBtpTitle", $object->situation_counter).' '.$outputlangs->transnoentities("TotalHT"), 0, 'L', 1);
+		    
+		    $pdf->SetXY($col2x,$posy);
+		    $facSign = '';
+		    if($i>1){
+		        $facSign = $object->total_ht>=0?'+':''; // gestion d'un cas particulier client
+		    }
+		    
+		    if($fac->type === facture::TYPE_CREDIT_NOTE){
+		        $facSign = '-'; // les avoirs
+		    }
+		    
+		    
+		    $displayAmount = ' '.$facSign.' '.price($object->total_ht, 0, $outputlangs);
+		    $pdf->MultiCell($largcol2, $tab2_hl, $displayAmount, 0, 'R', 1);
+		    
+		    $posy += $tab2_hl;
+		    
+		    // Display all total
+		    $pdf->SetFont('','', $default_font_size - 1);
+		    $pdf->SetFillColor(255,255,255);
+		    $pdf->SetXY($col1x, $posy);
+		    $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("BtpTotalProgress", $avancementGlobal), 0, 'L', 1);
+		    
+		    $pdf->SetXY($col2x,$posy);
+		    $pdf->MultiCell($largcol2, $tab2_hl, price($total_a_payer*$avancementGlobal/100, 0, $outputlangs), 0, 'R', 1);
+		    $pdf->SetFont('','', $default_font_size - 2);
+		    
+		    $posy += $tab2_hl;
 		    
 		    if($posy  > 180 ) {
 		        $pdf->addPage();
