@@ -1334,7 +1334,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 		        
 		        $facSign = '';
 		        if($i>1){
-		          $facSign = $fac->total_ht>=0?'+':'-';
+		          $facSign = $fac->total_ht>=0?'+':'';
 		        }
 		        
 		        $displayAmount = ' '.$facSign.' '.price($fac->total_ht, 0, $outputlangs);
