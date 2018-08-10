@@ -1303,7 +1303,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 		$total_a_payer = 0;
 		foreach ($TPreviousIncoice as &$fac) $total_a_payer += $fac->total_ht;
 		$total_a_payer += $object->total_ht;
-		$total_a_payer = $total_a_payer * 100 / $avancementGlobal;
+		$total_a_payer = !empty($avancementGlobal) ? ($total_a_payer * 100 / $avancementGlobal) : 0;
 		
 		$deja_paye = 0;
 		$i = 1;
