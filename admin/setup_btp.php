@@ -103,6 +103,9 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
     
     _print_on_off('BTP_SIMPLE_DISPLAY');
     
+    if(floatval(DOL_VERSION) >= 8){
+        _print_on_off('MAIN_ENABLE_IMPORT_LINKED_OBJECT_LINES');
+    }
     
     _print_title($langs->trans("SetupSituationTitle"));
     _print_on_off('INVOICE_USE_SITUATION');
@@ -110,6 +113,7 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
     if(floatval(DOL_VERSION) >= 8){
         _print_on_off('INVOICE_USE_SITUATION_CREDIT_NOTE');
     }
+    
     
     print '</table>';
     
