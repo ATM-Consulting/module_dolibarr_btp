@@ -94,31 +94,58 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
         0,
         "btp@btp"
         );
+
     
-    // Setup page goes here
-    $form=new Form($db);
-    $var=false;
+    
     print '<table class="noborder" width="100%">';
-    print '<tr class="liste_titre">';
-    print '<td>'.$langs->trans("Parameters").'</td>'."\n";
-    print '<td align="center" width="20">&nbsp;</td>';
-    print '<td align="center" width="100">'.$langs->trans("Value").'</td>'."\n";
-    print '</tr>';
-       
-    $var=!$var;
-    print '<tr '.$bc[$var].'>';
-    print '<td>'.$langs->trans("BTP_SIMPLE_DISPLAY").'</td>';
-    print '<td align="center" width="20">&nbsp;</td>';
-    print '<td align="center" width="300">';
-    print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">'; // Keep form because ajax_constantonoff return single link with <a> if the js is disabled
-    print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
-    print '<input type="hidden" name="action" value="set_BTP_SIMPLE_DISPLAY">';
-    print ajax_constantonoff('BTP_SIMPLE_DISPLAY');
-    print '</form>';
-    print '</td></tr>';
+    
+    _print_title($langs->trans("Parameters"));
+    
+    _print_on_off('BTP_SIMPLE_DISPLAY');
+    
+    
+    _print_title($langs->trans("SetupSituationTitle"));
+    _print_on_off('INVOICE_USE_SITUATION');
+    _print_on_off('INVOICE_USE_SITUATION_CREDIT_NOTE');
+    
     
     print '</table>';
     
     llxFooter();
     
     $db->close();
+    
+    
+    
+    
+    function _print_title($title="")
+    {
+        global $langs;
+        print '<tr class="liste_titre">';
+        print '<td>'.$langs->trans($title).'</td>'."\n";
+        print '<td align="center" width="20">&nbsp;</td>';
+        print '<td align="center" ></td>'."\n";
+        print '</tr>';
+    }
+    
+    function _print_on_off($confkey, $title = false, $desc ='')
+    {
+        global $var, $bc, $langs, $conf;
+        $var=!$var;
+        
+        print '<tr '.$bc[$var].'>';
+        print '<td>'.($title?$title:$langs->trans($confkey));
+        if(!empty($desc))
+        {
+            print '<br><small>'.$langs->trans($desc).'</small>';
+        }
+        print '</td>';
+        print '<td align="center" width="20">&nbsp;</td>';
+        print '<td align="center" width="300">';
+        print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+        print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+        print '<input type="hidden" name="action" value="set_'.$confkey.'">';
+        print ajax_constantonoff($confkey);
+        print '</form>';
+        print '</td></tr>';
+    }

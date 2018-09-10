@@ -41,6 +41,9 @@ About = À propos
 BtpAbout = À propos de btp
 BtpAboutPage = Page à propos de btp
 
+SetupSituationTitle=Facture de situation
+INVOICE_USE_SITUATION=Activer le support des factures de situation
+INVOICE_USE_SITUATION_CREDIT_NOTE=Activer le support des avoirs de situation
 
 PDFCrabeBtpDescription=Modèle pdf spécifique Situation
 PDFCrabeBtpTitle=Situation n° %d
