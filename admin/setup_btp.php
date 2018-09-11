@@ -31,6 +31,7 @@ if (! $res) {
 // Libraries
 require_once DOL_DOCUMENT_ROOT . "/core/lib/admin.lib.php";
 require_once '../lib/btp.lib.php';
+dol_include_once('abricot/includes/lib/admin.lib.php');
 
 // Translations
 $langs->load("btp@btp");
@@ -99,19 +100,19 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
     
     print '<table class="noborder" width="100%">';
     
-    _print_title($langs->trans("Parameters"));
+    setup_print_title($langs->trans("Parameters"));
     
-    _print_on_off('BTP_SIMPLE_DISPLAY');
+    setup_print_on_off('BTP_SIMPLE_DISPLAY');
     
     if(floatval(DOL_VERSION) >= 8){
-        _print_on_off('MAIN_ENABLE_IMPORT_LINKED_OBJECT_LINES');
+        setup_print_on_off('MAIN_ENABLE_IMPORT_LINKED_OBJECT_LINES');
     }
     
-    _print_title($langs->trans("SetupSituationTitle"));
-    _print_on_off('INVOICE_USE_SITUATION');
+    setup_print_title($langs->trans("SetupSituationTitle"));
+    setup_print_on_off('INVOICE_USE_SITUATION');
 
     if(floatval(DOL_VERSION) >= 8){
-        _print_on_off('INVOICE_USE_SITUATION_CREDIT_NOTE');
+        setup_print_on_off('INVOICE_USE_SITUATION_CREDIT_NOTE');
     }
     
     
@@ -121,37 +122,5 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
     
     $db->close();
     
+
     
-    
-    
-    function _print_title($title="")
-    {
-        global $langs;
-        print '<tr class="liste_titre">';
-        print '<td>'.$langs->trans($title).'</td>'."\n";
-        print '<td align="center" width="20">&nbsp;</td>';
-        print '<td align="center" ></td>'."\n";
-        print '</tr>';
-    }
-    
-    function _print_on_off($confkey, $title = false, $desc ='')
-    {
-        global $var, $bc, $langs, $conf;
-        $var=!$var;
-        
-        print '<tr '.$bc[$var].'>';
-        print '<td>'.($title?$title:$langs->trans($confkey));
-        if(!empty($desc))
-        {
-            print '<br><small>'.$langs->trans($desc).'</small>';
-        }
-        print '</td>';
-        print '<td align="center" width="20">&nbsp;</td>';
-        print '<td align="center" width="300">';
-        print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
-        print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
-        print '<input type="hidden" name="action" value="set_'.$confkey.'">';
-        print ajax_constantonoff($confkey);
-        print '</form>';
-        print '</td></tr>';
-    }
