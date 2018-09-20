@@ -31,6 +31,7 @@ if (! $res) {
 // Libraries
 require_once DOL_DOCUMENT_ROOT . "/core/lib/admin.lib.php";
 require_once '../lib/btp.lib.php';
+dol_include_once('abricot/includes/lib/admin.lib.php');
 
 // Translations
 $langs->load("btp@btp");
@@ -94,31 +95,32 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
         0,
         "btp@btp"
         );
+
     
-    // Setup page goes here
-    $form=new Form($db);
-    $var=false;
+    
     print '<table class="noborder" width="100%">';
-    print '<tr class="liste_titre">';
-    print '<td>'.$langs->trans("Parameters").'</td>'."\n";
-    print '<td align="center" width="20">&nbsp;</td>';
-    print '<td align="center" width="100">'.$langs->trans("Value").'</td>'."\n";
-    print '</tr>';
-       
-    $var=!$var;
-    print '<tr '.$bc[$var].'>';
-    print '<td>'.$langs->trans("BTP_SIMPLE_DISPLAY").'</td>';
-    print '<td align="center" width="20">&nbsp;</td>';
-    print '<td align="center" width="300">';
-    print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">'; // Keep form because ajax_constantonoff return single link with <a> if the js is disabled
-    print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
-    print '<input type="hidden" name="action" value="set_BTP_SIMPLE_DISPLAY">';
-    print ajax_constantonoff('BTP_SIMPLE_DISPLAY');
-    print '</form>';
-    print '</td></tr>';
+    
+    setup_print_title($langs->trans("Parameters"));
+    
+    setup_print_on_off('BTP_SIMPLE_DISPLAY');
+    
+    if(floatval(DOL_VERSION) >= 8){
+        setup_print_on_off('MAIN_ENABLE_IMPORT_LINKED_OBJECT_LINES');
+    }
+    
+    setup_print_title($langs->trans("SetupSituationTitle"));
+    setup_print_on_off('INVOICE_USE_SITUATION');
+
+    if(floatval(DOL_VERSION) >= 8){
+        setup_print_on_off('INVOICE_USE_SITUATION_CREDIT_NOTE');
+    }
+    
     
     print '</table>';
     
     llxFooter();
     
     $db->close();
+    
+
+    
