@@ -1295,15 +1295,33 @@ class pdf_sponge_btp extends ModelePDFFactures
 		        $i++;
 		    }
 		}
-		$avancementGlobal = $percent/$i;
+		if(!empty($i)){
+		    $avancementGlobal = $percent/$i;
+		}
+		else{
+		    $avancementGlobal = 0;
+		}
 		
 		$object->fetchPreviousNextSituationInvoice();
 		$TPreviousIncoice = $object->tab_previous_situation_invoice;
 		
 		$total_a_payer = 0;
-		foreach ($TPreviousIncoice as &$fac) $total_a_payer += $fac->total_ht;
+		$total_a_payer_ttc = 0;
+		foreach ($TPreviousIncoice as &$fac){
+		    $total_a_payer += $fac->total_ht;
+		    $total_a_payer_ttc += $fac->total_ttc;
+		}
 		$total_a_payer += $object->total_ht;
-		$total_a_payer = !empty($avancementGlobal) ? ($total_a_payer * 100 / $avancementGlobal) : 0;
+		$total_a_payer_ttc += $object->total_ttc;
+		
+		if(!empty($avancementGlobal)){
+		    $total_a_payer = $total_a_payer * 100 / $avancementGlobal;
+		    $total_a_payer_ttc = $total_a_payer_ttc  * 100 / $avancementGlobal;
+		}
+		else{
+		    $total_a_payer = 0;
+		    $total_a_payer_ttc = 0;
+		}
 		
 		$deja_paye = 0;
 		$i = 1;
@@ -1501,7 +1519,14 @@ class pdf_sponge_btp extends ModelePDFFactures
 					}
 
 					if($sum_pdf_tva!=$object->total_tva) { // apply coef to recover the VAT object amount (the good one)
-						$coef_fix_tva = $object->total_tva / $sum_pdf_tva;
+					    if(!empty($sum_pdf_tva))
+					    {
+					        $coef_fix_tva = $object->total_tva / $sum_pdf_tva;
+					    }
+					    else {
+					        $coef_fix_tva = 1;
+					    }
+					   
 
 						foreach($this->tva as $tvakey => $tvaval) {
 							$this->tva[$tvakey]=$tvaval * $coef_fix_tva;
@@ -1623,7 +1648,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 				$pdf->MultiCell($largcol2, $tab2_hl, price($sign * $total_ttc, 0, $outputlangs), $useborder, 'R', 1);
 				
 				
-				if($object->type == Facture::TYPE_SITUATION)
+				/*if($object->type == Facture::TYPE_SITUATION)
 				{
 				    // reste à payer total
 				    $index++;
@@ -1636,6 +1661,49 @@ class pdf_sponge_btp extends ModelePDFFactures
 				    $total_ht = ($conf->multicurrency->enabled && $object->multicurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
 				    $pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
 				    $pdf->MultiCell($largcol2, $tab2_hl, price($total_a_payer-$deja_paye-$object->total_ht, 0, $outputlangs), 0, 'R', 1);
+				}*/
+				
+				
+				// Retained warranty
+				if( !empty($object->situation_final) &&  ( $object->type == Facture::TYPE_SITUATION && (!empty($object->retained_warranty) ) ) )
+				{
+				    // Check if this situation invoice is 100% for real
+				    if(!empty($object->lines)){
+				        $displayWarranty = true;
+				        foreach( $object->lines as $i => $line ){
+				            if($line->product_type < 2 && $line->situation_percent < 100){
+				                $displayWarranty = false;
+				                break;
+				            }
+				        }
+				    }
+				    
+				    if($displayWarranty){
+				        $pdf->SetTextColor(40,40,40);
+				        $pdf->SetFillColor(255,255,255);
+
+				        $retainedWarranty = $total_a_payer_ttc * $object->retained_warranty / 100;
+				        $billedWithRetainedWarranty = $object->total_ttc - $retainedWarranty ;
+				        
+				        // Billed - retained warranty
+				        $index++;
+				        $pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
+				        $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("BTPToPayOn", dol_print_date($object->date_lim_reglement, 'day')), $useborder, 'L', 1);
+				        
+				        $pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
+				        $pdf->MultiCell($largcol2, $tab2_hl, price($billedWithRetainedWarranty) , $useborder, 'R', 1);
+				        
+				        // retained warranty
+				        $index++;
+				        $pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
+				        
+				        $retainedWarrantyToPayOn = $outputlangs->transnoentities("BTPRetainedWarranty") . ' ('.$object->retained_warranty.'%)';
+				        $retainedWarrantyToPayOn.=  !empty($object->retained_warranty_date_limit)?' '.$outputlangs->transnoentities("BTPtoPayOn", dol_print_date($object->retained_warranty_date_limit, 'day')):'';
+				        
+				        $pdf->MultiCell($col2x-$col1x, $tab2_hl, $retainedWarrantyToPayOn, $useborder, 'L', 1);
+				        $pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
+				        $pdf->MultiCell($largcol2, $tab2_hl, price($retainedWarranty) , $useborder, 'R', 1);
+				    }
 				}
 				
 			}
