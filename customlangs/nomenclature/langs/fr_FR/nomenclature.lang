@@ -9,6 +9,9 @@ nomenclatureAbout = A propos du module ouvrage
 Nomenclature=Ouvrage
 nomenclature=ouvrage
 
+NomenclatureImportTitle=Importer des ouvrages
+helpNomenclatureImportFile=Numéro ouvrage,Ref produit, Ref Composant, Qté, Qté de référence, Code type (MO pour Poste de travail)
+
 nomenclatureAllowFreeLine=Autoriser l'ajout d'ouvrages sur un service ou ligne libre
 
 AddNomenclature=Ajouter un ouvrage

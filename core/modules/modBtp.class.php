@@ -496,9 +496,6 @@ class modBtp extends DolibarrModules
 		}
 
 		
-		dol_include_once('/core/class/extrafields.class.php');
-	        $extrafields=new ExtraFields($this->db);
-		$res = $extrafields->addExtraField('retenue_garantie', 'BtpRetenueGarantie', 'double', 0, '10,2', 'facture');
 
 		return $this->_init($sql, $options);
 	}
