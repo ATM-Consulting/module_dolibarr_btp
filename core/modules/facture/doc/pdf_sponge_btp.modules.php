@@ -2275,7 +2275,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        'width' => 26, // in mm
 	        'status' => true,
 	        'title' => array(
-	            'textkey' => 'Sommes'
+	            'textkey' => 'BtpAnteCumul'
 	        ),
 	        'border-left' => true, // add left line separator
 	    );
