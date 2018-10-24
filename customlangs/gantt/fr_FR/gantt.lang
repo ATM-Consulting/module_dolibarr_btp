@@ -1,0 +1,9 @@
+UndefinedProject=Sans Chantier 
+GANTT_DISABLE_PROJECT_MILESTONE=Désactiver la limite de fin et début de chantier 
+EndOfProject=Fin du chantier %s le %s 
+StartOfProject=Début du chantier %s ou début de production le %s 
+GANTT_MANAGE_SHARED_PROJECT=Voir les chantiers partagés entre entité 
+GANTT_INCLUDE_PROJECT_WIHOUT_TASK=Inclure les chantiers sans tâche sur la plage mais dans les bornes 
+GANTT_SHOW_WORKSTATION_ON_1PROJECT=Voir la capacité des postes de charge aussi sur la vue d'un chantier 
+GANTT_DO_NOT_SHOW_PROJECTS=Ne pas afficher l'entête chantier 
+MoveProjects=Déplacer des chantiers 
