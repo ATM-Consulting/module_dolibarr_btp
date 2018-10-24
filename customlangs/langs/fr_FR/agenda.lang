@@ -1,0 +1,4 @@
+PROJECT_CREATEInDolibarr=Chantier %s créé
+PROJECT_MODIFYInDolibarr=Chantier %s modifié
+PROJECT_DELETEInDolibarr=Chantier %s supprimé
+AgendaUrlOptionsProject=<b>project=PROJECT_ID</b> pour restreindre aux événements associés au chantier <b>PROJECT_ID</b>.
