@@ -1,0 +1,17 @@
+Module104250Desc = Permet de créer automatiquement un chantier et ses tâches en se basant sur les lignes d'une proposition signée ou d'une commande client validée 
+CreateProjectAndTasks = Créer chantier et tâches 
+CreateTasksInProject = Créer les tâches dans le chantier associé 
+Doc2ProjectValidateProjectOnValidateOrder=Créer et valider un chantier sur la validation d'une commande client 
+Doc2ProjectClotureProjectOnValidateExpedition=Clôturer le chantier sur la validation d'une expédition 
+Doc2ProjectAutoAffectProjectLeader=Affecter en tant que chef de chantier l'utilisateur créant le chantier depuis la propale, commande. 
+DOC2PROJECT_TITLE_PROJECT=Titre du chantier créé 
+DOC2PROJECT_SET_PROJECT_DRAFT=Repasser le chantier au statut brouillon sur la création de nouvelles tâches 
+Doc2ProjectProjectCreated=Chantier %s créé 
+Doc2ProjectErrorCreateProject=Impossible de créer un chantier, code retour : %s 
+Doc2ProjectErrorClassNotFoundProject=Impossible de créer un chantier, class non trouvée : %s 
+Doc2ProjectErrorCommandeNotFound=Impossible de clôturer le chantier : commande non trouvée 
+Doc2ProjectErrorProjectNotFound=Aucun chantier lié 
+Doc2ProjectErrorProjectCantBeClose=Impossible de clôturer le chantier %s 
+Doc2ProjectProjectAlreadyClose=Chantier (%s) déjà clos 
+Doc2ProjectProjectAsBeenClose=Le chantier (%s) a été clôturé 
+Doc2ProjectErrorCanNotFetchProject=Erreur : impossible de charger ou de créer le chantier 

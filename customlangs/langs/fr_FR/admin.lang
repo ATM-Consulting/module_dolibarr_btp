@@ -1,0 +1,23 @@
+AllowToSelectProjectFromOtherCompany=Sur les éléments d'un tiers, autorise la sélection d'un chantier lié à un autre tiers
+ModuleFamilyProjects=Chantiers/Travail collaboratif
+ComputedFormulaDesc=Vous pouvez entrer ici une formule utilisant les propriétés objet ou tout code PHP pour obtenir des valeurs dynamiques. Vous pouvez utiliser toute formule compatible PHP, incluant l'opérateur conditionnel "?", et les objets globaux : <strong>$db, $conf, $langs, $mysoc, $user, $object</strong>.<br><strong>ATTENTION</strong> : Seulement quelques propriétés de l'objet $object pourraient être disponibles. Si vous avez besoin de propriétés non chargées, créez vous même une instance de l'objet dans votre formule, comme dans le deuxième exemple.<br>Utiliser un champs calculé signifie que vous ne pouvez pas entrer vous même toute valeur à partir de l'interface. Aussi, s'il y a une erreur de syntaxe, la formule pourrait ne rien retourner.<br><br>Exemple de formule:<br> $object->id < 10 ? round($object->id / 2, 2) : ($object->id + 2 * $user->id) * (int) substr($mysoc->zip, 1, 2)<br><br>Exemple pour recharger l'objet: <br>(($reloadedobj = new Societe($db)) && ($reloadedobj->fetch($obj->id ? $obj->id : ($obj->rowid ? $obj->rowid : $object->id)) > 0)) ? $reloadedobj->array_options['options_extrafieldkey'] * $reloadedobj->capital / 5 : '-1'<br><br>Un autre exemple de formule pour forcer le rechargement d'un objet et de son objet parent:<br>(($reloadedobj = new Task($db)) && ($reloadedobj->fetch($object->id) > 0) && ($secondloadedobj = new Project($db)) && ($secondloadedobj->fetch($reloadedobj->fk_project) > 0)) ? $secondloadedobj->ref : 'Objet parent chantier non trouvé'
+Module400Name=Chantiers/Opportunités/Affaires
+Module400Desc=Gestion des chantiers, opportunités/affaires et/ou tâches. Vous pouvez aussi assigner tous les autres éléments (facture, commande, proposition, intervention, ...) à ces chantiers et avoir une vue transverse depuis la vue chantier.
+Permission41=Lire les chantiers et tâches (partagés ou dont vous êtes un contact). Permet la saisie de temps passé, par vous et votre hiérarchie (vos subordonnés), sur les tâches assignées.
+Permission42=Créer/modifier les chantiers (chantiers partagés et chantiers pour lesquels je suis contact). Permet aussi de créer des tâches et d'assigner des utilisateurs aux chantiers et tâches.
+Permission44=Supprimer les chantiers et tâches (partagés ou dont je suis contact)
+Permission45=Exporter les chantiers
+Permission141=Consulter tous les chantiers et tâches (y compris privés dont je ne suis pas contact)
+Permission142=Créer/modifier tous les chantiers et tâches (y compris privés dont je ne suis pas contact)
+Permission144=Supprimer les chantiers et tâches (y compris privés dont je ne suis pas contact)
+Permission262=Etendre l'accès à tous les tiers (pas seulement ceux dont l'utilisateur est enregistré en tant que commercial). <br>Non effectif pour les utilisateurs externes (toujours limités à eux-mêmes sur les propositions commerciales, commandes, factures, contrats, etc).<br>Non effectif sur les chantiers (seules s'appliquent les permissions propres au module chantiers, et les règles de visibilité et d'assignation des tâches)
+DictionaryOpportunityStatus=Statut d'opportunités pour les affaires/chantiers
+Delays_MAIN_DELAY_PROJECT_TO_CLOSE=Tolérance de retard (en jours) avant alerte pour les chantiers non clos à temps
+Delays_MAIN_DELAY_TASKS_TODO=Tolérance de retard (en jours) avant alerte sur les tâches planifiées (tâches de chantiers) pas encore réalisées
+ExtraFieldsProject=Attributs supplémentaires (chantiers)
+ProjectsNumberingModules=Modèles de numérotation des références chantiers
+ProjectsSetup=Configuration du module Chantiers
+ProjectsModelModule=Modèles de document de rapport chantiers
+UseSearchToSelectProject=Attendre que vous ayez appuyé sur une touche avant de charger le contenu de la liste déroulante des chantiers (Cela peut augmenter les performances si vous avez un grand nombre de chantiers, mais cela est moins convivial)
+OpportunityPercent=Lorsque vous créez une opportunité, vous aurez défini un montant estimatif de chantier/affaire. Selon le statut de l'opportunité, ce montant peut être multiplié par ce taux pour évaluer montant probable que vos opportunités sont susceptibles de générer. La valeur est un pourcentage (entre 0 et 100).
+MailToProject=Fiche chantiers
