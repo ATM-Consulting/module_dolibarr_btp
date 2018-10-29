@@ -92,7 +92,7 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
         $head,
         'setup',
         $langs->trans("Module104911Name"),
-        0,
+        -1,
         "btp@btp"
         );
 
@@ -105,7 +105,7 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
     setup_print_on_off('BTP_SIMPLE_DISPLAY');
     
     if(floatval(DOL_VERSION) >= 8){
-        setup_print_on_off('MAIN_ENABLE_IMPORT_LINKED_OBJECT_LINES');
+        setup_print_on_off('MAIN_ENABLE_IMPORT_LINKED_OBJECT_LINES', false, '', 'MAIN_ENABLE_IMPORT_LINKED_OBJECT_LINES_HELP');
     }
     
     setup_print_title($langs->trans("SetupSituationTitle"));

@@ -45,6 +45,7 @@ SetupSituationTitle=Facture de situation
 INVOICE_USE_SITUATION=Activer le support des factures de situation
 INVOICE_USE_SITUATION_CREDIT_NOTE=Activer le support des avoirs de situation
 MAIN_ENABLE_IMPORT_LINKED_OBJECT_LINES=Permettre l'import de lignes issues d'un document lié
+MAIN_ENABLE_IMPORT_LINKED_OBJECT_LINES_HELP=Attention, le nombre de documents compatibles dépend de la version de dolibarr
 
 PDFCrabeBtpDescription=Modèle pdf spécifique Situation
 PDFCrabeBtpTitle=Situation n° %d
