@@ -2761,7 +2761,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    $pdf->SetXY($this->marge_gauche+2, $tab_top+53);
 	    $pdf->MultiCell(80,2, $outputlangs->transnoentities("BtpTotalSituationTTC"),'','C');
 	    $pdf->SetFont('','', $default_font_size - 2);
-	    
+
 	    
 	    $pdf->SetXY($this->marge_gauche+2, $tab_top+74);
 	    $pdf->MultiCell(80,2, $outputlangs->transnoentities("BtpRetenueGarantie"),'','C');
@@ -2832,19 +2832,50 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        ,'date_derniere_situation'=>$facDerniereSituation->date
 	    );
 	    
-	    $cumul_anterieur_ht = $cumul_anterieur_tva = $retenue_garantie = 0;
+	    $cumul_anterieur_ht = $cumul_anterieur_tva = $retenue_garantie = $retenue_garantie_anterieure = 0;
+	    
+	    
+	   
+	    
 	    
 	    if(!empty($TPreviousIncoice)) {
 	        foreach($TPreviousIncoice as $fac) {
 	            $cumul_anterieur_ht += $fac->total_ht;
 	            $cumul_anterieur_tva += $fac->total_tva;
-	            $retenue_garantie_anterieure += $fac->total_ttc * $fac->array_options['options_retenue_garantie'] / 100;
+	            if( !empty($object->retained_warranty)){
+	               //$retenue_garantie_anterieure += $fac->total_ttc * $fac->retained_warranty / 100; // One day...
+	            }
 	        }
 	    }
 	    
 	    $nouveau_cumul = $cumul_anterieur_ht + $object->total_ht;
 	    $nouveau_cumul_tva = $cumul_anterieur_tva + $object->total_tva;
-	    $retenue_garantie = $retenue_garantie_anterieure + ($object->total_ttc * $object->array_options['options_retenue_garantie'] / 100);
+	    
+	    
+	    
+	    
+	    
+	    // Retained warranty
+	    if( !empty($object->situation_final) &&  ( $object->type == Facture::TYPE_SITUATION && (!empty($object->retained_warranty) ) ) )
+	    {
+	        // Check if this situation invoice is 100% for real
+	        if(!empty($object->lines)){
+	            $displayWarranty = true;
+	            foreach( $object->lines as $i => $line ){
+	                if($line->product_type < 2 && $line->situation_percent < 100){
+	                    $displayWarranty = false;
+	                    break;
+	                }
+	            }
+	        }
+	        
+	        if($displayWarranty){
+	            // $retenue_garantie = $object->total_ttc * $object->retained_warranty / 100; // calcle la retenue de cette facture seulemnt
+	            $retenue_garantie = ($nouveau_cumul + $nouveau_cumul_tva) * $object->retained_warranty / 100; // calcle sur l'ensemble des factures
+	        }
+	    }
+	    
+	    
 	    
 	    $TDataSituation['cumul_anterieur'] = $cumul_anterieur_ht;
 	    $TDataSituation['cumul_anterieur_tva'] = $cumul_anterieur_tva;
@@ -2855,14 +2886,18 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    $TDataSituation['nouveau_cumul'] = $nouveau_cumul;
 	    $TDataSituation['nouveau_cumul_tva'] = $nouveau_cumul_tva;
 	    $TDataSituation['nouveau_cumul_ttc'] = $nouveau_cumul + $nouveau_cumul_tva;
-	    $TDataSituation['retenue_garantie'] = $retenue_garantie;
+	    $TDataSituation['retenue_garantie'] = $retenue_garantie + $retenue_garantie_anterieure;
 	    $TDataSituation['total_ttc'] = $TDataSituation['nouveau_cumul_ttc'] - $TDataSituation['retenue_garantie'];
 	    
 	    $TDataSituation['mois'] = $object->total_ht;
 	    $TDataSituation['mois_tva'] = $object->total_tva;
 	    $TDataSituation['mois_ttc'] = $TDataSituation['mois'] + $TDataSituation['mois_tva'];
-	    $TDataSituation['retenue_garantie_mois'] = $retenue_garantie - $retenue_garantie_anterieure;
+	    $TDataSituation['retenue_garantie_mois'] = $retenue_garantie;
 	    $TDataSituation['total_ttc_mois'] = $TDataSituation['mois_ttc'] - $TDataSituation['retenue_garantie_mois'];
+	    
+	    
+	   
+	    
 	    
 	    return $TDataSituation;
 	    
