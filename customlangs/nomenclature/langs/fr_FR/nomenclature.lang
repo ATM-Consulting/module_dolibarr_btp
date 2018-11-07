@@ -15,7 +15,6 @@ helpNomenclatureImportFile=Numéro ouvrage,Ref produit, Ref Composant, Qté, Qt�
 nomenclatureAllowFreeLine=Autoriser l'ajout d'ouvrages sur un service ou ligne libre
 
 AddNomenclature=Ajouter un ouvrage
-AddProductNomenclature=Ajouter le produit
 SaveNomenclature=Enregistrer
 nomenclatureIsDefault=Définir par défaut
 nomenclatureQtyReference=Qté de référence
