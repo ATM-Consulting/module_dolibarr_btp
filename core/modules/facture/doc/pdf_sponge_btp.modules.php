@@ -1668,7 +1668,11 @@ class pdf_sponge_btp extends ModelePDFFactures
 				if( !empty($object->situation_final) &&  ( $object->type == Facture::TYPE_SITUATION && (!empty($object->retained_warranty) ) ) )
 				{
 				    // Check if this situation invoice is 100% for real
-				    if(!empty($object->lines)){
+				    if(!empty($object->situation_final)){
+				        $displayWarranty = true;
+				    }
+				    elseif(!empty($object->lines) && $object->status == Facture::STATUS_DRAFT ){
+				        // $object->situation_final need validation to be done so this test is need for draft
 				        $displayWarranty = true;
 				        foreach( $object->lines as $i => $line ){
 				            if($line->product_type < 2 && $line->situation_percent < 100){
@@ -1677,6 +1681,8 @@ class pdf_sponge_btp extends ModelePDFFactures
 				            }
 				        }
 				    }
+				    
+				    
 				    
 				    if($displayWarranty){
 				        $pdf->SetTextColor(40,40,40);
