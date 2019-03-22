@@ -2780,48 +2780,48 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    
 	    /**********************Données*******************************/
 	    $TToDpisplay = array(
-	        0=>array(
+	        array(
 	            'nouveau_cumul', 'nouveau_cumul', 'nouveau_cumul_tva', 'nouveau_cumul_ttc', 'nouveau_cumul_ttc', 'retenue_garantie', 'total_ttc'
 	        )
-	        ,1=>array(
+	        ,array(
 	            'cumul_anterieur', 'cumul_anterieur', 'cumul_anterieur_tva', 'cumul_anterieur_ttc', 'cumul_anterieur_ttc', 'retenue_garantie_anterieure', 'total_ttc_anterieur'
 	        )
-	        ,2=>array(
+	        ,array(
 	            'mois', 'mois', 'mois_tva', 'mois_ttc', 'mois_ttc', 'retenue_garantie_mois', 'total_ttc_mois'
 	        )
 	    );
 	    
-	    $x = $this->marge_gauche+95;
+	    $x = $this->marge_gauche+85;
 	    foreach($TToDpisplay as $Tab) {
 	        
 	        $pdf->SetXY($x, $tab_top+8);
-	        $pdf->MultiCell(80,2, price($this->TDataSituation[$Tab[0]]),'','L');
+	        $pdf->MultiCell(32,2, price($this->TDataSituation[$Tab[0]]),'','R');
 	        
 	        $pdf->SetXY($x, $tab_top+26);
-	        $pdf->MultiCell(80,2, price($this->TDataSituation[$Tab[1]]),'','L');
+	        $pdf->MultiCell(32,2, price($this->TDataSituation[$Tab[1]]),'','R');
 	        
 	        $pdf->SetXY($x, $tab_top+30);
-	        $pdf->MultiCell(80,2, price($this->TDataSituation[$Tab[2]]),'','L');
+	        $pdf->MultiCell(32,2, price($this->TDataSituation[$Tab[2]]),'','R');
 	        
 	        $pdf->SetXY($x, $tab_top+34);
-	        $pdf->MultiCell(80,2, price($this->TDataSituation[$Tab[3]]),'','L');
+	        $pdf->MultiCell(32,2, price($this->TDataSituation[$Tab[3]]),'','R');
 	        
 	        
 	        $pdf->SetFont('','B', $default_font_size - 1);
 	        $pdf->SetXY($x, $tab_top+53);
-	        $pdf->MultiCell(80,2, price($this->TDataSituation[$Tab[4]]),'','L');
+	        $pdf->MultiCell(32,2, price($this->TDataSituation[$Tab[4]]),'','R');
 	        $pdf->SetFont('','', $default_font_size - 2);
 	        
 	        
 	        $pdf->SetXY($x, $tab_top+74);
-	        $pdf->MultiCell(80,2, price($this->TDataSituation[$Tab[5]]),'','L');
+	        $pdf->MultiCell(32,2, price($this->TDataSituation[$Tab[5]]),'','R');
 	        
 	        $pdf->SetFont('','B', $default_font_size - 1);
 	        $pdf->SetXY($x, $tab_top+93);
-	        $pdf->MultiCell(80,2, price($this->TDataSituation[$Tab[6]]),'','L');
+	        $pdf->MultiCell(32,2, price($this->TDataSituation[$Tab[6]]),'','R');
 	        $pdf->SetFont('','', $default_font_size - 2);
 	        
-	        $x+=35;
+	        $x+=36;
 	        
 	    }
 	    /************************************************************/
