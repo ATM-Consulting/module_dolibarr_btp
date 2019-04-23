@@ -2667,7 +2667,9 @@ class pdf_sponge_btp extends ModelePDFFactures
 	 */
 	function _tableauBtp(&$pdf, $tab_top, $tab_height, $nexY, $outputlangs, $hidetop=0, $hidebottom=0, $currency='')
 	{
-	    global $conf, $object;
+	    global $conf, $object, $db;
+
+        $form = new Form($db);
 	    
 	    // TODO à mettre dans le construct
 	    $this->posx_new_cumul = 94;
@@ -2736,9 +2738,9 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    // ADD HORIZONTALE LINES
 	    $pdf->line($this->posx_new_cumul-1, $tab_top+5, $this->page_largeur-$this->marge_droite, $tab_top+5);
 	    
-	    $pdf->line($this->posx_new_cumul-1, $tab_top+25, $this->page_largeur-$this->marge_droite, $tab_top+25);
+	    $pdf->line($this->posx_new_cumul-1, $tab_top+20, $this->page_largeur-$this->marge_droite, $tab_top+20);
 	    
-	    $pdf->line($this->marge_gauche, $tab_top+45, $this->page_largeur-$this->marge_droite, $tab_top+45);
+	    $pdf->line($this->marge_gauche, $tab_top+55, $this->page_largeur-$this->marge_droite, $tab_top+55);
 	    
 	    $pdf->line($this->marge_gauche, $tab_top+65, $this->page_largeur-$this->marge_droite, $tab_top+65);
 	    
@@ -2752,19 +2754,32 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    
 	    $pdf->SetXY($this->marge_gauche+2, $tab_top+12);
 	    $pdf->MultiCell(80,2, $outputlangs->transnoentities("BtpAdditionalWork"),'','L');
+
+        $form->load_cache_vatrates("'".$object->thirdparty->country_code."'");
+
+        $i = -8;
+        foreach($form->cache_vatrates as $TVatInfo) {
+            $tva_tx_formated = sprintf("%01.3f", $TVatInfo['txtva']);
+            if(empty($this->TDataSituation['mois'][$tva_tx_formated])) continue;
+            $i += 8;
+
+            $pdf->SetXY($this->marge_gauche+2, $tab_top+21 + $i);
+            $pdf->MultiCell(80,2, $outputlangs->transnoentities("TotalHT").' '.$TVatInfo['label'],'','C');
+
+            if(! empty($this->TDataSituation['mois'][$tva_tx_formated]['TVA'])) {
+                $pdf->SetXY($this->marge_gauche + 2, $tab_top + 25 + $i);
+                $pdf->MultiCell(80, 2, $outputlangs->transnoentities("VAT").' '.$TVatInfo['label'], '', 'C');
+            }
+            else $i -= 4;
+
+        }
 	    
-	    $pdf->SetXY($this->marge_gauche+2, $tab_top+26);
-	    $pdf->MultiCell(80,2, $outputlangs->transnoentities("TotalHT"),'','C');
-	    
-	    $pdf->SetXY($this->marge_gauche+2, $tab_top+30);
-	    $pdf->MultiCell(80,2, $outputlangs->transnoentities("VAT"),'','C');
-	    
-	    $pdf->SetXY($this->marge_gauche+2, $tab_top+34);
+	    $pdf->SetXY($this->marge_gauche+2, $tab_top+29+$i);
 	    $pdf->MultiCell(80,2, $outputlangs->transnoentities("TotalTTC"),'','C');
 	    
 	    
 	    $pdf->SetFont('','B', $default_font_size - 1);
-	    $pdf->SetXY($this->marge_gauche+2, $tab_top+53);
+	    $pdf->SetXY($this->marge_gauche+2, $tab_top+58);
 	    $pdf->MultiCell(80,2, $outputlangs->transnoentities("BtpTotalSituationTTC"),'','C');
 	    $pdf->SetFont('','', $default_font_size - 2);
 
@@ -2780,45 +2795,61 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    
 	    /**********************Données*******************************/
 	    $TToDpisplay = array(
-	        array(
-	            'nouveau_cumul', 'nouveau_cumul', 'nouveau_cumul_tva', 'nouveau_cumul_ttc', 'nouveau_cumul_ttc', 'retenue_garantie', 'total_ttc'
-	        )
-	        ,array(
-	            'cumul_anterieur', 'cumul_anterieur', 'cumul_anterieur_tva', 'cumul_anterieur_ttc', 'cumul_anterieur_ttc', 'retenue_garantie_anterieure', 'total_ttc_anterieur'
-	        )
-	        ,array(
-	            'mois', 'mois', 'mois_tva', 'mois_ttc', 'mois_ttc', 'retenue_garantie_mois', 'total_ttc_mois'
-	        )
+            'nouveau_cumul',
+            'cumul_anterieur',
+            'mois'
 	    );
 	    
 	    $x = $this->marge_gauche+85;
-	    foreach($TToDpisplay as $Tab) {
-	        
+//	    unset($this->TDataSituation['derniere_situation']);
+//	    var_dump($object->lines);exit;
+	    foreach($TToDpisplay as $col) {
+
+	        // Travaux principaux
 	        $pdf->SetXY($x, $tab_top+8);
-	        $pdf->MultiCell(32,2, price($this->TDataSituation[$Tab[0]]),'','R');
+	        $pdf->MultiCell(32,2, price($this->TDataSituation[$col]['HT']),'','R');
+
+	        // Travaux supplémentaires
+	        $pdf->SetXY($x, $tab_top+12);
+	        $pdf->MultiCell(32,2, price($this->TDataSituation[$col]['travaux_sup']),'','R');
+
+            $i = -8;
+            foreach($form->cache_vatrates as $TVatInfo) {
+                $tva_tx_formated = sprintf("%01.3f", $TVatInfo['txtva']);
+                if(empty($this->TDataSituation['mois'][$tva_tx_formated])) continue;
+                $i += 8;
+
+                // Total HT
+                $pdf->SetXY($x, $tab_top+21+$i);
+                $pdf->MultiCell(32,2, price($this->TDataSituation[$col][$tva_tx_formated]['HT']),'','R');
+
+                // Total TVA
+                if(! empty($this->TDataSituation['mois'][$tva_tx_formated]['TVA'])) {
+                    $pdf->SetXY($x, $tab_top + 25 + $i);
+                    $pdf->MultiCell(32, 2, price($this->TDataSituation[$col][$tva_tx_formated]['TVA']), '', 'R');
+                }
+                else $i -= 4;
+
+            }
+
+	        // Total TTC
+	        $pdf->SetXY($x, $tab_top+29+$i);
+	        $pdf->MultiCell(32,2, price($this->TDataSituation[$col]['TTC']),'','R');
 	        
-	        $pdf->SetXY($x, $tab_top+26);
-	        $pdf->MultiCell(32,2, price($this->TDataSituation[$Tab[1]]),'','R');
-	        
-	        $pdf->SetXY($x, $tab_top+30);
-	        $pdf->MultiCell(32,2, price($this->TDataSituation[$Tab[2]]),'','R');
-	        
-	        $pdf->SetXY($x, $tab_top+34);
-	        $pdf->MultiCell(32,2, price($this->TDataSituation[$Tab[3]]),'','R');
-	        
-	        
+	        // Total situation
 	        $pdf->SetFont('','B', $default_font_size - 1);
-	        $pdf->SetXY($x, $tab_top+53);
-	        $pdf->MultiCell(32,2, price($this->TDataSituation[$Tab[4]]),'','R');
+	        $pdf->SetXY($x, $tab_top+58);
+	        $pdf->MultiCell(32,2, price($this->TDataSituation[$col]['TTC']),'','R');
 	        $pdf->SetFont('','', $default_font_size - 2);
 	        
-	        
+	        // Retenue de garantie
 	        $pdf->SetXY($x, $tab_top+74);
-	        $pdf->MultiCell(32,2, price($this->TDataSituation[$Tab[5]]),'','R');
-	        
+	        $pdf->MultiCell(32,2, price($this->TDataSituation[$col]['retenue_garantie']),'','R');
+
+	        // Montant à payer TTC
 	        $pdf->SetFont('','B', $default_font_size - 1);
 	        $pdf->SetXY($x, $tab_top+93);
-	        $pdf->MultiCell(32,2, price($this->TDataSituation[$Tab[6]]),'','R');
+	        $pdf->MultiCell(32,2, price($this->TDataSituation[$col]['total_ttc']),'','R');
 	        $pdf->SetFont('','', $default_font_size - 2);
 	        
 	        $x+=36;
@@ -2829,7 +2860,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	}
 	
 	function _getDataSituation(&$object) {
-	    
+
 	    $object->fetchPreviousNextSituationInvoice();
 	    $TPreviousIncoice = &$object->tab_previous_situation_invoice;
 	    $facDerniereSituation = &end($TPreviousIncoice);
@@ -2837,30 +2868,99 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        'derniere_situation'=>$facDerniereSituation
 	        ,'date_derniere_situation'=>$facDerniereSituation->date
 	    );
+	    usort($TPreviousIncoice, function($a, $b) {
+	        if($a > $b) return -1;
+	        if($a < $b) return 1;
+	        return 0;
+        });
 	    
 	    $cumul_anterieur_ht = $cumul_anterieur_tva = $retenue_garantie = $retenue_garantie_anterieure = 0;
-	    
-	    
-	   
-	    
-	    
+
+	    // Init tous les champs à 0
+        $TDataSituation['cumul_anterieur'] = array(
+            'HT' => $cumul_anterieur_ht,
+            'TVA' => $cumul_anterieur_tva,
+            'TTC' => $cumul_anterieur_ht + $cumul_anterieur_tva,
+            'retenue_garantie' => $retenue_garantie_anterieure,
+            'total_ttc' => ($cumul_anterieur_ht + $cumul_anterieur_tva) - $retenue_garantie_anterieure,
+            'travaux_sup' => 0
+        );
+//        var_dump($TPreviousIncoice);
+//foreach($TPreviousIncoice as $k => $f) var_dump($k.' => '.$f->ref);
+//exit;
 	    if(!empty($TPreviousIncoice)) {
-	        foreach($TPreviousIncoice as $fac) {
-	            $cumul_anterieur_ht += $fac->total_ht;
-	            $cumul_anterieur_tva += $fac->total_tva;
-	            if( !empty($object->retained_warranty)){
+	        foreach($TPreviousIncoice as $i => $fac) {
+                $TDataSituation['cumul_anterieur']['HT'] += $fac->total_ht;
+                $TDataSituation['cumul_anterieur']['TVA'] += $fac->total_tva;
+
+                foreach($fac->lines as $k => $l) {
+                    $total_ht = floatval($l->total_ht);
+                    if(empty($total_ht)) continue;
+
+                    $prevSituationPercent = 0;
+                    $isFirstSituation = false;
+                    if(array_key_exists($i+1, $TPreviousIncoice) && array_key_exists($k, $TPreviousIncoice[$i+1]->lines)) {
+                        $prevSituationPercent = $TPreviousIncoice[$i+1]->lines[$k]->situation_percent;
+                    }
+                    elseif(! array_key_exists($i+1, $TPreviousIncoice)) $isFirstSituation = true;
+
+                    $calc_ht = $l->subprice * $l->qty * (1 - $l->remise_percent/100) * ($l->situation_percent - $prevSituationPercent)/100;
+                    if(! isset($TDataSituation['cumul_anterieur'][$l->tva_tx])) {
+                        $TDataSituation['cumul_anterieur'][$l->tva_tx] = array('HT' => $calc_ht, 'TVA' => $calc_ht * ($l->tva_tx/100));
+                    }
+                    else {
+                        $TDataSituation['cumul_anterieur'][$l->tva_tx]['HT'] += $calc_ht;
+                        $TDataSituation['cumul_anterieur'][$l->tva_tx]['TVA'] += $calc_ht * ($l->tva_tx/100);
+                    }
+
+                    if(empty($prevSituationPercent) && ! $isFirstSituation) {
+                        // TODO: à clarifier, mais pour moi, un facture de situation précédente qui a des progressions à 0% c'est pas logique
+                        $TDataSituation['cumul_anterieur']['travaux_sup'] += $calc_ht;
+                    }
+                }
+
+	            if(! empty($object->retained_warranty)){
 	               //$retenue_garantie_anterieure += $fac->total_ttc * $fac->retained_warranty / 100; // One day...
 	            }
 	        }
 	    }
-	    
-	    $nouveau_cumul = $cumul_anterieur_ht + $object->total_ht;
-	    $nouveau_cumul_tva = $cumul_anterieur_tva + $object->total_tva;
-	    
-	    
-	    
-	    
-	    
+
+        $TDataSituation['cumul_anterieur']['TTC'] = $TDataSituation['cumul_anterieur']['HT'] + $TDataSituation['cumul_anterieur']['TVA'];
+        $TDataSituation['cumul_anterieur']['HT'] -= $TDataSituation['cumul_anterieur']['travaux_sup'];
+        $TDataSituation['cumul_anterieur']['total_ttc'] = $TDataSituation['cumul_anterieur']['TTC'] - $TDataSituation['cumul_anterieur']['retenue_garantie'];
+
+	    $nouveau_cumul = $TDataSituation['cumul_anterieur']['HT'];
+	    $nouveau_cumul_tva = $TDataSituation['cumul_anterieur']['TVA'] + $object->total_tva;
+
+        $TDataSituation['nouveau_cumul'] = array(
+            'HT' => $nouveau_cumul,
+            'TVA' => $nouveau_cumul_tva,
+            'TTC' => $TDataSituation['cumul_anterieur']['TTC'] + $object->total_ttc,
+            'travaux_sup' => $TDataSituation['cumul_anterieur']['travaux_sup']
+        );
+
+	    foreach($object->lines as $k => $l) {
+	        $total_ht = floatval($l->total_ht);
+	        if(empty($total_ht)) continue;
+
+            $prevSituationPercent = 0;
+            if(array_key_exists($k, $facDerniereSituation->lines)) $prevSituationPercent = $facDerniereSituation->lines[$k]->situation_percent;
+
+            $calc_ht = $l->subprice * $l->qty * (1 - $l->remise_percent/100) * ($l->situation_percent - $prevSituationPercent)/100;
+            if(! isset($TDataSituation['nouveau_cumul'][$l->tva_tx])) {
+                $TDataSituation['nouveau_cumul'][$l->tva_tx] = array(
+                    'HT' => $TDataSituation['cumul_anterieur'][$l->tva_tx]['HT'] + $calc_ht,
+                    'TVA' => $TDataSituation['cumul_anterieur'][$l->tva_tx]['TVA'] + $calc_ht * ($l->tva_tx/100)
+                );
+            }
+            else {
+                $TDataSituation['nouveau_cumul'][$l->tva_tx]['HT'] += $calc_ht;
+                $TDataSituation['nouveau_cumul'][$l->tva_tx]['TVA'] += $calc_ht * ($l->tva_tx/100);
+            }
+
+            if(! empty($prevSituationPercent)) $TDataSituation['nouveau_cumul']['HT'] += $calc_ht;
+        }
+
 	    // Retained warranty
 	    if( !empty($object->situation_final) &&  ( $object->type == Facture::TYPE_SITUATION && (!empty($object->retained_warranty) ) ) )
 	    {
@@ -2880,33 +2980,50 @@ class pdf_sponge_btp extends ModelePDFFactures
 	            $retenue_garantie = ($nouveau_cumul + $nouveau_cumul_tva) * $object->retained_warranty / 100; // calcle sur l'ensemble des factures
 	        }
 	    }
-	    
-	    
-	    
-	    $TDataSituation['cumul_anterieur'] = $cumul_anterieur_ht;
-	    $TDataSituation['cumul_anterieur_tva'] = $cumul_anterieur_tva;
-	    $TDataSituation['cumul_anterieur_ttc'] = $cumul_anterieur_ht + $cumul_anterieur_tva;
-	    $TDataSituation['retenue_garantie_anterieure'] = $retenue_garantie_anterieure;
-	    $TDataSituation['total_ttc_anterieur'] = $TDataSituation['cumul_anterieur_ttc'] - $TDataSituation['retenue_garantie_anterieure'];
-	    
-	    $TDataSituation['nouveau_cumul'] = $nouveau_cumul;
-	    $TDataSituation['nouveau_cumul_tva'] = $nouveau_cumul_tva;
-	    $TDataSituation['nouveau_cumul_ttc'] = $nouveau_cumul + $nouveau_cumul_tva;
-	    $TDataSituation['retenue_garantie'] = $retenue_garantie + $retenue_garantie_anterieure;
-	    $TDataSituation['total_ttc'] = $TDataSituation['nouveau_cumul_ttc'] - $TDataSituation['retenue_garantie'];
-	    
-	    $TDataSituation['mois'] = $object->total_ht;
-	    $TDataSituation['mois_tva'] = $object->total_tva;
-	    $TDataSituation['mois_ttc'] = $TDataSituation['mois'] + $TDataSituation['mois_tva'];
-	    $TDataSituation['retenue_garantie_mois'] = $retenue_garantie;
-	    $TDataSituation['total_ttc_mois'] = $TDataSituation['mois_ttc'] - $TDataSituation['retenue_garantie_mois'];
-	    
-	    
-	   
-	    
-	    
+
+        $TDataSituation['nouveau_cumul']['retenue_garantie'] = $retenue_garantie + $retenue_garantie_anterieure;
+        $TDataSituation['nouveau_cumul']['total_ttc'] = $TDataSituation['nouveau_cumul']['TTC'] - ($retenue_garantie + $retenue_garantie_anterieure);
+
+        $TDataSituation['mois'] = array(
+            'HT' => 0,
+            'TVA' => $object->total_tva,
+            'TTC' => $object->total_ht + $object->total_tva,
+            'retenue_garantie' => $retenue_garantie,
+            'total_ttc' => $object->total_ht + $object->total_tva - $retenue_garantie,
+            'travaux_sup' => 0
+        );
+	    foreach($object->lines as $k => $l) {
+            $total_ht = floatval($l->total_ht);
+            if(empty($total_ht)) continue;
+
+            $prevSituationPercent = 0;
+            if(array_key_exists($k, $facDerniereSituation->lines)) $prevSituationPercent = $facDerniereSituation->lines[$k]->situation_percent;
+
+            $calc_ht = $l->subprice * $l->qty * (1 - $l->remise_percent/100) * ($l->situation_percent - $prevSituationPercent)/100;
+            if(! isset($TDataSituation['mois'][$l->tva_tx])) {
+                $TDataSituation['mois'][$l->tva_tx]['HT'] = $calc_ht;
+                $TDataSituation['mois'][$l->tva_tx]['TVA'] = $calc_ht * ($l->tva_tx/100);
+            }
+            else {
+                $TDataSituation['mois'][$l->tva_tx]['HT'] += $calc_ht;
+                $TDataSituation['mois'][$l->tva_tx]['TVA'] += $calc_ht * ($l->tva_tx/100);
+            }
+
+            if(! empty($prevSituationPercent)) $TDataSituation['mois']['HT'] += $calc_ht;
+        }
+
+        $TFacLinesKey = array_keys($facDerniereSituation->lines);
+        $TObjectLinesKey = array_keys($object->lines);
+        $TDiffKey = array_diff($TObjectLinesKey, $TFacLinesKey);
+
+        foreach($TDiffKey as $i) {
+            $TDataSituation['nouveau_cumul']['travaux_sup'] += $object->lines[$i]->total_ht;
+            $TDataSituation['mois']['travaux_sup'] += $object->lines[$i]->total_ht;
+        }
+//        unset($TDataSituation['derniere_situation']);
+//	    var_dump($TDiffKey);exit;
+
 	    return $TDataSituation;
-	    
 	}
 	
 	function _getInfosLineDerniereSituation(&$object, &$current_line)
