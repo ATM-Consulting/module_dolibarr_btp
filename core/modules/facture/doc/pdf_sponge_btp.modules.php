@@ -2868,9 +2868,10 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        'derniere_situation'=>$facDerniereSituation
 	        ,'date_derniere_situation'=>$facDerniereSituation->date
 	    );
+	    // On cherche à avoir la première des situations à la fin du tableau
 	    usort($TPreviousIncoice, function($a, $b) {
-	        if($a > $b) return -1;
-	        if($a < $b) return 1;
+	        if($a->situation_counter > $b->situation_counter) return -1;
+	        if($a->situation_counter < $b->situation_counter) return 1;
 	        return 0;
         });
 	    
@@ -2885,9 +2886,7 @@ class pdf_sponge_btp extends ModelePDFFactures
             'total_ttc' => ($cumul_anterieur_ht + $cumul_anterieur_tva) - $retenue_garantie_anterieure,
             'travaux_sup' => 0
         );
-//        var_dump($TPreviousIncoice);
-//foreach($TPreviousIncoice as $k => $f) var_dump($k.' => '.$f->ref);
-//exit;
+
 	    if(!empty($TPreviousIncoice)) {
 	        foreach($TPreviousIncoice as $i => $fac) {
                 $TDataSituation['cumul_anterieur']['HT'] += $fac->total_ht;
@@ -3020,8 +3019,6 @@ class pdf_sponge_btp extends ModelePDFFactures
             $TDataSituation['nouveau_cumul']['travaux_sup'] += $object->lines[$i]->total_ht;
             $TDataSituation['mois']['travaux_sup'] += $object->lines[$i]->total_ht;
         }
-//        unset($TDataSituation['derniere_situation']);
-//	    var_dump($TDiffKey);exit;
 
 	    return $TDataSituation;
 	}
