@@ -97,18 +97,21 @@ class ActionsBtp
         $contexts = explode(':',$parameters['context']);
         
         if (in_array('invoicecard',$contexts)) { // do something only for the context 'somecontext1' or 'somecontext2'
-            if( $object->type == Facture::TYPE_SITUATION ){ 
+            if( $object->type == Facture::TYPE_SITUATION && (float) DOL_VERSION < 8.0){ 
             // pour les factures de situations on selectionne le modèle crabe_btp par défaut
             ?>
             <script type="text/javascript">
             $(document).ready(function(){
-				$('#model option').each(function(){
-					if($(this).val() == 'crabe_btp') {
-						$(this).attr('selected',true);
-					} else {
-						$(this).attr('selected',false);
-					}
-				});
+                if($('#model option[val=crabe_btp]').length > 0)
+                {
+                    $('#model option').each(function(){
+                        if($(this).val() == 'crabe_btp') {
+                            $(this).attr('selected',true);
+                        } else {
+                            $(this).attr('selected',false);
+                        }
+                    });
+                }
             });
             </script>
             <?php
