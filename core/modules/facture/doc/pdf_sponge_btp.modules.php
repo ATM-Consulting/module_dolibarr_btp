@@ -1307,11 +1307,12 @@ class pdf_sponge_btp extends ModelePDFFactures
 		}
 		
 		$object->fetchPreviousNextSituationInvoice();
-		$TPreviousIncoice = $object->tab_previous_situation_invoice;
-		
+		$TPreviousInvoices = $object->tab_previous_situation_invoice;
+
 		$total_a_payer = 0;
 		$total_a_payer_ttc = 0;
-		foreach ($TPreviousIncoice as &$fac){
+		foreach ($TPreviousInvoices as &$fac)
+		{
 		    $total_a_payer += $fac->total_ht;
 		    $total_a_payer_ttc += $fac->total_ttc;
 		}
@@ -1329,16 +1330,13 @@ class pdf_sponge_btp extends ModelePDFFactures
 		
 		$deja_paye = 0;
 		$i = 1;
-		if(!empty($TPreviousIncoice)){
-		    
+		if(! empty($TPreviousInvoices))
+		{
 		    $pdf->setY($tab2_top);
 		    $posy = $pdf->GetY();
-		    
-		    
-		    
-		    
-		    foreach ($TPreviousIncoice as &$fac){
-		        
+
+		    foreach ($TPreviousInvoices as &$fac)
+		    {
 		        if($posy  > 180 ) {
 		            $this->_pagefoot($pdf,$object,$outputlangs,1);
 		            $pdf->addPage();
@@ -1368,7 +1366,6 @@ class pdf_sponge_btp extends ModelePDFFactures
 		        $posy += $tab2_hl;
 		        
 		        $pdf->setY($posy);
-		        
 		    }
 		    
 		    // Display curent total
@@ -2772,7 +2769,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    /***********************************************************/
 	    
 	    /**********************Données*******************************/
-	    $TToDpisplay = array(
+	    $TToDisplay = array(
             'nouveau_cumul',
             'cumul_anterieur',
             'mois'
@@ -2781,8 +2778,8 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    $x = $this->marge_gauche+85;
 //	    unset($this->TDataSituation['derniere_situation']);
 //	    var_dump($object->lines);exit;
-	    foreach($TToDpisplay as $col) {
-
+	    foreach($TToDisplay as $col)
+	    {
 	        // Travaux principaux
 	        $pdf->SetXY($x, $tab_top+8);
 	        $pdf->MultiCell(32,2, price($this->TDataSituation[$col]['HT']),'','R');
@@ -2837,17 +2834,18 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    
 	}
 	
-	function _getDataSituation(&$object) {
-
+	function _getDataSituation(&$object)
+	{
 	    $object->fetchPreviousNextSituationInvoice();
-	    $TPreviousIncoice = &$object->tab_previous_situation_invoice;
-	    $facDerniereSituation = &end($TPreviousIncoice);
+	    $TPreviousInvoices = &$object->tab_previous_situation_invoice;
+	    $facDerniereSituation = &end($TPreviousInvoices);
 	    $TDataSituation = array(
 	        'derniere_situation'=>$facDerniereSituation
 	        ,'date_derniere_situation'=>$facDerniereSituation->date
 	    );
 	    // On cherche à avoir la première des situations à la fin du tableau
-	    usort($TPreviousIncoice, function($a, $b) {
+	    usort($TPreviousInvoices, function($a, $b)
+	    {
 	        if($a->situation_counter > $b->situation_counter) return -1;
 	        if($a->situation_counter < $b->situation_counter) return 1;
 	        return 0;
@@ -2865,8 +2863,10 @@ class pdf_sponge_btp extends ModelePDFFactures
             'travaux_sup' => 0
         );
 
-	    if(!empty($TPreviousIncoice)) {
-	        foreach($TPreviousIncoice as $i => $fac) {
+	    if(! empty($TPreviousInvoices))
+	    {
+	        foreach($TPreviousInvoices as $i => $fac)
+	        {
                 $TDataSituation['cumul_anterieur']['HT'] += $fac->total_ht;
                 $TDataSituation['cumul_anterieur']['TVA'] += $fac->total_tva;
 
@@ -2876,10 +2876,14 @@ class pdf_sponge_btp extends ModelePDFFactures
 
                     $prevSituationPercent = 0;
                     $isFirstSituation = false;
-                    if(array_key_exists($i+1, $TPreviousIncoice) && array_key_exists($k, $TPreviousIncoice[$i+1]->lines)) {
-                        $prevSituationPercent = $TPreviousIncoice[$i+1]->lines[$k]->situation_percent;
+                    if(array_key_exists($i + 1, $TPreviousInvoices) && array_key_exists($k, $TPreviousInvoices[$i+1]->lines))
+                    {
+                        $prevSituationPercent = $TPreviousInvoices[$i+1]->lines[$k]->situation_percent;
                     }
-                    elseif(! array_key_exists($i+1, $TPreviousIncoice)) $isFirstSituation = true;
+                    elseif(! array_key_exists($i + 1, $TPreviousInvoices))
+                    {
+                    	$isFirstSituation = true;
+                    }
 
                     $calc_ht = $l->subprice * $l->qty * (1 - $l->remise_percent/100) * ($l->situation_percent - $prevSituationPercent)/100;
                     if(! isset($TDataSituation['cumul_anterieur'][$l->tva_tx])) {
