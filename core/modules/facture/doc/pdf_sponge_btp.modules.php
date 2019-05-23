@@ -304,13 +304,16 @@ class pdf_sponge_btp extends ModelePDFFactures
 	            // Set nblignes with the new facture lines content after hook
 	            $nblignes = count($object->lines);
 	            $nbpayments = count($object->getListOfPayments());
+		        $nbprevsituation = is_array($object->tab_previous_situation_invoice) ? count($object->tab_previous_situation_invoice) : 0;
 	            
 	            // Create pdf instance
 	            $pdf=pdf_getInstance($this->format);
 	            $default_font_size = pdf_getPDFFontSize($outputlangs);	// Must be after pdf_getInstance
 	            $pdf->SetAutoPageBreak(1,0);
-	            
-	            $heightforinfotot = 50+(4*$nbpayments);	// Height reserved to output the info and total part and payment part
+
+	            $heightforinfotot = 30;	// Height reserved to output the info and total part and payment part
+		        if(empty($conf->global->INVOICE_NO_PAYMENT_DETAILS) && $nbpayments > 0) $heightforinfotot += 4 * ($nbpayments + 3);
+				if($nbprevsituation > 0) $heightforinfotot += 4 * ($nbprevsituation + 3);
 	            $heightforfreetext= (isset($conf->global->MAIN_PDF_FREETEXT_HEIGHT)?$conf->global->MAIN_PDF_FREETEXT_HEIGHT:5);	// Height reserved to output the free text on last page
 	            $heightforfooter = $this->marge_basse + (empty($conf->global->MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS)?12:22);	// Height reserved to output the footer (value include bottom margin)
 	            
@@ -1273,7 +1276,8 @@ class pdf_sponge_btp extends ModelePDFFactures
 		$pdf->SetFont('','', $default_font_size - 1);
 
 		// Tableau total
-		$col1x = 120; $col2x = 170;
+		$col1x = 120;
+		$col2x = 220;
 		if ($this->page_largeur < 210) // To work with US executive format
 		{
 			$col2x-=20;
@@ -1406,13 +1410,12 @@ class pdf_sponge_btp extends ModelePDFFactures
 		        $posy = $pdf->GetY();
 		    }
 		    
-		    $tab2_top = $posy;
+		    $tab2_top = $posy + 3;
 		    $index=0;
-		    
 		}
-		
-		$tab2_top += 3;
-		
+
+		$pdf->SetFont('','', $default_font_size - 1);
+
 		// Total HT
 		$pdf->SetFillColor(255,255,255);
 		$pdf->SetXY($col1x, $tab2_top + 0);
