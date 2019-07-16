@@ -2958,7 +2958,8 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        
 	        if($displayWarranty){
 	            // $retenue_garantie = $object->total_ttc * $object->retained_warranty / 100; // calcle la retenue de cette facture seulemnt
-	            $retenue_garantie = ($nouveau_cumul + $nouveau_cumul_tva) * $object->retained_warranty / 100; // calcle sur l'ensemble des factures
+//                $retenue_garantie = ($nouveau_cumul + $nouveau_cumul_tva) * $object->retained_warranty / 100; // calcle sur l'ensemble des factures
+                $retenue_garantie = ($TDataSituation['nouveau_cumul']['TTC']) * $object->retained_warranty / 100; // calcle sur l'ensemble des factures
 	        }
 	    }
 
