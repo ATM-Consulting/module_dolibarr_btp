@@ -2833,26 +2833,21 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    /************************************************************/
 	    
 	}
-	
+
+    /**
+     * @param Facture $object
+     * @return array
+     */
 	function _getDataSituation(&$object)
 	{
 	    $object->fetchPreviousNextSituationInvoice();
-	    $TPreviousInvoices = &$object->tab_previous_situation_invoice;
-	    $facDerniereSituation = &end($TPreviousInvoices);
-	    $TDataSituation = array(
-	        'derniere_situation'=>$facDerniereSituation
-	        ,'date_derniere_situation'=>$facDerniereSituation->date
-	    );
-	    // On cherche à avoir la première des situations à la fin du tableau
-	    usort($TPreviousInvoices, function($a, $b)
-	    {
-	        if($a->situation_counter > $b->situation_counter) return -1;
-	        if($a->situation_counter < $b->situation_counter) return 1;
-	        return 0;
-        });
-	    
-	    $cumul_anterieur_ht = $cumul_anterieur_tva = $retenue_garantie = $retenue_garantie_anterieure = 0;
+	    /** @var Facture[] $TPreviousInvoicesReverse */
+	    $TPreviousInvoicesReverse = $object->tab_previous_situation_invoice;
 
+        $TPreviousInvoicesReverse = array_reverse($TPreviousInvoicesReverse);
+        $facDerniereSituation = $TPreviousInvoicesReverse[0];
+
+        $cumul_anterieur_ht = $cumul_anterieur_tva = $retenue_garantie = $retenue_garantie_anterieure = 0;
 	    // Init tous les champs à 0
         $TDataSituation['cumul_anterieur'] = array(
             'HT' => $cumul_anterieur_ht,
@@ -2863,48 +2858,55 @@ class pdf_sponge_btp extends ModelePDFFactures
             'travaux_sup' => 0
         );
 
-	    if(! empty($TPreviousInvoices))
-	    {
-	        foreach($TPreviousInvoices as $i => $fac)
-	        {
-                $TDataSituation['cumul_anterieur']['HT'] += $fac->total_ht;
-                $TDataSituation['cumul_anterieur']['TVA'] += $fac->total_tva;
+        // Si nous sommes pas sur la 1ere facture de situation, alors on vérifi s'il y a des travaux supplémentaires (ligne ajouté en cours de route dans la facturation et à comptabiliser ainsi que sur la facture courante)
+        if ($object->situation_counter != 1)
+        {
+            foreach($object->lines as $line)
+            {
+                if (empty($line->fk_prev_id))
+                {
+                    $calc_ht = $line->subprice * $line->qty * (1 - $line->remise_percent/100) * ($line->situation_percent / 100);
+                    $TDataSituation['cumul_anterieur']['travaux_sup'] += $calc_ht;
+                }
+            }
+        }
 
-                foreach($fac->lines as $k => $l) {
-                    $total_ht = floatval($l->total_ht);
-                    if(empty($total_ht)) continue;
+        foreach($TPreviousInvoicesReverse as $i => $previous_invoice)
+        {
+            $TDataSituation['cumul_anterieur']['HT'] += $previous_invoice->total_ht;
+            $TDataSituation['cumul_anterieur']['TVA'] += $previous_invoice->total_tva;
 
-                    $prevSituationPercent = 0;
-                    $isFirstSituation = false;
-                    if(array_key_exists($i + 1, $TPreviousInvoices) && array_key_exists($k, $TPreviousInvoices[$i+1]->lines))
+            foreach($previous_invoice->lines as $k => $l)
+            {
+                $total_ht = floatval($l->total_ht);
+                if (empty($total_ht)) continue; // Le montant est de 0, c'est qu'il s'agit d'une ligne déjà terminée et quelle n'a plus d'impact sur le total de la facture (donc pas besoin de faire des +0)
+
+                $prevSituationPercent = 0;
+                if (!empty($l->fk_prev_id) && isset($TPreviousInvoicesReverse[$i+1]))
+                {
+                    // Nous allons chercher le pourcentage de progression de la ligne d'origine
+                    foreach ($TPreviousInvoicesReverse[$i+1]->lines as $prev_prev_line)
                     {
-                        $prevSituationPercent = $TPreviousInvoices[$i+1]->lines[$k]->situation_percent;
-                    }
-                    elseif(! array_key_exists($i + 1, $TPreviousInvoices))
-                    {
-                    	$isFirstSituation = true;
-                    }
-
-                    $calc_ht = $l->subprice * $l->qty * (1 - $l->remise_percent/100) * ($l->situation_percent - $prevSituationPercent)/100;
-                    if(! isset($TDataSituation['cumul_anterieur'][$l->tva_tx])) {
-                        $TDataSituation['cumul_anterieur'][$l->tva_tx] = array('HT' => $calc_ht, 'TVA' => $calc_ht * ($l->tva_tx/100));
-                    }
-                    else {
-                        $TDataSituation['cumul_anterieur'][$l->tva_tx]['HT'] += $calc_ht;
-                        $TDataSituation['cumul_anterieur'][$l->tva_tx]['TVA'] += $calc_ht * ($l->tva_tx/100);
-                    }
-
-                    if(empty($prevSituationPercent) && ! $isFirstSituation) {
-                        // TODO: à clarifier, mais pour moi, un facture de situation précédente qui a des progressions à 0% c'est pas logique
-                        $TDataSituation['cumul_anterieur']['travaux_sup'] += $calc_ht;
+                        if ($l->fk_prev_id == $prev_prev_line->id)
+                        {
+                            $prevSituationPercent = $prev_prev_line->situation_percent;
+                            break;
+                        }
                     }
                 }
 
-	            if(! empty($object->retained_warranty)){
-	               //$retenue_garantie_anterieure += $fac->total_ttc * $fac->retained_warranty / 100; // One day...
-	            }
-	        }
-	    }
+                $calc_ht = $l->subprice * $l->qty * (1 - $l->remise_percent/100) * ($l->situation_percent - $prevSituationPercent)/100;
+                if (!isset($TDataSituation['cumul_anterieur'][$l->tva_tx]))
+                {
+                    $TDataSituation['cumul_anterieur'][$l->tva_tx] = array('HT' => $calc_ht, 'TVA' => $calc_ht * ($l->tva_tx/100));
+                }
+                else
+                {
+                    $TDataSituation['cumul_anterieur'][$l->tva_tx]['HT'] += $calc_ht;
+                    $TDataSituation['cumul_anterieur'][$l->tva_tx]['TVA'] += $calc_ht * ($l->tva_tx/100);
+                }
+            }
+        }
 
         $TDataSituation['cumul_anterieur']['TTC'] = $TDataSituation['cumul_anterieur']['HT'] + $TDataSituation['cumul_anterieur']['TVA'];
         $TDataSituation['cumul_anterieur']['HT'] -= $TDataSituation['cumul_anterieur']['travaux_sup'];
