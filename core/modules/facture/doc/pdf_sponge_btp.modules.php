@@ -2926,8 +2926,9 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        $total_ht = floatval($l->total_ht);
 	        if(empty($total_ht)) continue;
 
+            // Si $prevSituationPercent vaut 0 c'est que la ligne $l est un travail supplémentaire
             $prevSituationPercent = 0;
-            if(array_key_exists($k, $facDerniereSituation->lines)) $prevSituationPercent = $facDerniereSituation->lines[$k]->situation_percent;
+            if(! empty($facDerniereSituation->lines) && array_key_exists($k, $facDerniereSituation->lines)) $prevSituationPercent = $facDerniereSituation->lines[$k]->situation_percent;
 
             $calc_ht = $l->subprice * $l->qty * (1 - $l->remise_percent/100) * ($l->situation_percent - $prevSituationPercent)/100;
             if(! isset($TDataSituation['nouveau_cumul'][$l->tva_tx])) {
@@ -2941,7 +2942,11 @@ class pdf_sponge_btp extends ModelePDFFactures
                 $TDataSituation['nouveau_cumul'][$l->tva_tx]['TVA'] += $calc_ht * ($l->tva_tx/100);
             }
 
-            if(! empty($prevSituationPercent)) $TDataSituation['nouveau_cumul']['HT'] += $calc_ht;
+            /* On veut juste les travaux principaux dans cette variable
+             * Si on teste juste "! empty($prevSituationPercent)" toutes les lignes de la 1ere situation sont considérées comme travaux supplémentaires
+             * Et vu qu'il ne peut pas y avoir de travaux supplémentaires dans la 1ere situation, ça donne ça :
+             */
+            if(! empty($prevSituationPercent) || empty($facDerniereSituation->lines)) $TDataSituation['nouveau_cumul']['HT'] += $calc_ht;
         }
 
 	    // Retained warranty
@@ -2980,8 +2985,9 @@ class pdf_sponge_btp extends ModelePDFFactures
             $total_ht = floatval($l->total_ht);
             if(empty($total_ht)) continue;
 
+            // Si $prevSituationPercent vaut 0 c'est que la ligne $l est un travail supplémentaire
             $prevSituationPercent = 0;
-            if(array_key_exists($k, $facDerniereSituation->lines)) $prevSituationPercent = $facDerniereSituation->lines[$k]->situation_percent;
+            if(! empty($facDerniereSituation->lines) && array_key_exists($k, $facDerniereSituation->lines)) $prevSituationPercent = $facDerniereSituation->lines[$k]->situation_percent;
 
             $calc_ht = $l->subprice * $l->qty * (1 - $l->remise_percent/100) * ($l->situation_percent - $prevSituationPercent)/100;
             if(! isset($TDataSituation['mois'][$l->tva_tx])) {
@@ -2993,16 +2999,22 @@ class pdf_sponge_btp extends ModelePDFFactures
                 $TDataSituation['mois'][$l->tva_tx]['TVA'] += $calc_ht * ($l->tva_tx/100);
             }
 
-            if(! empty($prevSituationPercent)) $TDataSituation['mois']['HT'] += $calc_ht;
+            /* On veut juste les travaux principaux dans cette variable
+             * Si on teste juste "! empty($prevSituationPercent)" toutes les lignes de la 1ere situation sont considérées comme travaux supplémentaires
+             * Et vu qu'il ne peut pas y avoir de travaux supplémentaires dans la 1ere situation, ça donne ça :
+             */
+            if(! empty($prevSituationPercent) || empty($facDerniereSituation->lines)) $TDataSituation['mois']['HT'] += $calc_ht;
         }
 
-        $TFacLinesKey = array_keys($facDerniereSituation->lines);
-        $TObjectLinesKey = array_keys($object->lines);
-        $TDiffKey = array_diff($TObjectLinesKey, $TFacLinesKey);
+        if(! empty($facDerniereSituation->lines)) {
+            $TFacLinesKey = array_keys($facDerniereSituation->lines);
+            $TObjectLinesKey = array_keys($object->lines);
+            $TDiffKey = array_diff($TObjectLinesKey, $TFacLinesKey);
 
-        foreach($TDiffKey as $i) {
-            $TDataSituation['nouveau_cumul']['travaux_sup'] += $object->lines[$i]->total_ht;
-            $TDataSituation['mois']['travaux_sup'] += $object->lines[$i]->total_ht;
+            foreach($TDiffKey as $i) {
+                $TDataSituation['nouveau_cumul']['travaux_sup'] += $object->lines[$i]->total_ht;
+                $TDataSituation['mois']['travaux_sup'] += $object->lines[$i]->total_ht;
+            }
         }
 
 	    return $TDataSituation;
