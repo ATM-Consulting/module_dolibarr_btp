@@ -2254,13 +2254,17 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    $this->cols['btpsomme'] = array(
 	        'rank' => $rank,
 	        'width' => 26, // in mm
-	        'status' => true,
+	        'status' => false,
 	        'title' => array(
 	            'textkey' => 'BtpAnteCumul'
 	        ),
 	        'border-left' => true, // add left line separator
 	    );
-	    
+	    if($this->situationinvoice && ! empty($this->TDataSituation['date_derniere_situation']))
+	    {
+	        $this->cols['btpsomme']['status'] = true;
+	    }
+
 	    // Colonne "Progression actuelle"
 	    $rank = $rank + 10;
 	    $this->cols['progress_amount'] = array(
@@ -2288,25 +2292,25 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        ),
 	        'border-left' => true, // add left line separator
 	    );
-	    
+
 	    if($this->situationinvoice)
 	    {
 	        $this->cols['progress']['status'] = true;
 	    }
 	    
-	    
+	     
 	    // Colonne "Progression précédente"
 	    $rank = $rank + 10;
 	    $this->cols['prev_progress_amount'] = array(
 	        'rank' => $rank,
 	        'width' => 19, // in mm
-	        'status' => true,
+	        'status' => false,
 	        'title' => array(
 	            'textkey' => date('F', $this->TDataSituation['date_derniere_situation'])
 	        ),
 	        'border-left' => true, // add left line separator
 	    );
-	    if($this->situationinvoice)
+	    if($this->situationinvoice && ! empty($this->TDataSituation['date_derniere_situation']))
 	    {
 	        $this->cols['prev_progress_amount']['status'] = true;
 	    }
@@ -2323,7 +2327,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        'border-left' => true, // add left line separator
 	    );
 	    
-	    if($this->situationinvoice)
+	    if($this->situationinvoice && ! empty($this->TDataSituation['date_derniere_situation']))
 	    {
 	        $this->cols['prev_progress']['status'] = true;
 	    }
@@ -2846,6 +2850,14 @@ class pdf_sponge_btp extends ModelePDFFactures
 
         $TPreviousInvoicesReverse = array_reverse($TPreviousInvoicesReverse);
         $facDerniereSituation = $TPreviousInvoicesReverse[0];
+
+        $TDataSituation = array();
+
+        if (! empty($facDerniereSituation))
+        {
+            $TDataSituation['derniere_situation'] = $facDerniereSituation;
+            $TDataSituation['date_derniere_situation'] = $facDerniereSituation->date;
+        }
 
         $cumul_anterieur_ht = $cumul_anterieur_tva = $retenue_garantie = $retenue_garantie_anterieure = 0;
 	    // Init tous les champs à 0
