@@ -2859,29 +2859,17 @@ class pdf_sponge_btp extends ModelePDFFactures
             $TDataSituation['date_derniere_situation'] = $facDerniereSituation->date;
         }
 
-        $cumul_anterieur_ht = $cumul_anterieur_tva = $retenue_garantie = $retenue_garantie_anterieure = 0;
+        $retenue_garantie = $retenue_garantie_anterieure = 0;
 	    // Init tous les champs à 0
         $TDataSituation['cumul_anterieur'] = array(
-            'HT' => $cumul_anterieur_ht,
-            'TVA' => $cumul_anterieur_tva,
-            'TTC' => $cumul_anterieur_ht + $cumul_anterieur_tva,
+            'HT' => 0,
+            'TVA' => 0,
+            'TTC' => 0,
             'retenue_garantie' => $retenue_garantie_anterieure,
-            'total_ttc' => ($cumul_anterieur_ht + $cumul_anterieur_tva) - $retenue_garantie_anterieure,
+            'total_ttc' => - $retenue_garantie_anterieure,
             'travaux_sup' => 0
         );
 
-        // Si nous sommes pas sur la 1ere facture de situation, alors on vérifi s'il y a des travaux supplémentaires (ligne ajouté en cours de route dans la facturation et à comptabiliser ainsi que sur la facture courante)
-        if ($object->situation_counter != 1)
-        {
-            foreach($object->lines as $line)
-            {
-                if (empty($line->fk_prev_id))
-                {
-                    $calc_ht = $line->subprice * $line->qty * (1 - $line->remise_percent/100) * ($line->situation_percent / 100);
-                    $TDataSituation['cumul_anterieur']['travaux_sup'] += $calc_ht;
-                }
-            }
-        }
 
         foreach($TPreviousInvoicesReverse as $i => $previous_invoice)
         {
@@ -2891,7 +2879,6 @@ class pdf_sponge_btp extends ModelePDFFactures
             foreach($previous_invoice->lines as $k => $l)
             {
                 $total_ht = floatval($l->total_ht);
-                if (empty($total_ht)) continue; // Le montant est de 0, c'est qu'il s'agit d'une ligne déjà terminée et quelle n'a plus d'impact sur le total de la facture (donc pas besoin de faire des +0)
 
                 $prevSituationPercent = 0;
                 if (!empty($l->fk_prev_id) && isset($TPreviousInvoicesReverse[$i+1]))
@@ -2936,7 +2923,6 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 	    foreach($object->lines as $k => $l) {
 	        $total_ht = floatval($l->total_ht);
-	        if(empty($total_ht)) continue;
 
             // Si $prevSituationPercent vaut 0 c'est que la ligne $l est un travail supplémentaire
             $prevSituationPercent = 0;
@@ -2955,10 +2941,11 @@ class pdf_sponge_btp extends ModelePDFFactures
             }
 
             /* On veut juste les travaux principaux dans cette variable
-             * Si on teste juste "! empty($prevSituationPercent)" toutes les lignes de la 1ere situation sont considérées comme travaux supplémentaires
-             * Et vu qu'il ne peut pas y avoir de travaux supplémentaires dans la 1ere situation, ça donne ça :
+             * Pour rappel, les travaux supplémentaires sont constitués des lignes qui, à partir de la deuxième situation,
+             * ont été ajoutées dans la facture actuelle. On teste donc qu'on soit bien soit sur la première facture du
+             * cycle, soit que la ligne provient d'une ligne d'une facture précédente
              */
-            if(! empty($prevSituationPercent) || empty($facDerniereSituation->lines)) $TDataSituation['nouveau_cumul']['HT'] += $calc_ht;
+            if ($object->situation_counter == 1 || ! empty($l->fk_prev_id)) $TDataSituation['nouveau_cumul']['HT'] += $calc_ht;
         }
 
 	    // Retained warranty
@@ -2995,7 +2982,6 @@ class pdf_sponge_btp extends ModelePDFFactures
         );
 	    foreach($object->lines as $k => $l) {
             $total_ht = floatval($l->total_ht);
-            if(empty($total_ht)) continue;
 
             // Si $prevSituationPercent vaut 0 c'est que la ligne $l est un travail supplémentaire
             $prevSituationPercent = 0;
@@ -3012,10 +2998,11 @@ class pdf_sponge_btp extends ModelePDFFactures
             }
 
             /* On veut juste les travaux principaux dans cette variable
-             * Si on teste juste "! empty($prevSituationPercent)" toutes les lignes de la 1ere situation sont considérées comme travaux supplémentaires
-             * Et vu qu'il ne peut pas y avoir de travaux supplémentaires dans la 1ere situation, ça donne ça :
+             * Pour rappel, les travaux supplémentaires sont constitués des lignes qui, à partir de la deuxième situation,
+             * ont été ajoutées dans la facture actuelle. On teste donc qu'on soit bien soit sur la première facture du
+             * cycle, soit que la ligne provient d'une ligne d'une facture précédente
              */
-            if(! empty($prevSituationPercent) || empty($facDerniereSituation->lines)) $TDataSituation['mois']['HT'] += $calc_ht;
+            if ($object->situation_counter == 1 || ! empty($l->fk_prev_id)) $TDataSituation['mois']['HT'] += $calc_ht;
         }
 
         if(! empty($facDerniereSituation->lines)) {
