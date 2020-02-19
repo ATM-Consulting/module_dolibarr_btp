@@ -1278,7 +1278,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 		$pdf->SetFont('','', $default_font_size - 1);
 
 		// Tableau total
-		$col1x = 120; $col2x = 170;
+		$col1x = 120; $col2x = 200;
 		if ($this->page_largeur < 210) // To work with US executive format
 		{
 			$col2x-=20;
@@ -1737,7 +1737,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 				        
 				        $retainedWarrantyToPayOn = $outputlangs->transnoentities("BTPRetainedWarranty") . ' ('.$object->retained_warranty.'%)';
 				        $retainedWarrantyToPayOn.=  !empty($object->retained_warranty_date_limit)?' '.$outputlangs->transnoentities("BTPtoPayOn", dol_print_date($object->retained_warranty_date_limit, 'day')):'';
-				        
+
 				        $pdf->MultiCell($col2x-$col1x, $tab2_hl, $retainedWarrantyToPayOn, $useborder, 'L', 1);
 				        $pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
 				        $pdf->MultiCell($largcol2, $tab2_hl, price($retainedWarranty) , $useborder, 'R', 1);
