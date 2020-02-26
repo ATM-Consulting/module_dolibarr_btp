@@ -684,8 +684,8 @@ class pdf_crabe_btp extends ModelePDFFactures
 						$this->localtax2[$localtax2_type][$localtax2_rate]+=$localtax2ligne;
 
 					if (($object->lines[$i]->info_bits & 0x01) == 0x01) $vatrate.='*';
-					if (! isset($this->tva[$vatrate])) 				$this->tva[$vatrate]='';
-					$this->tva[$vatrate] += $tvaligne;
+					if (! isset($this->tva[$vatrate])) 				$this->tva[$vatrate]=0.0;
+					if($tvaligne > 0.0) $this->tva[$vatrate] += $tvaligne;
 
 					if ($posYAfterImage > $posYAfterDescription) $nexY=$posYAfterImage;
 
