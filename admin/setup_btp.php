@@ -85,7 +85,7 @@ llxHeader('', $langs->trans($page_name));
 $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
     . $langs->trans("BackToModuleList") . '</a>';
     print_fiche_titre($langs->trans($page_name), $linkback);
-    
+
     // Configuration header
     $head = btpAdminPrepareHead();
     dol_fiche_head(
@@ -96,31 +96,30 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
         "btp@btp"
         );
 
-    
-    
+
+
     print '<table class="noborder" width="100%">';
-    
+
     setup_print_title($langs->trans("Parameters"));
-    
-    setup_print_on_off('BTP_SIMPLE_DISPLAY');
-    
+
+    // setup_print_on_off('BTP_SIMPLE_DISPLAY'); je ne sais pas a quoi sert cette conf j'ai fait une recherche, j'ai rien trouvé...
+
     if(floatval(DOL_VERSION) >= 8){
         setup_print_on_off('MAIN_ENABLE_IMPORT_LINKED_OBJECT_LINES', false, '', 'MAIN_ENABLE_IMPORT_LINKED_OBJECT_LINES_HELP');
     }
-    
+
     setup_print_title($langs->trans("SetupSituationTitle"));
     setup_print_on_off('INVOICE_USE_SITUATION');
 
     if(floatval(DOL_VERSION) >= 8){
         setup_print_on_off('INVOICE_USE_SITUATION_CREDIT_NOTE');
     }
-    
-    
-    print '</table>';
-    
-    llxFooter();
-    
-    $db->close();
-    
 
-    
+
+    print '</table>';
+
+    llxFooter();
+
+    $db->close();
+
+

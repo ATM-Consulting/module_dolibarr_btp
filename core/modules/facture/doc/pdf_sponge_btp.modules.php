@@ -110,7 +110,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	function __construct($db)
 	{
 	    global $conf,$langs,$mysoc,$object;
-
+		
 		// for retro compatibility
 		if(!empty($conf->global->INVOICE_USE_SITUATION_RETAINED_WARRANTY)) {
 			$conf->global->INVOICE_USE_RETAINED_WARRANTY = $conf->global->INVOICE_USE_SITUATION_RETAINED_WARRANTY;
@@ -309,13 +309,16 @@ class pdf_sponge_btp extends ModelePDFFactures
 	            // Set nblignes with the new facture lines content after hook
 	            $nblignes = count($object->lines);
 	            $nbpayments = count($object->getListOfPayments());
+		        $nbprevsituation = is_array($object->tab_previous_situation_invoice) ? count($object->tab_previous_situation_invoice) : 0;
 	            
 	            // Create pdf instance
 	            $pdf=pdf_getInstance($this->format);
 	            $default_font_size = pdf_getPDFFontSize($outputlangs);	// Must be after pdf_getInstance
 	            $pdf->SetAutoPageBreak(1,0);
-	            
-	            $heightforinfotot = 50+(4*$nbpayments);	// Height reserved to output the info and total part and payment part
+
+	            $heightforinfotot = 30;	// Height reserved to output the info and total part and payment part
+		        if(empty($conf->global->INVOICE_NO_PAYMENT_DETAILS) && $nbpayments > 0) $heightforinfotot += 4 * ($nbpayments + 3);
+				if($nbprevsituation > 0) $heightforinfotot += 4 * ($nbprevsituation + 3);
 	            $heightforfreetext= (isset($conf->global->MAIN_PDF_FREETEXT_HEIGHT)?$conf->global->MAIN_PDF_FREETEXT_HEIGHT:5);	// Height reserved to output the free text on last page
 	            $heightforfooter = $this->marge_basse + (empty($conf->global->MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS)?12:22);	// Height reserved to output the footer (value include bottom margin)
 	            
@@ -1278,7 +1281,8 @@ class pdf_sponge_btp extends ModelePDFFactures
 		$pdf->SetFont('','', $default_font_size - 1);
 
 		// Tableau total
-		$col1x = 120; $col2x = 200;
+		$col1x = 120;
+		$col2x = 220;
 		if ($this->page_largeur < 210) // To work with US executive format
 		{
 			$col2x-=20;
@@ -1308,11 +1312,12 @@ class pdf_sponge_btp extends ModelePDFFactures
 		}
 		
 		$object->fetchPreviousNextSituationInvoice();
-		$TPreviousIncoice = $object->tab_previous_situation_invoice;
-		
+		$TPreviousInvoices = $object->tab_previous_situation_invoice;
+
 		$total_a_payer = 0;
 		$total_a_payer_ttc = 0;
-		foreach ($TPreviousIncoice as &$fac){
+		foreach ($TPreviousInvoices as &$fac)
+		{
 		    $total_a_payer += $fac->total_ht;
 		    $total_a_payer_ttc += $fac->total_ttc;
 		}
@@ -1330,16 +1335,13 @@ class pdf_sponge_btp extends ModelePDFFactures
 		
 		$deja_paye = 0;
 		$i = 1;
-		if(!empty($TPreviousIncoice)){
-		    
+		if(! empty($TPreviousInvoices))
+		{
 		    $pdf->setY($tab2_top);
 		    $posy = $pdf->GetY();
-		    
-		    
-		    
-		    
-		    foreach ($TPreviousIncoice as &$fac){
-		        
+
+		    foreach ($TPreviousInvoices as &$fac)
+		    {
 		        if($posy  > 180 ) {
 		            $this->_pagefoot($pdf,$object,$outputlangs,1);
 		            $pdf->addPage();
@@ -1369,7 +1371,6 @@ class pdf_sponge_btp extends ModelePDFFactures
 		        $posy += $tab2_hl;
 		        
 		        $pdf->setY($posy);
-		        
 		    }
 		    
 		    // Display curent total
@@ -1411,19 +1412,18 @@ class pdf_sponge_btp extends ModelePDFFactures
 		        $posy = $pdf->GetY();
 		    }
 		    
-		    $tab2_top = $posy;
+		    $tab2_top = $posy + 3;
 		    $index=0;
-		    
 		}
-		
-		$tab2_top += 3;
-		
+
+		$pdf->SetFont('','', $default_font_size - 1);
+
 		// Total HT
 		$pdf->SetFillColor(255,255,255);
 		$pdf->SetXY($col1x, $tab2_top + 0);
 		$pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("TotalHT"), 0, 'L', 1);
 
-		$total_ht = ($conf->multicurrency->enabled && $object->mylticurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
+		$total_ht = ($conf->multicurrency->enabled && $object->multicurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
 		$pdf->SetXY($col2x, $tab2_top + 0);
 		$pdf->MultiCell($largcol2, $tab2_hl, price($sign * ($total_ht + (! empty($object->remise)?$object->remise:0)), 0, $outputlangs), 0, 'R', 1);
 
@@ -1515,31 +1515,6 @@ class pdf_sponge_btp extends ModelePDFFactures
                 //}
 
 				// VAT
-				// Situations totals migth be wrong on huge amounts
-				if ($object->situation_cycle_ref && $object->situation_counter > 1) {
-
-					$sum_pdf_tva = 0;
-					foreach($this->tva as $tvakey => $tvaval){
-						$sum_pdf_tva+=$tvaval; // sum VAT amounts to compare to object
-					}
-
-					if($sum_pdf_tva!=$object->total_tva) { // apply coef to recover the VAT object amount (the good one)
-					    if(!empty($sum_pdf_tva))
-					    {
-					        $coef_fix_tva = $object->total_tva / $sum_pdf_tva;
-					    }
-					    else {
-					        $coef_fix_tva = 1;
-					    }
-					   
-
-						foreach($this->tva as $tvakey => $tvaval) {
-							$this->tva[$tvakey]=$tvaval * $coef_fix_tva;
-						}
-					}
-
-				}
-
 				foreach($this->tva as $tvakey => $tvaval)
 				{
 					if ($tvakey != 0)    // On affiche pas taux 0
@@ -1709,11 +1684,11 @@ class pdf_sponge_btp extends ModelePDFFactures
 							}
 						}
 					}
-
 				    
-				    if($displayWarranty) {
-						$pdf->SetTextColor(40, 40, 40);
-						$pdf->SetFillColor(255, 255, 255);
+				    
+				    if($displayWarranty){
+				        $pdf->SetTextColor(40,40,40);
+				        $pdf->SetFillColor(255,255,255);
 
 						if(is_callable(array($object, 'getRetainedWarrantyAmount'))){
 							$retainedWarranty = $object->getRetainedWarrantyAmount();
@@ -1721,7 +1696,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 						else{
 							// for retrocompatibility
 							if ($object->type == Facture::TYPE_SITUATION && !empty($conf->global->USE_RETAINED_WARRANTY_ONLY_FOR_SITUATION_FINAL)) {
-								$retainedWarranty = $total_a_payer_ttc * $object->retained_warranty / 100;
+				                $retainedWarranty = $total_a_payer_ttc * $object->retained_warranty / 100;
 							}
 							else{
 								$retainedWarranty = $total_ttc * $object->retained_warranty / 100;
@@ -1747,7 +1722,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 				        
 				        $retainedWarrantyToPayOn = $outputlangs->transnoentities("BTPRetainedWarranty") . ' ('.$object->retained_warranty.'%)';
 				        $retainedWarrantyToPayOn.=  !empty($object->retained_warranty_date_limit)?' '.$outputlangs->transnoentities("BTPtoPayOn", dol_print_date($object->retained_warranty_date_limit, 'day')):'';
-
+				        
 				        $pdf->MultiCell($col2x-$col1x, $tab2_hl, $retainedWarrantyToPayOn, $useborder, 'L', 1);
 				        $pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
 				        $pdf->MultiCell($largcol2, $tab2_hl, price($retainedWarranty) , $useborder, 'R', 1);
@@ -2321,13 +2296,17 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    $this->cols['btpsomme'] = array(
 	        'rank' => $rank,
 	        'width' => 26, // in mm
-	        'status' => true,
+	        'status' => false,
 	        'title' => array(
 	            'textkey' => 'BtpAnteCumul'
 	        ),
 	        'border-left' => true, // add left line separator
 	    );
-	    
+	    if($this->situationinvoice && ! empty($this->TDataSituation['date_derniere_situation']))
+	    {
+	        $this->cols['btpsomme']['status'] = true;
+	    }
+
 	    // Colonne "Progression actuelle"
 	    $rank = $rank + 10;
 	    $this->cols['progress_amount'] = array(
@@ -2355,25 +2334,25 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        ),
 	        'border-left' => true, // add left line separator
 	    );
-	    
+
 	    if($this->situationinvoice)
 	    {
 	        $this->cols['progress']['status'] = true;
 	    }
 	    
-	    
+	     
 	    // Colonne "Progression précédente"
 	    $rank = $rank + 10;
 	    $this->cols['prev_progress_amount'] = array(
 	        'rank' => $rank,
 	        'width' => 19, // in mm
-	        'status' => true,
+	        'status' => false,
 	        'title' => array(
 	            'textkey' => date('F', $this->TDataSituation['date_derniere_situation'])
 	        ),
 	        'border-left' => true, // add left line separator
 	    );
-	    if($this->situationinvoice)
+	    if($this->situationinvoice && ! empty($this->TDataSituation['date_derniere_situation']))
 	    {
 	        $this->cols['prev_progress_amount']['status'] = true;
 	    }
@@ -2390,7 +2369,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        'border-left' => true, // add left line separator
 	    );
 	    
-	    if($this->situationinvoice)
+	    if($this->situationinvoice && ! empty($this->TDataSituation['date_derniere_situation']))
 	    {
 	        $this->cols['prev_progress']['status'] = true;
 	    }
@@ -2836,7 +2815,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    /***********************************************************/
 	    
 	    /**********************Données*******************************/
-	    $TToDpisplay = array(
+	    $TToDisplay = array(
             'nouveau_cumul',
             'cumul_anterieur',
             'mois'
@@ -2845,8 +2824,8 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    $x = $this->marge_gauche+85;
 //	    unset($this->TDataSituation['derniere_situation']);
 //	    var_dump($object->lines);exit;
-	    foreach($TToDpisplay as $col) {
-
+	    foreach($TToDisplay as $col)
+	    {
 	        // Travaux principaux
 	        $pdf->SetXY($x, $tab_top+8);
 	        $pdf->MultiCell(32,2, price($this->TDataSituation[$col]['HT']),'','R');
@@ -2901,82 +2880,83 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    
 	}
 
-	/**
-	 * @param $object Facture
-	 * @return array
-	 */
-	function _getDataSituation(&$object) {
-		global $conf;
+    /**
+     * @param Facture $object
+     * @return array
+     */
+	function _getDataSituation(&$object)
+	{
 	    $object->fetchPreviousNextSituationInvoice();
-	    $TPreviousIncoice = &$object->tab_previous_situation_invoice;
-	    $facDerniereSituation = &end($TPreviousIncoice);
-	    $TDataSituation = array(
-	        'derniere_situation'=>$facDerniereSituation
-	        ,'date_derniere_situation'=>$facDerniereSituation->date
-	    );
-	    // On cherche à avoir la première des situations à la fin du tableau
-	    usort($TPreviousIncoice, function($a, $b) {
-	        if($a->situation_counter > $b->situation_counter) return -1;
-	        if($a->situation_counter < $b->situation_counter) return 1;
-	        return 0;
-        });
-	    
-	    $cumul_anterieur_ht = $cumul_anterieur_tva = $retenue_garantie = $retenue_garantie_anterieure = 0;
+	    /** @var Facture[] $TPreviousInvoicesReverse */
+	    $TPreviousInvoicesReverse = $object->tab_previous_situation_invoice;
 
+        $TPreviousInvoicesReverse = array_reverse($TPreviousInvoicesReverse);
+        $facDerniereSituation = $TPreviousInvoicesReverse[0];
+
+        $TDataSituation = array();
+
+        if (! empty($facDerniereSituation))
+        {
+            $TDataSituation['derniere_situation'] = $facDerniereSituation;
+            $TDataSituation['date_derniere_situation'] = $facDerniereSituation->date;
+        }
+
+        $retenue_garantie = 0;
 	    // Init tous les champs à 0
         $TDataSituation['cumul_anterieur'] = array(
-            'HT' => $cumul_anterieur_ht,
-            'TVA' => $cumul_anterieur_tva,
-            'TTC' => $cumul_anterieur_ht + $cumul_anterieur_tva,
-            'retenue_garantie' => $retenue_garantie_anterieure,
-            'total_ttc' => ($cumul_anterieur_ht + $cumul_anterieur_tva) - $retenue_garantie_anterieure,
+            'HT' => 0,
+            'TVA' => 0,
+            'TTC' => 0,
+            'retenue_garantie' => 0,
+            'total_ttc' => - 0,
             'travaux_sup' => 0
         );
 
-	    if(!empty($TPreviousIncoice)) {
-			/**
-			 * @var $TPreviousIncoice Facture[]
-			 */
-	        foreach($TPreviousIncoice as $i => $fac) {
-                $TDataSituation['cumul_anterieur']['HT'] += $fac->total_ht;
-                $TDataSituation['cumul_anterieur']['TVA'] += $fac->total_tva;
 
-                foreach($fac->lines as $k => $l) {
-                    $total_ht = floatval($l->total_ht);
-                    if(empty($total_ht)) continue;
+        foreach($TPreviousInvoicesReverse as $i => $previous_invoice)
+        {
+            $TDataSituation['cumul_anterieur']['HT'] += $previous_invoice->total_ht;
+            $TDataSituation['cumul_anterieur']['TVA'] += $previous_invoice->total_tva;
 
-                    $prevSituationPercent = 0;
-                    $isFirstSituation = false;
-                    if(array_key_exists($i+1, $TPreviousIncoice) && array_key_exists($k, $TPreviousIncoice[$i+1]->lines)) {
-                        $prevSituationPercent = $TPreviousIncoice[$i+1]->lines[$k]->situation_percent;
-                    }
-                    elseif(! array_key_exists($i+1, $TPreviousIncoice)) $isFirstSituation = true;
+            foreach($previous_invoice->lines as $k => $l)
+            {
+                $total_ht = floatval($l->total_ht);
 
-                    $calc_ht = $l->subprice * $l->qty * (1 - $l->remise_percent/100) * ($l->situation_percent - $prevSituationPercent)/100;
-                    if(! isset($TDataSituation['cumul_anterieur'][$l->tva_tx])) {
-                        $TDataSituation['cumul_anterieur'][$l->tva_tx] = array('HT' => $calc_ht, 'TVA' => $calc_ht * ($l->tva_tx/100));
-                    }
-                    else {
-                        $TDataSituation['cumul_anterieur'][$l->tva_tx]['HT'] += $calc_ht;
-                        $TDataSituation['cumul_anterieur'][$l->tva_tx]['TVA'] += $calc_ht * ($l->tva_tx/100);
-                    }
-
-                    if(empty($prevSituationPercent) && ! $isFirstSituation) {
-                        // TODO: à clarifier, mais pour moi, un facture de situation précédente qui a des progressions à 0% c'est pas logique
-                        $TDataSituation['cumul_anterieur']['travaux_sup'] += $calc_ht;
+                $prevSituationPercent = 0;
+                if (!empty($l->fk_prev_id) && isset($TPreviousInvoicesReverse[$i+1]))
+                {
+                    // Nous allons chercher le pourcentage de progression de la ligne d'origine
+                    foreach ($TPreviousInvoicesReverse[$i+1]->lines as $prev_prev_line)
+                    {
+                        if ($l->fk_prev_id == $prev_prev_line->id)
+                        {
+                            $prevSituationPercent = $prev_prev_line->situation_percent;
+                            break;
+                        }
                     }
                 }
 
+                $calc_ht = $l->subprice * $l->qty * (1 - $l->remise_percent/100) * ($l->situation_percent - $prevSituationPercent)/100;
+                if (!isset($TDataSituation['cumul_anterieur'][$l->tva_tx]))
+                {
+                    $TDataSituation['cumul_anterieur'][$l->tva_tx] = array('HT' => $calc_ht, 'TVA' => $calc_ht * ($l->tva_tx/100));
+                }
+                else
+                {
+                    $TDataSituation['cumul_anterieur'][$l->tva_tx]['HT'] += $calc_ht;
+                    $TDataSituation['cumul_anterieur'][$l->tva_tx]['TVA'] += $calc_ht * ($l->tva_tx/100);
+                }
+
 	            if(! empty($fac->retained_warranty) && empty($conf->global->USE_RETAINED_WARRANTY_ONLY_FOR_SITUATION_FINAL)){
-	               $retenue_garantie_anterieure += $fac->getRetainedWarrantyAmount();
+	               $TDataSituation['cumul_anterieur']['retenue_garantie'] += $fac->getRetainedWarrantyAmount();
 	            }
-	        }
-	    }
+            }
+        }
 
         $TDataSituation['cumul_anterieur']['TTC'] = $TDataSituation['cumul_anterieur']['HT'] + $TDataSituation['cumul_anterieur']['TVA'];
         $TDataSituation['cumul_anterieur']['HT'] -= $TDataSituation['cumul_anterieur']['travaux_sup'];
         $TDataSituation['cumul_anterieur']['total_ttc'] = $TDataSituation['cumul_anterieur']['TTC'] - $TDataSituation['cumul_anterieur']['retenue_garantie'];
-		$TDataSituation['cumul_anterieur']['retenue_garantie'] = $retenue_garantie_anterieure;
+
 
 	    $nouveau_cumul = $TDataSituation['cumul_anterieur']['HT'];
 	    $nouveau_cumul_tva = $TDataSituation['cumul_anterieur']['TVA'] + $object->total_tva;
@@ -3009,10 +2989,11 @@ class pdf_sponge_btp extends ModelePDFFactures
             }
 
             /* On veut juste les travaux principaux dans cette variable
-             * Si on teste juste "! empty($prevSituationPercent)" toutes les lignes de la 1ere situation sont considérées comme travaux supplémentaires
-             * Et vu qu'il ne peut pas y avoir de travaux supplémentaires dans la 1ere situation, ça donne ça :
+             * Pour rappel, les travaux supplémentaires sont constitués des lignes qui, à partir de la deuxième situation,
+             * ont été ajoutées dans la facture actuelle. On teste donc qu'on soit bien soit sur la première facture du
+             * cycle, soit que la ligne provient d'une ligne d'une facture précédente
              */
-            if(! empty($prevSituationPercent) || empty($facDerniereSituation->lines)) $TDataSituation['nouveau_cumul']['HT'] += $calc_ht;
+            if ($object->situation_counter == 1 || ! empty($l->fk_prev_id)) $TDataSituation['nouveau_cumul']['HT'] += $calc_ht;
         }
 
 	    // Retained warranty
@@ -3037,12 +3018,13 @@ class pdf_sponge_btp extends ModelePDFFactures
 					$retenue_garantie = $object->total_ttc * $object->retained_warranty / 100; // calcle la retenue de cette facture seulemnt
 				}
 
-
+                $rounding=min($conf->global->MAIN_MAX_DECIMALS_UNIT,$conf->global->MAIN_MAX_DECIMALS_TOT);
+				$retenue_garantie = round($retainedWarranty, $rounding);
 	        }
 	    }
 
-        $TDataSituation['nouveau_cumul']['retenue_garantie'] = $retenue_garantie + $retenue_garantie_anterieure;
-        $TDataSituation['nouveau_cumul']['total_ttc'] = $TDataSituation['nouveau_cumul']['TTC'] - ($retenue_garantie + $retenue_garantie_anterieure);
+        $TDataSituation['nouveau_cumul']['retenue_garantie'] = $retenue_garantie + $TDataSituation['cumul_anterieur']['retenue_garantie'];
+        $TDataSituation['nouveau_cumul']['total_ttc'] = $TDataSituation['nouveau_cumul']['TTC'] - ($retenue_garantie + $TDataSituation['cumul_anterieur']['retenue_garantie']);
 
         $TDataSituation['mois'] = array(
             'HT' => 0,
@@ -3054,7 +3036,6 @@ class pdf_sponge_btp extends ModelePDFFactures
         );
 	    foreach($object->lines as $k => $l) {
             $total_ht = floatval($l->total_ht);
-            if(empty($total_ht)) continue;
 
             // Si $prevSituationPercent vaut 0 c'est que la ligne $l est un travail supplémentaire
             $prevSituationPercent = 0;
@@ -3071,10 +3052,11 @@ class pdf_sponge_btp extends ModelePDFFactures
             }
 
             /* On veut juste les travaux principaux dans cette variable
-             * Si on teste juste "! empty($prevSituationPercent)" toutes les lignes de la 1ere situation sont considérées comme travaux supplémentaires
-             * Et vu qu'il ne peut pas y avoir de travaux supplémentaires dans la 1ere situation, ça donne ça :
+             * Pour rappel, les travaux supplémentaires sont constitués des lignes qui, à partir de la deuxième situation,
+             * ont été ajoutées dans la facture actuelle. On teste donc qu'on soit bien soit sur la première facture du
+             * cycle, soit que la ligne provient d'une ligne d'une facture précédente
              */
-            if(! empty($prevSituationPercent) || empty($facDerniereSituation->lines)) $TDataSituation['mois']['HT'] += $calc_ht;
+            if ($object->situation_counter == 1 || ! empty($l->fk_prev_id)) $TDataSituation['mois']['HT'] += $calc_ht;
         }
 
         if(! empty($facDerniereSituation->lines)) {
