@@ -108,13 +108,26 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
         setup_print_on_off('MAIN_ENABLE_IMPORT_LINKED_OBJECT_LINES', false, '', 'MAIN_ENABLE_IMPORT_LINKED_OBJECT_LINES_HELP');
     }
 
+
+    // INVOICE_USE_SITUATION
     setup_print_title($langs->trans("SetupSituationTitle"));
-    setup_print_on_off('INVOICE_USE_SITUATION');
 
-    if(floatval(DOL_VERSION) >= 8){
-        setup_print_on_off('INVOICE_USE_SITUATION_CREDIT_NOTE');
+    // FORCE reload page
+    setup_print_on_off('INVOICE_USE_SITUATION', false, '', false, 300, true);
+
+    if(!empty($conf->global->INVOICE_USE_SITUATION)) {
+        if(intval(DOL_VERSION) >= 11
+            || file_exists(DOL_DOCUMENT_ROOT . '/admin/facture_situation.php' ) // For X.x_btp compatible branch
+        )
+        {
+            print '<tr>';
+            print '<td colspan="3">'.$langs->trans('SituationParamsAvailablesHere').' <a href="'.dol_buildpath('admin/facture_situation.php',1).'" >'.$langs->trans("SetupSituationTitle").'</a></td>'."\n";
+            print '</tr>';
+        }
+        elseif(intval(DOL_VERSION) >= 8){
+            setup_print_on_off('INVOICE_USE_SITUATION_CREDIT_NOTE');
+        }
     }
-
 
     print '</table>';
 
