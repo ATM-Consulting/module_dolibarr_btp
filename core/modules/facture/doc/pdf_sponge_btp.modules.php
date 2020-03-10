@@ -2935,7 +2935,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 		$TDataSituation['cumul_anterieur']['TTC'] = $TDataSituation['cumul_anterieur']['HT'] + $TDataSituation['cumul_anterieur']['TVA'];
 		$TDataSituation['cumul_anterieur']['HT'] -= $TDataSituation['cumul_anterieur']['travaux_sup'];
-		$TDataSituation['cumul_anterieur']['total_ttc'] = $TDataSituation['cumul_anterieur']['TTC'] - $TDataSituation['cumul_anterieur']['retenue_garantie'];
+		$TDataSituation['cumul_anterieur']['total_ttc'] = $TDataSituation['cumul_anterieur']['TTC'] - $retenue_garantie_anterieure;
 		$TDataSituation['cumul_anterieur']['retenue_garantie'] = $retenue_garantie_anterieure;
 
 		$nouveau_cumul = $TDataSituation['cumul_anterieur']['HT'];
