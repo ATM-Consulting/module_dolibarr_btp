@@ -109,6 +109,11 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
     }
 
 
+    if(floatval(DOL_VERSION) >= 10){
+        setup_print_on_off('INVOICE_KEEP_DISCOUNT_LINES_AS_IN_ORIGIN', false, '', 'INVOICE_KEEP_DISCOUNT_LINES_AS_IN_ORIGIN_HELP');
+    }
+
+
     // INVOICE_USE_SITUATION
     setup_print_title($langs->trans("SetupSituationTitle"));
 
