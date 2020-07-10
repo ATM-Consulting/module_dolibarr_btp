@@ -131,7 +131,7 @@ class modBtp extends DolibarrModules
 		$this->hidden = false;
 		// List of modules class name as string that must be enabled if this module is enabled
 		// Example : $this->depends('modAnotherModule', 'modYetAnotherModule')
-		$this->depends = array('modmetre','modnomenclature','modSubtotal','modTarif','modWorkstation','modSociete'
+		$this->depends = array('modnomenclature','modSubtotal','modTarif','modWorkstation','modSociete'
 				,'modPropale'
 				,'modCommande'
 				,'modFournisseur'
@@ -139,6 +139,7 @@ class modBtp extends DolibarrModules
 				,'modMargin'
 				,'modProduct'
 				/* sujet à discuter
+				,'modmetre'
 				,'modBanque'
 				,'modService'
 				,'modStock'
@@ -148,7 +149,7 @@ class modBtp extends DolibarrModules
 				,'modBookmark'
 				,'modDoc2Project'
 				,'modSearchProductCategory'*/
-				
+
 		);
 		// List of modules id to disable if this one is disabled
 		$this->requiredby = array();
@@ -481,13 +482,13 @@ class modBtp extends DolibarrModules
 	 * 	@return		int					1 if OK, 0 if KO
 	 */
 	public function init($options = '')
-	{	    
+	{
 	    global $db, $conf;
-	    
+
 		$sql = array();
 
 		$result = $this->loadTables();
-				
+
 		// On active le modele
 		$ret = delDocumentModel('crabe_btp', 'invoice');
 		if ($ret > 0)
@@ -495,7 +496,7 @@ class modBtp extends DolibarrModules
 		    $ret = addDocumentModel('crabe_btp', 'invoice', 'crabe_btp', null);
 		}
 
-		
+
 
 		return $this->_init($sql, $options);
 	}
@@ -509,9 +510,9 @@ class modBtp extends DolibarrModules
 	 * 	@return		int					1 if OK, 0 if KO
 	 */
 	public function remove($options = '')
-	{	    
+	{
 	    global $db, $conf;
-	    
+
 		$sql = array();
 
 		$ret = delDocumentModel('crabe_btp', 'invoice');
@@ -519,7 +520,7 @@ class modBtp extends DolibarrModules
 		{
 		    if ($conf->global->FACTURE_ADDON_PDF == "crabe_btp") dolibarr_del_const($db, 'FACTURE_ADDON_PDF',$conf->entity);
 		}
-		
+
 		return $this->_remove($sql, $options);
 	}
 
