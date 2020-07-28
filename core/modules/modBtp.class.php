@@ -131,7 +131,7 @@ class modBtp extends DolibarrModules
 		$this->hidden = false;
 		// List of modules class name as string that must be enabled if this module is enabled
 		// Example : $this->depends('modAnotherModule', 'modYetAnotherModule')
-		$this->depends = array('modnomenclature','modSubtotal','modTarif','modWorkstation','modSociete'
+		$this->depends = array('modnomenclature','modSubtotal','modWorkstation','modSociete'
 				,'modPropale'
 				,'modCommande'
 				,'modFournisseur'
@@ -139,6 +139,7 @@ class modBtp extends DolibarrModules
 				,'modMargin'
 				,'modProduct'
 				/* sujet à discuter
+				,'modTarif'
 				,'modmetre'
 				,'modBanque'
 				,'modService'
