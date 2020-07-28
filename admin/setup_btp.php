@@ -102,7 +102,9 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
 
     setup_print_title($langs->trans("Parameters"));
 
-    // setup_print_on_off('BTP_SIMPLE_DISPLAY'); je ne sais pas a quoi sert cette conf j'ai fait une recherche, j'ai rien trouvé...
+    setup_print_on_off('PRODUCT_USE_UNITS'); // je ne sais pas a quoi sert cette conf j'ai fait une recherche, utilisé par workstation
+
+    setup_print_on_off('BTP_SIMPLE_DISPLAY'); // je ne sais pas a quoi sert cette conf j'ai fait une recherche, utilisé par workstation
 
     if(floatval(DOL_VERSION) >= 8){
         setup_print_on_off('MAIN_ENABLE_IMPORT_LINKED_OBJECT_LINES', false, '', 'MAIN_ENABLE_IMPORT_LINKED_OBJECT_LINES_HELP');

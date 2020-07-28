@@ -167,14 +167,7 @@ class modBtp extends DolibarrModules
 		// (name, type ['chaine' or ?], value, description, visibility, entity ['current' or 'allentities'], delete on unactive)
 		// Example:
 		$this->const = array(
-				array('PRODUCT_USE_UNITS',		'chaine',
-					'1',
-					'product use unit',
-					1,
-			      'current',
-			      0,
-				)
-				,array('MAIN_FORCELANGDIR','chaine','/btp/customlangs','Directory where custom translations will be stored',1,'current',1)
+				array('MAIN_FORCELANGDIR','chaine','/btp/customlangs','Directory where custom translations will be stored',1,'current',1)
 				,array('INVOICE_USE_SITUATION','chaine','1','Enable invoice situation',1,'current',1)
 		        ,array('BTP_SIMPLE_DISPLAY','chaine','1','Display only the usefull informations for BTP users',1,'current',1)
 		);
