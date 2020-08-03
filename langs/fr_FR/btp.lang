@@ -36,6 +36,8 @@ BTP_SIMPLE_DISPLAY_HELP = Utilisé par le module Poste de travail
 ATMAbout = Ce module a été développé par <a href="http://www.atm-consulting.fr" target="_blank">ATM Consulting</a><br>Vous pouvez retrouver la documentation sur notre <a href="http://wiki.atm-consulting.fr/index.php/Accueil" target="_blank">wiki</a><br><br>Pour toute question technique ou retour, contactez-nous sur <a href="mailto:support@atm-consulting.fr">support@atm-consulting.fr</a><br><br>Pour toute question commerciale, contactez-nous sur <a href="mailto:contact@atm-consulting.fr">contact@atm-consulting.fr</a> ou au +33 9 77 19 50 70<br><br>Retrouvez nos autres modules sur <a href="http://www.dolistore.com/search.php?orderby=position&orderway=desc&search_query=atm&submit_search=Rechercher" target="_blank">Dolistore</a>
 SituationParamsAvailablesHere=Parametres des factures de situations disponibles ici :
 PRODUCT_USE_UNITS = Activer le support des unités sur les produits
+INVOICE_USE_DEFAULT_DOCUMENT = Activer le support des documents par défaut
+INVOICE_USE_DEFAULT_DOCUMENT_HELP = Permet de sélectionner un modèle de documents de facture par défaut en fonction du type de facture. Sur la page de création de facture, le modèle est modifié dynamiquement lors de la sélection du type de facture.
 
 #
 # Page À propos

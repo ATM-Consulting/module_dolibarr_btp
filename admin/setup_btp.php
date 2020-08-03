@@ -136,6 +136,11 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
         }
     }
 
+	if(floatval(DOL_VERSION) >= 9){
+		setup_print_on_off('INVOICE_USE_DEFAULT_DOCUMENT');
+	}
+
+
     print '</table>';
 
     llxFooter();
