@@ -2954,7 +2954,11 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 			// Si $prevSituationPercent vaut 0 c'est que la ligne $l est un travail supplémentaire
 			$prevSituationPercent = 0;
-			if(! empty($facDerniereSituation->lines) && array_key_exists($k, $facDerniereSituation->lines)) $prevSituationPercent = $facDerniereSituation->lines[$k]->situation_percent;
+			$prevExist = false;
+			if(! empty($facDerniereSituation->lines) && array_key_exists($k, $facDerniereSituation->lines)) {
+				$prevSituationPercent = $facDerniereSituation->lines[$k]->situation_percent;
+				$prevExist = true;
+			}
 
 			$calc_ht = $l->subprice * $l->qty * (1 - $l->remise_percent/100) * ($l->situation_percent - $prevSituationPercent)/100;
 			if(! isset($TDataSituation['nouveau_cumul'][$l->tva_tx])) {
@@ -2972,7 +2976,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 			 * Si on teste juste "! empty($prevSituationPercent)" toutes les lignes de la 1ere situation sont considérées comme travaux supplémentaires
 			 * Et vu qu'il ne peut pas y avoir de travaux supplémentaires dans la 1ere situation, ça donne ça :
 			 */
-			if(! empty($prevSituationPercent) || empty($facDerniereSituation->lines)) $TDataSituation['nouveau_cumul']['HT'] += $calc_ht;
+			if($prevExist || empty($facDerniereSituation->lines)) $TDataSituation['nouveau_cumul']['HT'] += $calc_ht;
 		}
 
 		// Retained warranty
@@ -2995,7 +2999,11 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 			// Si $prevSituationPercent vaut 0 c'est que la ligne $l est un travail supplémentaire
 			$prevSituationPercent = 0;
-			if(! empty($facDerniereSituation->lines) && array_key_exists($k, $facDerniereSituation->lines)) $prevSituationPercent = $facDerniereSituation->lines[$k]->situation_percent;
+			$prevExist = false;
+			if(! empty($facDerniereSituation->lines) && array_key_exists($k, $facDerniereSituation->lines)) {
+				$prevSituationPercent = $facDerniereSituation->lines[$k]->situation_percent;
+				$prevExist = true;
+			}
 
 			$calc_ht = $l->subprice * $l->qty * (1 - $l->remise_percent/100) * ($l->situation_percent - $prevSituationPercent)/100;
 			if(! isset($TDataSituation['mois'][$l->tva_tx])) {
@@ -3011,7 +3019,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 			 * Si on teste juste "! empty($prevSituationPercent)" toutes les lignes de la 1ere situation sont considérées comme travaux supplémentaires
 			 * Et vu qu'il ne peut pas y avoir de travaux supplémentaires dans la 1ere situation, ça donne ça :
 			 */
-			if(! empty($prevSituationPercent) || empty($facDerniereSituation->lines)) $TDataSituation['mois']['HT'] += $calc_ht;
+			if($prevExist || empty($facDerniereSituation->lines)) $TDataSituation['mois']['HT'] += $calc_ht;
 		}
 
 		if(! empty($facDerniereSituation->lines)) {
