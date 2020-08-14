@@ -2869,13 +2869,21 @@ class pdf_sponge_btp extends ModelePDFFactures
 	 * @return array
 	 */
 	function _getDataSituation(&$object) {
-		global $conf;
+		global $conf, $CACHE_get_prev_progress;
 		$object->fetchPreviousNextSituationInvoice();
 		/** @var Facture[] $TPreviousInvoices */
 		$TPreviousInvoices = $object->tab_previous_situation_invoice;
 
 		$TPreviousInvoices = array_reverse($TPreviousInvoices);
         $facDerniereSituation = $TPreviousInvoices[0];
+
+        // get_prev_progress() Cache optimisation with $CACHE_get_prev_progress allready used by get_prev_progress()
+		if(!is_array($CACHE_get_prev_progress)) $CACHE_get_prev_progress = array();
+		foreach ($TPreviousInvoices as $prevFactToCache){
+			if(!isset($CACHE_get_prev_progress[$prevFactToCache->id])){
+				$CACHE_get_prev_progress[$prevFactToCache->id] = $prevFactToCache;
+			}
+		}
 
         $TDataSituation = array();
 
