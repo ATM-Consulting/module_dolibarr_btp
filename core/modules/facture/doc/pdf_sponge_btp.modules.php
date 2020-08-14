@@ -808,7 +808,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 					$sign=1;
 					if (isset($object->type) && $object->type == 2 && ! empty($conf->global->INVOICE_POSITIVE_CREDIT_NOTE)) $sign=-1;
 					// Collecte des totaux par valeur de tva dans $this->tva["taux"]=total_tva
-					$prev_progress = $object->lines[$i]->get_prev_progress($object->id);
+					$prev_progress = $this->cache_get_prev_progress($object->lines[$i], $object->id);
 					if ($prev_progress > 0 && !empty($object->lines[$i]->situation_percent)) // Compute progress from previous situation
 					{
 						if ($conf->multicurrency->enabled && $object->multicurrency_tx != 1) $tvaligne = $sign * $object->lines[$i]->multicurrency_total_tva * ($object->lines[$i]->situation_percent - $prev_progress) / $object->lines[$i]->situation_percent;
@@ -965,7 +965,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	/**
 	 *  Show payments table
 	 *
-	 *  @param	PDF			$pdf           Object PDF
+	 *  @param	TCPDF			$pdf           Object PDF
 	 *  @param  Object		$object         Object invoice
 	 *  @param  int			$posy           Position y in PDF
 	 *  @param  Translate	$outputlangs    Object langs for output
@@ -1105,7 +1105,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	/**
 	 *   Show miscellaneous information (payment mode, payment term, ...)
 	 *
-	 *   @param		PDF			$pdf     		Object PDF
+	 *   @param		TCPDF			$pdf     		Object PDF
 	 *   @param		Object		$object			Object to show
 	 *   @param		int			$posy			Y
 	 *   @param		Translate	$outputlangs	Langs object
@@ -1262,7 +1262,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	/**
 	 *	Show total to pay
 	 *
-	 *	@param	PDF			$pdf           Object PDF
+	 *	@param	TCPDF			$pdf           Object PDF
 	 *	@param  Facture		$object         Object invoice
 	 *	@param  int			$deja_regle     Montant deja regle
 	 *	@param	int			$posy			Position depart
@@ -1758,7 +1758,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	/**
 	 *   Show table for lines
 	 *
-	 *   @param		PDF			$pdf     		Object PDF
+	 *   @param		TCPDF			$pdf     		Object PDF
 	 *   @param		string		$tab_top		Top position of table
 	 *   @param		string		$tab_height		Height of table (rectangle)
 	 *   @param		int			$nexY			Y (not used)
@@ -1831,7 +1831,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	/**
 	 *  Show top header of page.
 	 *
-	 *  @param	PDF			$pdf     		Object PDF
+	 *  @param	TCPDF			$pdf     		Object PDF
 	 *  @param  Object		$object     	Object to show
 	 *  @param  int	    	$showaddress    0=no, 1=yes
 	 *  @param  Translate	$outputlangs	Object lang for output
@@ -2101,7 +2101,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	/**
 	 *   	Show footer of page. Need this->emetteur object
 	 *
-	 *   	@param	PDF			$pdf     			PDF
+	 *   	@param	TCPDF			$pdf     			PDF
 	 * 		@param	Object		$object				Object to show
 	 *      @param	Translate	$outputlangs		Object lang for output
 	 *      @param	int			$hidefreetext		1=Hide free text
@@ -2590,7 +2590,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	/**
 	 *   	print standard column content
 	 *
-	 *   	@param	PDF		    $pdf    	pdf object
+	 *   	@param	TCPDF		    $pdf    	pdf object
 	 *   	@param	float		$curY    	curent Y position
 	 *   	@param	string		$colKey    	the column key
 	 *   	@param	string		$columnText   column text
@@ -2642,7 +2642,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	/**
 	 *   Show table for lines
 	 *
-	 *   @param		PDF			$pdf     		Object PDF
+	 *   @param		TCPDF			$pdf     		Object PDF
 	 *   @param		string		$tab_top		Top position of table
 	 *   @param		string		$tab_height		Height of table (rectangle)
 	 *   @param		int			$nexY			Y (not used)
@@ -2907,8 +2907,8 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 					$prevSituationPercent = 0;
 					$isFirstSituation = false;
-					if(array_key_exists($i+1, $TPreviousInvoices) && array_key_exists($k, $TPreviousInvoices[$i+1]->lines)) {
-						$prevSituationPercent = $TPreviousInvoices[$i+1]->lines[$k]->situation_percent;
+					if (!empty($l->fk_prev_id)){
+						$prevSituationPercent = $this->cache_get_prev_progress($l, $previousInvoice->id);
 					}
 					elseif(! array_key_exists($i+1, $TPreviousInvoices)) $isFirstSituation = true;
 
@@ -2921,7 +2921,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 						$TDataSituation['cumul_anterieur'][$l->tva_tx]['TVA'] += $calc_ht * ($l->tva_tx/100);
 					}
 
-					if(empty($prevSituationPercent) && ! $isFirstSituation) {
+					if(empty($l->fk_prev_id) && ! $isFirstSituation) {
 						// TODO: à clarifier, mais pour moi, un facture de situation précédente qui a des progressions à 0% c'est pas logique
 						$TDataSituation['cumul_anterieur']['travaux_sup'] += $calc_ht;
 					}
@@ -2950,14 +2950,12 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 		foreach($object->lines as $k => $l) {
 			$total_ht = floatval($l->total_ht);
-			if(empty($total_ht)) continue;
+			if (empty($total_ht)) continue;
 
 			// Si $prevSituationPercent vaut 0 c'est que la ligne $l est un travail supplémentaire
 			$prevSituationPercent = 0;
-			$prevExist = false;
-			if(! empty($facDerniereSituation->lines) && array_key_exists($k, $facDerniereSituation->lines)) {
-				$prevSituationPercent = $facDerniereSituation->lines[$k]->situation_percent;
-				$prevExist = true;
+			if (!empty($l->fk_prev_id)) {
+				$prevSituationPercent = $this->cache_get_prev_progress($l, $object->id);
 			}
 
 			$calc_ht = $l->subprice * $l->qty * (1 - $l->remise_percent/100) * ($l->situation_percent - $prevSituationPercent)/100;
@@ -2976,7 +2974,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 			 * Si on teste juste "! empty($prevSituationPercent)" toutes les lignes de la 1ere situation sont considérées comme travaux supplémentaires
 			 * Et vu qu'il ne peut pas y avoir de travaux supplémentaires dans la 1ere situation, ça donne ça :
 			 */
-			if($prevExist || empty($facDerniereSituation->lines)) $TDataSituation['nouveau_cumul']['HT'] += $calc_ht;
+			if(!empty($l->fk_prev_id) || empty($facDerniereSituation->lines)) $TDataSituation['nouveau_cumul']['HT'] += $calc_ht;
 		}
 
 		// Retained warranty
@@ -3000,9 +2998,8 @@ class pdf_sponge_btp extends ModelePDFFactures
 			// Si $prevSituationPercent vaut 0 c'est que la ligne $l est un travail supplémentaire
 			$prevSituationPercent = 0;
 			$prevExist = false;
-			if(! empty($facDerniereSituation->lines) && array_key_exists($k, $facDerniereSituation->lines)) {
-				$prevSituationPercent = $facDerniereSituation->lines[$k]->situation_percent;
-				$prevExist = true;
+			if (!empty($l->fk_prev_id) && !empty($facDerniereSituation->lines)) {
+				$prevSituationPercent = $this->cache_get_prev_progress($l, $object->id);
 			}
 
 			$calc_ht = $l->subprice * $l->qty * (1 - $l->remise_percent/100) * ($l->situation_percent - $prevSituationPercent)/100;
@@ -3019,7 +3016,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 			 * Si on teste juste "! empty($prevSituationPercent)" toutes les lignes de la 1ere situation sont considérées comme travaux supplémentaires
 			 * Et vu qu'il ne peut pas y avoir de travaux supplémentaires dans la 1ere situation, ça donne ça :
 			 */
-			if($prevExist || empty($facDerniereSituation->lines)) $TDataSituation['mois']['HT'] += $calc_ht;
+			if(!empty($l->fk_prev_id) || empty($facDerniereSituation->lines)) $TDataSituation['mois']['HT'] += $calc_ht;
 		}
 
 		if(! empty($facDerniereSituation->lines)) {
@@ -3028,12 +3025,43 @@ class pdf_sponge_btp extends ModelePDFFactures
 			$TDiffKey = array_diff($TObjectLinesKey, $TFacLinesKey);
 
 			foreach($TDiffKey as $i) {
-				$TDataSituation['nouveau_cumul']['travaux_sup'] += $object->lines[$i]->total_ht;
-				$TDataSituation['mois']['travaux_sup'] += $object->lines[$i]->total_ht;
+				if(empty($object->lines[$i]->fk_prev_id)){
+					$TDataSituation['nouveau_cumul']['travaux_sup'] += $object->lines[$i]->total_ht;
+					$TDataSituation['mois']['travaux_sup'] += $object->lines[$i]->total_ht;
+				}
 			}
 		}
 
 		return $TDataSituation;
+	}
+
+	/**
+	 * Returns situation_percent of the previous line.
+	 * Warning: If invoice is a replacement invoice, this->fk_prev_id is id of the replaced line.
+	 *
+	 * @param  FactureLigne   $line
+	 * @param  int     $invoiceid      Invoice id
+	 * @param  bool    $include_credit_note		Include credit note or not
+	 * @return int                     >= 0
+	 */
+	function cache_get_prev_progress(FactureLigne $line, $invoiceid, $include_credit_note=true){
+		global $CACHE_result_get_prev_progress;
+
+		if(!is_array($CACHE_result_get_prev_progress)){
+			$CACHE_result_get_prev_progress = array();
+		}
+
+		if(!is_array($CACHE_result_get_prev_progress[$invoiceid])){
+			$CACHE_result_get_prev_progress[$invoiceid] = array();
+		}
+
+		if(!isset($CACHE_result_get_prev_progress[$invoiceid][$line->id])){
+			$result = $line->get_prev_progress($invoiceid, $include_credit_note);
+			$CACHE_result_get_prev_progress[$invoiceid][$line->id] = $result;
+		}
+
+		return $CACHE_result_get_prev_progress[$invoiceid][$line->id];
+
 	}
 
 	/**
@@ -3448,7 +3476,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	/**
 	 * Rect pdf
 	 *
-	 * @param	PDF		$pdf			Object PDF
+	 * @param	TCPDF		$pdf			Object PDF
 	 * @param	float	$x				Abscissa of first point
 	 * @param	float	$y		        Ordinate of first point
 	 * @param	float	$l				??
