@@ -1879,13 +1879,13 @@ class pdf_crabe_btp extends ModelePDFFactures
 			foreach($TPreviousIncoice as $fac) {
 				$cumul_anterieur_ht += $fac->total_ht;
 				$cumul_anterieur_tva += $fac->total_tva;
-				$retenue_garantie_anterieure += $fac->total_ttc * $fac->array_options['options_retenue_garantie'] / 100;
+				$retenue_garantie_anterieure += $fac->total_ttc * $fac->retained_warranty / 100;
 			}
 		}
 
 		$nouveau_cumul = $cumul_anterieur_ht + $object->total_ht;
 		$nouveau_cumul_tva = $cumul_anterieur_tva + $object->total_tva;
-		$retenue_garantie = $retenue_garantie_anterieure + ($object->total_ttc * $object->array_options['options_retenue_garantie'] / 100);
+		$retenue_garantie = $retenue_garantie_anterieure + ($object->total_ttc * $object->retained_warranty / 100);
 
 		$TDataSituation['cumul_anterieur'] = $cumul_anterieur_ht;
 		$TDataSituation['cumul_anterieur_tva'] = $cumul_anterieur_tva;

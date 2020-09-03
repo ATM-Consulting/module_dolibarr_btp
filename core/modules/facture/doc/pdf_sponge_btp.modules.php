@@ -110,7 +110,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	function __construct($db)
 	{
 	    global $conf,$langs,$mysoc,$object;
-		
+
 		// Translations
 		$langs->loadLangs(array("main", "bills"));
 		$langs->load("btp@btp");
@@ -123,10 +123,10 @@ class pdf_sponge_btp extends ModelePDFFactures
 		// Dimensiont page
 		$this->type = 'pdf';
 		$formatarray=pdf_getFormat();
-		
+
 		$this->page_largeur = 297;
 		$this->page_hauteur = 210;
-		
+
 		$this->format = array($this->page_largeur,$this->page_hauteur);
 		$this->marge_gauche=isset($conf->global->MAIN_PDF_MARGIN_LEFT)?$conf->global->MAIN_PDF_MARGIN_LEFT:10;
 		$this->marge_droite=isset($conf->global->MAIN_PDF_MARGIN_RIGHT)?$conf->global->MAIN_PDF_MARGIN_RIGHT:10;
@@ -152,8 +152,8 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 		// Define position of columns
 		$this->posxdesc=$this->marge_gauche+1; // used for notes ans other stuff
-		
-		//  Use new system for position of columns, view  $this->defineColumnField() 
+
+		//  Use new system for position of columns, view  $this->defineColumnField()
 
 		$this->tva=array();
 		$this->localtax1=array();
@@ -161,8 +161,8 @@ class pdf_sponge_btp extends ModelePDFFactures
 		$this->atleastoneratenotnull=0;
 		$this->atleastonediscount=0;
 		$this->situationinvoice=false;
-		
-		
+
+
 		if (!empty($object)) $this->TDataSituation = $this->_getDataSituation($object);
 	}
 
@@ -181,33 +181,33 @@ class pdf_sponge_btp extends ModelePDFFactures
 	function write_file($object,$outputlangs,$srctemplatepath='',$hidedetails=0,$hidedesc=0,$hideref=0)
 	{
 	    global $user,$langs,$conf,$mysoc,$db,$hookmanager,$nblignes;
-	    
+
 	    if (! is_object($outputlangs)) $outputlangs=$langs;
 	    // For backward compatibility with FPDF, force output charset to ISO, because FPDF expect text to be encoded in ISO
 	    if (! empty($conf->global->MAIN_USE_FPDF)) $outputlangs->charset_output='ISO-8859-1';
-	    
+
 	    if (empty($object) || ( $object->type != Facture::TYPE_SITUATION && ($object->type != Facture::TYPE_CREDIT_NOTE &&  !empty($object->situation_cycle_ref))))
 	    {
 	        setEventMessage($langs->trans('BtpWarningsObjectIsNotASituation'), 'warnings');
 	        return 1;
 	    }
-	    
+
 	    // Translations
 	    $outputlangs->loadLangs(array("main", "bills", "products", "dict", "companies"));
-	    
+
 	    $nblignes = count($object->lines);
-	    
+
 	    // Loop on each lines to detect if there is at least one image to show
 	    $realpatharray=array();
 	    $this->atleastonephoto = false;
 	    if (! empty($conf->global->MAIN_GENERATE_INVOICES_WITH_PICTURE))
 	    {
 	        $objphoto = new Product($this->db);
-	        
+
 	        for ($i = 0 ; $i < $nblignes ; $i++)
 	        {
 	            if (empty($object->lines[$i]->fk_product)) continue;
-	            
+
 	            $objphoto->fetch($object->lines[$i]->fk_product);
 	            //var_dump($objphoto->ref);exit;
 	            if (! empty($conf->global->PRODUCT_USE_OLD_PATH_FOR_PHOTO))
@@ -220,14 +220,14 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                $pdir[0] = get_exdir(0,0,0,0,$objphoto,'product') . dol_sanitizeFileName($objphoto->ref).'/';				// default
 	                $pdir[1] = get_exdir($objphoto->id,2,0,0,$objphoto,'product') . $objphoto->id ."/photos/";	// alternative
 	            }
-	            
+
 	            $arephoto = false;
 	            foreach ($pdir as $midir)
 	            {
 	                if (! $arephoto)
 	                {
 	                    $dir = $conf->product->dir_output.'/'.$midir;
-	                    
+
 	                    foreach ($objphoto->liste_photos($dir,1) as $key => $obj)
 	                    {
 	                        if (empty($conf->global->CAT_HIGH_QUALITY_IMAGES))		// If CAT_HIGH_QUALITY_IMAGES not defined, we use thumb if defined and then original photo
@@ -245,28 +245,28 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                        {
 	                            $filename=$obj['photo'];
 	                        }
-	                        
+
 	                        $realpath = $dir.$filename;
 	                        $arephoto = true;
 	                        $this->atleastonephoto = true;
 	                    }
 	                }
 	            }
-	            
+
 	            if ($realpath && $arephoto) $realpatharray[$i]=$realpath;
 	        }
 	    }
-	    
+
 	    //if (count($realpatharray) == 0) $this->posxpicture=$this->posxtva;
-	    
+
 	    if ($conf->facture->dir_output)
 	    {
 	        $object->fetch_thirdparty();
-	        
+
 	        $deja_regle = $object->getSommePaiement(($conf->multicurrency->enabled && $object->multicurrency_tx != 1) ? 1 : 0);
 	        $amount_credit_notes_included = $object->getSumCreditNotesUsed(($conf->multicurrency->enabled && $object->multicurrency_tx != 1) ? 1 : 0);
 	        $amount_deposits_included = $object->getSumDepositsUsed(($conf->multicurrency->enabled && $object->multicurrency_tx != 1) ? 1 : 0);
-	        
+
 	        // Definition of $dir and $file
 	        if ($object->specimen)
 	        {
@@ -287,7 +287,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                return 0;
 	            }
 	        }
-	        
+
 	        if (file_exists($dir))
 	        {
 	            // Add pdfgeneration hook
@@ -300,47 +300,47 @@ class pdf_sponge_btp extends ModelePDFFactures
 	            $parameters=array('file'=>$file,'object'=>$object,'outputlangs'=>$outputlangs);
 	            global $action;
 	            $reshook=$hookmanager->executeHooks('beforePDFCreation',$parameters,$object,$action);    // Note that $action and $object may have been modified by some hooks
-	            
+
 	            // Set nblignes with the new facture lines content after hook
 	            $nblignes = count($object->lines);
 	            $nbpayments = count($object->getListOfPayments());
-	            
+
 	            // Create pdf instance
 	            $pdf=pdf_getInstance($this->format);
 	            $default_font_size = pdf_getPDFFontSize($outputlangs);	// Must be after pdf_getInstance
 	            $pdf->SetAutoPageBreak(1,0);
-	            
+
 	            $heightforinfotot = 50+(4*$nbpayments);	// Height reserved to output the info and total part and payment part
 	            $heightforfreetext= (isset($conf->global->MAIN_PDF_FREETEXT_HEIGHT)?$conf->global->MAIN_PDF_FREETEXT_HEIGHT:5);	// Height reserved to output the free text on last page
 	            $heightforfooter = $this->marge_basse + (empty($conf->global->MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS)?12:22);	// Height reserved to output the footer (value include bottom margin)
-	            
+
 	            if (class_exists('TCPDF'))
 	            {
 	                $pdf->setPrintHeader(false);
 	                $pdf->setPrintFooter(false);
 	            }
 	            $pdf->SetFont(pdf_getPDFFont($outputlangs));
-	            
+
 	            // Set path to the background PDF File
                 if (! empty($conf->global->MAIN_ADD_PDF_BACKGROUND))
 	            {
 	                $pagecount = $pdf->setSourceFile($conf->mycompany->dir_output.'/'.$conf->global->MAIN_ADD_PDF_BACKGROUND);
 	                $tplidx = $pdf->importPage(1);
 	            }
-	            
+
 	            $pdf->Open();
 	            $pagenb=0;
 	            $pdf->SetDrawColor(128,128,128);
-	            
+
 	            $pdf->SetTitle($outputlangs->convToOutputCharset($object->ref));
 	            $pdf->SetSubject($outputlangs->transnoentities("PdfInvoiceTitle"));
 	            $pdf->SetCreator("Dolibarr ".DOL_VERSION);
 	            $pdf->SetAuthor($outputlangs->convToOutputCharset($user->getFullName($outputlangs)));
 	            $pdf->SetKeyWords($outputlangs->convToOutputCharset($object->ref)." ".$outputlangs->transnoentities("PdfInvoiceTitle")." ".$outputlangs->convToOutputCharset($object->thirdparty->name));
 	            if (! empty($conf->global->MAIN_DISABLE_PDF_COMPRESSION)) $pdf->SetCompression(false);
-	            
+
 	            $pdf->SetMargins($this->marge_gauche, $this->marge_haute, $this->marge_droite);   // Left, Top, Right
-	            
+
 	            // Does we have at least one line with discount $this->atleastonediscount
 	            foreach ($object->lines as $line) {
 	               if ($line->remise_percent){
@@ -348,23 +348,23 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                    break;
 	               }
 	            }
-	            
-	           
+
+
 	            // Situation invoice handling
 	            if ($object->situation_cycle_ref)
 	            {
 	                $this->situationinvoice = true;
 	            }
-	            
-	            
+
+
 	            $this->page_largeur = 210;
 	            $this->page_hauteur = 297;
-	            
+
 	            // New page
 	            $pdf->AddPage();
 	            if (! empty($tplidx)) $pdf->useTemplate($tplidx);
 	            $pagenb++;
-	            
+
 	            $top_shift = $this->_pagehead($pdf, $object, 1, $outputlangs);
 	            $pdf->SetFont('','', $default_font_size - 1);
 	            $pdf->MultiCell(0, 3, '');		// Set interline to 3
@@ -375,46 +375,46 @@ class pdf_sponge_btp extends ModelePDFFactures
 	            $tab_height = 130-$top_shift;
 	            $tab_height_newpage = 150;
 	            if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) $tab_height_newpage -= $top_shift;*/
-	            
-	            
-	            
+
+
+
 	            /**** DEBUT TABLEAU SPECIFIQUE ****/
-	            
+
 	            $tab_top = 90;
 	            $tab_top_newpage = (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)?42:10);
 	            $tab_height = 130;
 	            $tab_height_newpage = 150;
-	            
+
 	            $this->_tableauBtp($pdf, $tab_top, $this->page_hauteur - 90 + $height_note - $heightforinfotot - $heightforfreetext - $heightforfooter, 0, $outputlangs, 0, 0, $object->multicurrency_code);
 	            $bottomlasttab=$this->page_hauteur - $heightforinfotot - $heightforfreetext - $heightforfooter + 1;
-	            
+
 	            $this->_pagefoot($pdf,$object,$outputlangs,1);
-	            
+
 	            $pdf->AddPage();
 	            $pdf->setPage(2);
 	            $pagenb++;
-	            
+
 	            $this->page_largeur = 297;
 	            $this->page_hauteur = 210;
-	            
+
 	            $pdf->setPageOrientation('L', 1, $heightforfooter+$heightforfreetext+$heightforinfotot);
-	            
+
 	            /**** FIN TABLEAU SPECIFIQUE ****/
-	            
+
 	            $this->_pagehead($pdf, $object, 0, $outputlangs);
 	            $pdf->SetFont('','', $default_font_size - 1);
 	            $pdf->MultiCell(0, 3, '');		// Set interline to 3
 	            $pdf->SetTextColor(0,0,0);
-	            
+
 	            $tab_top = 42;
 	            $tab_top_newpage = (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)?42:10);
 	            $tab_height = 130;
 	            $tab_height_newpage = 150;
-	            
-	            
-	            
-	            
-	            
+
+
+
+
+
 	            // Incoterm
 	            $height_incoterms = 0;
 	            if ($conf->incoterm->enabled)
@@ -423,21 +423,21 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                if ($desc_incoterms)
 	                {
 						$tab_top -= 2;
-	                    
+
 	                    $pdf->SetFont('','', $default_font_size - 1);
 	                    $pdf->writeHTMLCell(190, 3, $this->posxdesc-1, $tab_top-1, dol_htmlentitiesbr($desc_incoterms), 0, 1);
 	                    $nexY = max($pdf->GetY(),$nexY);
 	                    $height_incoterms=$nexY-$tab_top;
-	                    
+
 	                    // Rect prend une longueur en 3eme param
 	                    $pdf->SetDrawColor(192,192,192);
 	                    $pdf->Rect($this->marge_gauche, $tab_top-1, $this->page_largeur-$this->marge_gauche-$this->marge_droite, $height_incoterms+1);
-	                    
+
 	                    $tab_top = $nexY+6;
 	                    $height_incoterms += 4;
 	                }
 	            }
-	            
+
 	            // Affiche notes
 	            $notetoshow=empty($object->note_public)?'':$object->note_public;
 	            if (! empty($conf->global->MAIN_ADD_SALE_REP_SIGNATURE_IN_NOTE))
@@ -451,7 +451,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                    if (! empty($salerepobj->signature)) $notetoshow=dol_concatdesc($notetoshow, $salerepobj->signature);
 	                }
 	            }
-	            
+
 	            $pagenb = $pdf->getPage();
 	            if ($notetoshow)
 	            {
@@ -459,24 +459,24 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 	                $tab_width = $this->page_largeur-$this->marge_gauche-$this->marge_droite;
 	                $pageposbeforenote = $pagenb;
-	                
+
 	                $substitutionarray=pdf_getSubstitutionArray($outputlangs, null, $object);
 	                complete_substitutions_array($substitutionarray, $outputlangs, $object);
 	                $notetoshow = make_substitutions($notetoshow, $substitutionarray, $outputlangs);
-	                
-	                
+
+
 	                $pdf->startTransaction();
-	                
+
 	                $pdf->SetFont('','', $default_font_size - 1);
 	                $pdf->writeHTMLCell(190, 3, $this->posxdesc-1, $tab_top, dol_htmlentitiesbr($notetoshow), 0, 1);
 	                // Description
 	                $pageposafternote=$pdf->getPage();
 	                $posyafter = $pdf->GetY();
-	                
+
 	                if($pageposafternote>$pageposbeforenote )
 	                {
 	                    $pdf->rollbackTransaction(true);
-	                    
+
 	                    // prepar pages to receive notes
 	                    while ($pagenb < $pageposafternote) {
 	                        $pdf->AddPage();
@@ -488,16 +488,16 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                        // The only function to edit the bottom margin of current page to set it.
 	                        $pdf->setPageOrientation('', 1, $heightforfooter + $heightforfreetext);
 	                    }
-	                    
+
 	                    // back to start
 	                    $pdf->setPage($pageposbeforenote);
 	                    $pdf->setPageOrientation('', 1, $heightforfooter + $heightforfreetext);
 	                    $pdf->SetFont('','', $default_font_size - 1);
 	                    $pdf->writeHTMLCell(190, 3, $this->posxdesc-1, $tab_top, dol_htmlentitiesbr($notetoshow), 0, 1);
 	                    $pageposafternote=$pdf->getPage();
-	                    
+
 	                    $posyafter = $pdf->GetY();
-	                    
+
 	                    if ($posyafter > ($this->page_hauteur - ($heightforfooter+$heightforfreetext+20)))	// There is no space left for total+free text
 	                    {
 	                        $pdf->AddPage('','',true);
@@ -509,14 +509,14 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                        $pdf->setPageOrientation('', 1, $heightforfooter + $heightforfreetext);
 	                        //$posyafter = $tab_top_newpage;
 	                    }
-	                    
-	                    
+
+
 	                    // apply note frame to previus pages
 	                    $i = $pageposbeforenote;
 	                    while ($i < $pageposafternote) {
 	                        $pdf->setPage($i);
-	                        
-	                        
+
+
 	                        $pdf->SetDrawColor(128,128,128);
 	                        // Draw note frame
 	                        if($i>$pageposbeforenote){
@@ -527,21 +527,21 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                            $height_note = $this->page_hauteur - ($tab_top + $heightforfooter);
 	                            $pdf->Rect($this->marge_gauche, $tab_top-1, $tab_width, $height_note + 1);
 	                        }
-	                        
+
 	                        // Add footer
 	                        $pdf->setPageOrientation('', 1, 0);	// The only function to edit the bottom margin of current page to set it.
 	                        $this->_pagefoot($pdf,$object,$outputlangs,1);
-	                        
+
 	                        $i++;
 	                    }
-	                    
+
 	                    // apply note frame to last page
 	                    $pdf->setPage($pageposafternote);
 	                    if (! empty($tplidx)) $pdf->useTemplate($tplidx);
 	                    if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) $this->_pagehead($pdf, $object, 0, $outputlangs);
 	                    $height_note=$posyafter-$tab_top_newpage;
 	                    $pdf->Rect($this->marge_gauche, $tab_top_newpage-1, $tab_width, $height_note+1);
-	                    
+
 	                }
 	                else // No pagebreak
 	                {
@@ -549,8 +549,8 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                    $posyafter = $pdf->GetY();
 	                    $height_note=$posyafter-$tab_top;
 	                    $pdf->Rect($this->marge_gauche, $tab_top-1, $tab_width, $height_note+1);
-	                    
-	                    
+
+
 	                    if($posyafter > ($this->page_hauteur - ($heightforfooter+$heightforfreetext+20)) )
 	                    {
 	                        // not enough space, need to add page
@@ -560,12 +560,12 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                        $pdf->setPage($pageposafternote);
 	                        if (! empty($tplidx)) $pdf->useTemplate($tplidx);
 	                        if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) $this->_pagehead($pdf, $object, 0, $outputlangs);
-	                        
+
 	                        $posyafter = $tab_top_newpage;
 	                    }
-	                    
+
 	                }
-	                
+
 	                $tab_height = $tab_height - $height_note;
 	                $tab_top = $posyafter +6;
 	            }
@@ -573,36 +573,36 @@ class pdf_sponge_btp extends ModelePDFFactures
 	            {
 	                $height_note=0;
 	            }
-	            
+
 	            $iniY = $tab_top + 7;
 	            $curY = $tab_top + 7;
 	            $nexY = $tab_top + 7;
-	            
+
 	            // Use new auto collum system
 	            $this->prepareArrayColumnField($object,$outputlangs,$hidedetails,$hidedesc,$hideref);
-	            
+
 	            // Loop on each lines
 	            $pageposbeforeprintlines=$pdf->getPage();
 	            $pagenb = $pageposbeforeprintlines;
 	            for ($i = 0; $i < $nblignes; $i++)
 	            {
-	                
+
 	                $curY = $nexY;
 	                $pdf->SetFont('','', $default_font_size - 1);   // Into loop to work with multipage
 	                $pdf->SetTextColor(0,0,0);
-	                
+
 	                // Define size of image if we need it
 	                $imglinesize=array();
 	                if (! empty($realpatharray[$i])) $imglinesize=pdf_getSizeForImage($realpatharray[$i]);
-	                
+
 	                $pdf->setTopMargin($tab_top_newpage);
 	                $pdf->setPageOrientation('', 1, $heightforfooter+$heightforfreetext+$heightforinfotot);	// The only function to edit the bottom margin of current page to set it.
 	                $pageposbefore=$pdf->getPage();
-	                
+
 	                $showpricebeforepagebreak=1;
 	                $posYAfterImage=0;
 	                $posYAfterDescription=0;
-	                
+
 	                if($this->getColumnStatus('photo'))
 	                {
     	                // We start with Photo of product line
@@ -611,11 +611,11 @@ class pdf_sponge_btp extends ModelePDFFactures
     	                    $pdf->AddPage('','',true);
     	                    if (! empty($tplidx)) $pdf->useTemplate($tplidx);
     	                    $pdf->setPage($pageposbefore+1);
-    	                    
+
     	                    $curY = $tab_top_newpage;
     	                    $showpricebeforepagebreak=0;
     	                }
-    	                
+
     	                if (!empty($this->cols['photo']) && isset($imglinesize['width']) && isset($imglinesize['height']))
     	                {
     	                    $pdf->Image($realpatharray[$i], $this->getColumnContentXStart('photo'), $curY, $imglinesize['width'], $imglinesize['height'], '', '', '', 2, 300);	// Use 300 dpi
@@ -623,7 +623,7 @@ class pdf_sponge_btp extends ModelePDFFactures
     	                    $posYAfterImage=$curY+$imglinesize['height'];
     	                }
 	                }
-	                
+
 	                // Description of product line
 	                if ($this->getColumnStatus('desc'))
 	                {
@@ -661,20 +661,20 @@ class pdf_sponge_btp extends ModelePDFFactures
     	                }
     	                $posYAfterDescription=$pdf->GetY();
 	                }
-	                
+
 	                $nexY = $pdf->GetY();
 	                $pageposafter=$pdf->getPage();
 	                $pdf->setPage($pageposbefore);
 	                $pdf->setTopMargin($this->marge_haute);
 	                $pdf->setPageOrientation('', 1, 0);	// The only function to edit the bottom margin of current page to set it.
-	                
+
 	                // We suppose that a too long description or photo were moved completely on next page
 	                if ($pageposafter > $pageposbefore && empty($showpricebeforepagebreak)) {
-	                    $pdf->setPage($pageposafter); $curY = $tab_top_newpage; 
+	                    $pdf->setPage($pageposafter); $curY = $tab_top_newpage;
 	                }
-	                
+
 	                $pdf->SetFont('','', $default_font_size - 1);   // On repositionne la police par defaut
-	                
+
 	                // VAT Rate
 	                if ($this->getColumnStatus('vat'))
 	                {
@@ -682,7 +682,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                    $this->printStdColumnContent($pdf, $curY, 'vat', $vat_rate);
 	                    $nexY = max($pdf->GetY(),$nexY);
 	                }
-	                
+
 	                // Unit price before discount
 	                if ($this->getColumnStatus('subprice'))
 	                {
@@ -690,7 +690,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                    $this->printStdColumnContent($pdf, $curY, 'subprice', $up_excl_tax);
 	                    $nexY = max($pdf->GetY(),$nexY);
 	                }
-	                
+
 	                // Quantity
 	                // Enough for 6 chars
 	                if ($this->getColumnStatus('qty'))
@@ -699,7 +699,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                    $this->printStdColumnContent($pdf, $curY, 'qty', $qty);
 	                    $nexY = max($pdf->GetY(),$nexY);
 	                }
-	                
+
 	                // Situation progress
 	                if ($this->getColumnStatus('progress'))
 	                {
@@ -707,7 +707,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                    $this->printStdColumnContent($pdf, $curY, 'progress', $progress);
 	                    $nexY = max($pdf->GetY(),$nexY);
 	                }
-	                
+
 	                // Unit
 	                if ($this->getColumnStatus('unit'))
 	                {
@@ -715,7 +715,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                    $this->printStdColumnContent($pdf, $curY, 'unit', $unit);
 	                    $nexY = max($pdf->GetY(),$nexY);
 	                }
-	                
+
 	                // Discount on line
 	                if ($this->getColumnStatus('discount') && $object->lines[$i]->remise_percent)
 	                {
@@ -723,7 +723,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                    $this->printStdColumnContent($pdf, $curY, 'discount', $remise_percent);
 	                    $nexY = max($pdf->GetY(),$nexY);
 	                }
-	                
+
 	                // Total HT line
 	                if ($this->getColumnStatus('totalexcltax'))
 	                {
@@ -731,15 +731,15 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                    $this->printStdColumnContent($pdf, $curY, 'totalexcltax', $total_excl_tax);
 	                    $nexY = max($pdf->GetY(),$nexY);
 	                }
-	                
-	                
-	                
+
+
+
 	                // Récupération des infos de la ligne précédente
 	                $TInfosLigneSituationPrecedente = $this->_getInfosLineDerniereSituation($object, $object->lines[$i]);
-	                
+
 	                // "Sommes"
 	                if(!class_exists('TSubtotal') || !TSubtotal::isModSubtotalLine($object->lines[$i])){
-	                    
+
 	                    $columkey = 'btpsomme';
 	                    if ($this->getColumnStatus($columkey))
 	                    {
@@ -747,8 +747,8 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                        $this->printStdColumnContent($pdf, $curY, $columkey, $printval);
 	                        $nexY = max($pdf->GetY(),$nexY);
 	                    }
-	                    
-	                    
+
+
 	                    // "Progession actuelle mois"
 	                    $columkey = 'progress_amount';
 	                    if ($this->getColumnStatus($columkey))
@@ -757,7 +757,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                        $this->printStdColumnContent($pdf, $curY, $columkey, $printval);
 	                        $nexY = max($pdf->GetY(),$nexY);
 	                    }
-	                    
+
 	                    // "Progession précédente line"
 	                    $columkey = 'prev_progress';
 	                    if ($this->getColumnStatus($columkey))
@@ -766,7 +766,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                        $this->printStdColumnContent($pdf, $curY, $columkey, $printval);
 	                        $nexY = max($pdf->GetY(),$nexY);
 	                    }
-	                    
+
 	                    // "Progession précédente mois"
 	                    $columkey = 'prev_progress_amount';
 	                    if ($this->getColumnStatus($columkey))
@@ -775,13 +775,13 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                        $this->printStdColumnContent($pdf, $curY, $columkey, $printval);
 	                        $nexY = max($pdf->GetY(),$nexY);
 	                    }
-	                    
-	                    
-	                }
-	                
 
-	                
-	                
+
+	                }
+
+
+
+
 	                $parameters=array(
 	                    'object' => $object,
 	                    'i' => $i,
@@ -792,9 +792,9 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                    'hidedetails' => $hidedetails
 	                );
 	                $reshook=$hookmanager->executeHooks('printPDFline',$parameters,$this);    // Note that $object may have been modified by hook
-	                
-	                
-	                
+
+
+
 	                $sign=1;
 	                if (isset($object->type) && $object->type == 2 && ! empty($conf->global->INVOICE_POSITIVE_CREDIT_NOTE)) $sign=-1;
 	                // Collecte des totaux par valeur de tva dans $this->tva["taux"]=total_tva
@@ -807,20 +807,20 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                    if ($conf->multicurrency->enabled && $object->multicurrency_tx != 1) $tvaligne= $sign * $object->lines[$i]->multicurrency_total_tva;
 	                    else $tvaligne= $sign * $object->lines[$i]->total_tva;
 	                }
-	                
+
 	                $localtax1ligne=$object->lines[$i]->total_localtax1;
 	                $localtax2ligne=$object->lines[$i]->total_localtax2;
 	                $localtax1_rate=$object->lines[$i]->localtax1_tx;
 	                $localtax2_rate=$object->lines[$i]->localtax2_tx;
 	                $localtax1_type=$object->lines[$i]->localtax1_type;
 	                $localtax2_type=$object->lines[$i]->localtax2_type;
-	                
+
 	                if ($object->remise_percent) $tvaligne-=($tvaligne*$object->remise_percent)/100;
 	                if ($object->remise_percent) $localtax1ligne-=($localtax1ligne*$object->remise_percent)/100;
 	                if ($object->remise_percent) $localtax2ligne-=($localtax2ligne*$object->remise_percent)/100;
-	                
+
 	                $vatrate=(string) $object->lines[$i]->tva_tx;
-	                
+
 	                // Retrieve type from database for backward compatibility with old records
 	                if ((! isset($localtax1_type) || $localtax1_type=='' || ! isset($localtax2_type) || $localtax2_type=='') // if tax type not defined
 	                    && (! empty($localtax1_rate) || ! empty($localtax2_rate))) // and there is local tax
@@ -829,19 +829,19 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                    $localtax1_type = $localtaxtmp_array[0];
 	                    $localtax2_type = $localtaxtmp_array[2];
 	                }
-	                
+
 	                // retrieve global local tax
 	                if ($localtax1_type && $localtax1ligne != 0)
 	                    $this->localtax1[$localtax1_type][$localtax1_rate]+=$localtax1ligne;
 	                    if ($localtax2_type && $localtax2ligne != 0)
 	                        $this->localtax2[$localtax2_type][$localtax2_rate]+=$localtax2ligne;
-	                        
+
 	                        if (($object->lines[$i]->info_bits & 0x01) == 0x01) $vatrate.='*';
 	                        if (! isset($this->tva[$vatrate])) 				$this->tva[$vatrate]=0;
 	                        $this->tva[$vatrate] += $tvaligne;
-	                        
+
 	                        $nexY = max($nexY,$posYAfterImage);
-	                        
+
 	                        // Add line
 	                        if (! empty($conf->global->MAIN_PDF_DASH_BETWEEN_LINES) && $i < ($nblignes - 1))
 	                        {
@@ -851,9 +851,9 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                            $pdf->line($this->marge_gauche, $nexY+1, $this->page_largeur - $this->marge_droite, $nexY+1);
 	                            $pdf->SetLineStyle(array('dash'=>0));
 	                        }
-	                        
+
 	                        $nexY+=2;    // Passe espace entre les lignes
-	                        
+
 	                        // Detect if some page were added automatically and output _tableau for past pages
 	                        while ($pagenb < $pageposafter)
 	                        {
@@ -872,7 +872,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                            $pdf->setPageOrientation('', 1, 0);	// The only function to edit the bottom margin of current page to set it.
 	                            if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) $this->_pagehead($pdf, $object, 0, $outputlangs);
 	                        }
-	                        
+
 	                        if (isset($object->lines[$i+1]->pagebreak) && $object->lines[$i+1]->pagebreak)
 	                        {
 	                            if ($pagenb == $pageposafter)
@@ -890,9 +890,9 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                            $pagenb++;
 	                            if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) $this->_pagehead($pdf, $object, 0, $outputlangs);
 	                        }
-	                  
+
 	            }
-	            
+
 	            // Show square
 	            if ($pagenb == $pageposbeforeprintlines)
 	            {
@@ -904,38 +904,38 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                $this->_tableau($pdf, $tab_top_newpage, $this->page_hauteur - $tab_top_newpage - $heightforinfotot - $heightforfreetext - $heightforfooter, 0, $outputlangs, 1, 0, $object->multicurrency_code);
 	                $bottomlasttab=$this->page_hauteur - $heightforinfotot - $heightforfreetext - $heightforfooter + 1;
 	            }
-	            
+
 	            // Affiche zone infos
 	            $posy=$this->_tableau_info($pdf, $object, $bottomlasttab, $outputlangs);
-	            
+
 	            // Affiche zone totaux
 	            $posy=$this->_tableau_tot($pdf, $object, $deja_regle, $bottomlasttab, $outputlangs);
-	            
+
 	            // Affiche zone versements
 	            if (($deja_regle || $amount_credit_notes_included || $amount_deposits_included) && empty($conf->global->INVOICE_NO_PAYMENT_DETAILS))
 	            {
 	                $posy=$this->_tableau_versements($pdf, $object, $posy, $outputlangs);
 	            }
-	            
+
 	            // Pied de page
 	            $this->_pagefoot($pdf,$object,$outputlangs);
 	            if (method_exists($pdf,'AliasNbPages')) $pdf->AliasNbPages();
-	            
+
 	            $pdf->Close();
-	            
+
 	            $pdf->Output($file,'F');
-	            
+
 	            // Add pdfgeneration hook
 	            $hookmanager->initHooks(array('pdfgeneration'));
 	            $parameters=array('file'=>$file,'object'=>$object,'outputlangs'=>$outputlangs);
 	            global $action;
 	            $reshook=$hookmanager->executeHooks('afterPDFCreation',$parameters,$this,$action);    // Note that $action and $object may have been modified by some hooks
-	            
+
 	            if (! empty($conf->global->MAIN_UMASK))
 	                @chmod($file, octdec($conf->global->MAIN_UMASK));
-	                
+
 	                $this->result = array('fullpath'=>$file);
-	                
+
 	                return 1;   // No error
 	        }
 	        else
@@ -1283,8 +1283,8 @@ class pdf_sponge_btp extends ModelePDFFactures
 		$useborder=0;
 		$index = 0;
 
-		
-		
+
+
 		// pourcentage global d'avancement
 		$percent = 0;
 		$i=0;
@@ -1301,10 +1301,10 @@ class pdf_sponge_btp extends ModelePDFFactures
 		else{
 		    $avancementGlobal = 0;
 		}
-		
+
 		$object->fetchPreviousNextSituationInvoice();
 		$TPreviousIncoice = $object->tab_previous_situation_invoice;
-		
+
 		$total_a_payer = 0;
 		$total_a_payer_ttc = 0;
 		foreach ($TPreviousIncoice as &$fac){
@@ -1313,7 +1313,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 		}
 		$total_a_payer += $object->total_ht;
 		$total_a_payer_ttc += $object->total_ttc;
-		
+
 		if(!empty($avancementGlobal)){
 		    $total_a_payer = $total_a_payer * 100 / $avancementGlobal;
 		    $total_a_payer_ttc = $total_a_payer_ttc  * 100 / $avancementGlobal;
@@ -1322,97 +1322,97 @@ class pdf_sponge_btp extends ModelePDFFactures
 		    $total_a_payer = 0;
 		    $total_a_payer_ttc = 0;
 		}
-		
+
 		$deja_paye = 0;
 		$i = 1;
 		if(!empty($TPreviousIncoice)){
-		    
+
 		    $pdf->setY($tab2_top);
 		    $posy = $pdf->GetY();
-		    
-		    
-		    
-		    
+
+
+
+
 		    foreach ($TPreviousIncoice as &$fac){
-		        
+
 		        if($posy  > 180 ) {
 		            $this->_pagefoot($pdf,$object,$outputlangs,1);
 		            $pdf->addPage();
 		            $pdf->setY($this->marge_haute);
 		            $posy = $pdf->GetY();
 		        }
-		        
+
 		        // cumul TVA précédent
 		        $index++;
 		        $pdf->SetFillColor(255,255,255);
 		        $pdf->SetXY($col1x, $posy);
 		        $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("PDFCrabeBtpTitle", $fac->situation_counter).' '.$outputlangs->transnoentities("TotalHT"), 0, 'L', 1);
-		        
+
 		        $pdf->SetXY($col2x,$posy);
-		        
+
 		        $facSign = '';
 		        if($i>1){
 		          $facSign = $fac->total_ht>=0?'+':'';
 		        }
-		        
+
 		        $displayAmount = ' '.$facSign.' '.price($fac->total_ht, 0, $outputlangs);
-		        
+
 		        $pdf->MultiCell($largcol2, $tab2_hl, $displayAmount, 0, 'R', 1);
-		        
+
 		        $i++;
 		        $deja_paye += $fac->total_ht;
 		        $posy += $tab2_hl;
-		        
+
 		        $pdf->setY($posy);
-		        
+
 		    }
-		    
+
 		    // Display curent total
 		    $pdf->SetFillColor(255,255,255);
 		    $pdf->SetXY($col1x, $posy);
 		    $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("PDFCrabeBtpTitle", $object->situation_counter).' '.$outputlangs->transnoentities("TotalHT"), 0, 'L', 1);
-		    
+
 		    $pdf->SetXY($col2x,$posy);
 		    $facSign = '';
 		    if($i>1){
 		        $facSign = $object->total_ht>=0?'+':''; // gestion d'un cas particulier client
 		    }
-		    
+
 		    if($fac->type === facture::TYPE_CREDIT_NOTE){
 		        $facSign = '-'; // les avoirs
 		    }
-		    
-		    
+
+
 		    $displayAmount = ' '.$facSign.' '.price($object->total_ht, 0, $outputlangs);
 		    $pdf->MultiCell($largcol2, $tab2_hl, $displayAmount, 0, 'R', 1);
-		    
+
 		    $posy += $tab2_hl;
-		    
+
 		    // Display all total
 		    $pdf->SetFont('','', $default_font_size - 1);
 		    $pdf->SetFillColor(255,255,255);
 		    $pdf->SetXY($col1x, $posy);
 		    $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("BtpTotalProgress", $avancementGlobal), 0, 'L', 1);
-		    
+
 		    $pdf->SetXY($col2x,$posy);
 		    $pdf->MultiCell($largcol2, $tab2_hl, price($total_a_payer*$avancementGlobal/100, 0, $outputlangs), 0, 'R', 1);
 		    $pdf->SetFont('','', $default_font_size - 2);
-		    
+
 		    $posy += $tab2_hl;
-		    
+
 		    if($posy  > 180 ) {
 		        $pdf->addPage();
 		        $pdf->setY($this->marge_haute);
 		        $posy = $pdf->GetY();
 		    }
-		    
+
 		    $tab2_top = $posy;
 		    $index=0;
-		    
+
 		}
-		
+
 		$tab2_top += 3;
-		
+
 		// Total HT
 		$pdf->SetFillColor(255,255,255);
 		$pdf->SetXY($col1x, $tab2_top + 0);
@@ -1526,7 +1526,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 					    else {
 					        $coef_fix_tva = 1;
 					    }
-					   
+
 
 						foreach($this->tva as $tvakey => $tvaval) {
 							$this->tva[$tvakey]=$tvaval * $coef_fix_tva;
@@ -1646,24 +1646,24 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 				$pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
 				$pdf->MultiCell($largcol2, $tab2_hl, price($sign * $total_ttc, 0, $outputlangs), $useborder, 'R', 1);
-				
-				
+
+
 				/*if($object->type == Facture::TYPE_SITUATION)
 				{
 				    // reste à payer total
 				    $index++;
-				    
+
 				    $pdf->SetFont('','', $default_font_size - 1);
 				    $pdf->SetFillColor(255,255,255);
 				    $pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
 				    $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities('BtpTotalRayToRest'), 0, 'L', 1);
-				    
+
 				    $total_ht = ($conf->multicurrency->enabled && $object->multicurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
 				    $pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
 				    $pdf->MultiCell($largcol2, $tab2_hl, price($total_a_payer-$deja_paye-$object->total_ht, 0, $outputlangs), 0, 'R', 1);
 				}*/
-				
-				
+
+
 				// Retained warranty
 				if( !empty($object->situation_final) &&  ( $object->type == Facture::TYPE_SITUATION && (!empty($object->retained_warranty) ) ) )
 				{
@@ -1677,35 +1677,35 @@ class pdf_sponge_btp extends ModelePDFFactures
 				            }
 				        }
 				    }
-				    
+
 				    if($displayWarranty){
 				        $pdf->SetTextColor(40,40,40);
 				        $pdf->SetFillColor(255,255,255);
 
 				        $retainedWarranty = $total_a_payer_ttc * $object->retained_warranty / 100;
 				        $billedWithRetainedWarranty = $object->total_ttc - $retainedWarranty ;
-				        
+
 				        // Billed - retained warranty
 				        $index++;
 				        $pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
 				        $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("BTPToPayOn", dol_print_date($object->date_lim_reglement, 'day')), $useborder, 'L', 1);
-				        
+
 				        $pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
 				        $pdf->MultiCell($largcol2, $tab2_hl, price($billedWithRetainedWarranty) , $useborder, 'R', 1);
-				        
+
 				        // retained warranty
 				        $index++;
 				        $pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
-				        
+
 				        $retainedWarrantyToPayOn = $outputlangs->transnoentities("BTPRetainedWarranty") . ' ('.$object->retained_warranty.'%)';
 				        $retainedWarrantyToPayOn.=  !empty($object->retained_warranty_date_limit)?' '.$outputlangs->transnoentities("BTPtoPayOn", dol_print_date($object->retained_warranty_date_limit, 'day')):'';
-				        
+
 				        $pdf->MultiCell($col2x-$col1x, $tab2_hl, $retainedWarrantyToPayOn, $useborder, 'L', 1);
 				        $pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
 				        $pdf->MultiCell($largcol2, $tab2_hl, price($retainedWarranty) , $useborder, 'R', 1);
 				    }
 				}
-				
+
 			}
 		}
 
@@ -1814,29 +1814,29 @@ class pdf_sponge_btp extends ModelePDFFactures
 		foreach ($this->cols as $colKey => $colDef)
 		{
 		    if(!$this->getColumnStatus($colKey)) continue;
-		    
+
 		    // get title label
 		    $colDef['title']['label'] = !empty($colDef['title']['label'])?$colDef['title']['label']:$outputlangs->transnoentities($colDef['title']['textkey']);
-		    
+
 		    // Add column separator
 		    if(!empty($colDef['border-left'])){
 		        $pdf->line($colDef['xStartPos'], $tab_top, $colDef['xStartPos'], $tab_top + $tab_height);
 		    }
-		    
+
 		    if (empty($hidetop))
 		    {
 		      $pdf->SetXY($colDef['xStartPos'] + $colDef['title']['padding'][3], $tab_top + $colDef['title']['padding'][0] );
-		    
+
 		      $textWidth = $colDef['width'] - $colDef['title']['padding'][3] -$colDef['title']['padding'][1];
 		      $pdf->MultiCell($textWidth,2,$colDef['title']['label'],'',$colDef['title']['align']);
 		    }
 		}
-		
+
 		if (empty($hidetop)){
 			$pdf->line($this->marge_gauche, $tab_top+5, $this->page_largeur-$this->marge_droite, $tab_top+5);	// line prend une position y en 2eme param et 4eme param
 		}
 
-		
+
 	}
 
 	/**
@@ -1851,7 +1851,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	function _pagehead(&$pdf, $object, $showaddress, $outputlangs)
 	{
 		global $conf, $langs;
-		
+
 		// Translations
 		$outputlangs->loadLangs(array("main", "bills", "propal", "companies"));
 
@@ -2125,9 +2125,9 @@ class pdf_sponge_btp extends ModelePDFFactures
 		return pdf_pagefoot($pdf,$outputlangs,'INVOICE_FREE_TEXT',$this->emetteur,$this->marge_basse,$this->marge_gauche,$this->page_hauteur,$object,$showdetails,$hidefreetext);
 	}
 
-	
-	
-	
+
+
+
 	/**
 	 *   	Define Array Column Field
 	 *
@@ -2139,21 +2139,21 @@ class pdf_sponge_btp extends ModelePDFFactures
 	 *      @return	null
 	 */
 	function defineColumnField($object,$outputlangs,$hidedetails=0,$hidedesc=0,$hideref=0){
-	    
+
 	    global $conf, $hookmanager;
-	    
+
 	    // Default field style for content
 	    $this->defaultContentsFieldsStyle = array(
 	        'align' => 'R', // R,C,L
 	        'padding' => array(0.5,0.5,0.5,0.5), // Like css 0 => top , 1 => right, 2 => bottom, 3 => left
 	    );
-	    
+
 	    // Default field style for content
 	    $this->defaultTitlesFieldsStyle = array(
-	        'align' => 'C', // R,C,L 
+	        'align' => 'C', // R,C,L
 	        'padding' => array(0.5,0,0.5,0), // Like css 0 => top , 1 => right, 2 => bottom, 3 => left
 	    );
-	    
+
 	    /*
 	     * For exemple
 	    $this->cols['theColKey'] = array(
@@ -2162,19 +2162,19 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        'title' => array(
 	            'textkey' => 'yourLangKey', // if there is no label, yourLangKey will be translated to replace label
 	            'label' => ' ', // the final label : used fore final generated text
-	            'align' => 'L', // text alignement :  R,C,L 
+	            'align' => 'L', // text alignement :  R,C,L
 	            'padding' => array(0.5,0.5,0.5,0.5), // Like css 0 => top , 1 => right, 2 => bottom, 3 => left
 	        ),
 	        'content' => array(
-	            'align' => 'L', // text alignement :  R,C,L 
+	            'align' => 'L', // text alignement :  R,C,L
 	            'padding' => array(0.5,0.5,0.5,0.5), // Like css 0 => top , 1 => right, 2 => bottom, 3 => left
 	        ),
 	    );
 	    */
-	    
+
 	    $rank=0; // do not use negative rank
 	    $this->cols['desc'] = array(
-	        'rank' => $rank, 
+	        'rank' => $rank,
 	        'width' => false, // only for desc
 	        'status' => true,
 	        'title' => array(
@@ -2188,7 +2188,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	            'align' => 'L',
 	        ),
 	    );
-	    
+
 	    // PHOTO
         $rank = $rank + 10;
         $this->cols['photo'] = array(
@@ -2197,20 +2197,20 @@ class pdf_sponge_btp extends ModelePDFFactures
             'status' => false,
             'title' => array(
                 'textkey' => 'Photo',
-                'label' => ' ' 
+                'label' => ' '
             ),
             'content' => array(
                 'padding' => array(0,0,0,0), // Like css 0 => top , 1 => right, 2 => bottom, 3 => left
             ),
             'border-left' => false, // remove left line separator
         );
-	        
+
 	    if (! empty($conf->global->MAIN_GENERATE_INVOICES_WITH_PICTURE) && !empty($this->atleastonephoto))
 	    {
 	        $this->cols['photo']['status'] = true;
 	    }
-	    
-	    
+
+
 	    $rank = $rank + 10;
 	    $this->cols['vat'] = array(
 	        'rank' => $rank,
@@ -2221,12 +2221,12 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        ),
 	        'border-left' => true, // add left line separator
 	    );
-	    
+
 	    if (empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT) && empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT_COLUMN))
 	    {
 	        $this->cols['vat']['status'] = true;
 	    }
-	    
+
 	    $rank = $rank + 10;
 	    $this->cols['unit'] = array(
 	        'rank' => $rank,
@@ -2240,7 +2240,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    if($conf->global->PRODUCT_USE_UNITS){
 	        $this->cols['unit']['status'] = true;
 	    }
-	    
+
 	    $rank = $rank + 10;
 	    $this->cols['qty'] = array(
 	        'rank' => $rank,
@@ -2251,7 +2251,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        ),
 	        'border-left' => true, // add left line separator
 	    );
-	    
+
 	    $rank = $rank + 10;
 	    $this->cols['subprice'] = array(
 	        'rank' => $rank,
@@ -2262,11 +2262,11 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        ),
 	        'border-left' => true, // add left line separator
 	    );
-	    
-	    
-	    
+
+
+
 	    // BTP SITUATION
-	    
+
 
 	    // Colonne "Sommes"
 	    $rank = $rank + 10;
@@ -2279,7 +2279,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        ),
 	        'border-left' => true, // add left line separator
 	    );
-	    
+
 	    // Colonne "Progression actuelle"
 	    $rank = $rank + 10;
 	    $this->cols['progress_amount'] = array(
@@ -2295,7 +2295,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    {
 	        $this->cols['progress_amount']['status'] = true;
 	    }
-	    
+
 	    // Colonne "Pourcentage Progression actuelle"
 	    $rank = $rank + 10;
 	    $this->cols['progress'] = array(
@@ -2307,13 +2307,13 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        ),
 	        'border-left' => true, // add left line separator
 	    );
-	    
+
 	    if($this->situationinvoice)
 	    {
 	        $this->cols['progress']['status'] = true;
 	    }
-	    
-	    
+
+
 	    // Colonne "Progression précédente"
 	    $rank = $rank + 10;
 	    $this->cols['prev_progress_amount'] = array(
@@ -2329,7 +2329,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    {
 	        $this->cols['prev_progress_amount']['status'] = true;
 	    }
-	    
+
 	    // Colonne "Pourcentage Progression précédente"
 	    $rank = $rank + 10;
 	    $this->cols['prev_progress'] = array(
@@ -2341,24 +2341,24 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        ),
 	        'border-left' => true, // add left line separator
 	    );
-	    
+
 	    if($this->situationinvoice)
 	    {
 	        $this->cols['prev_progress']['status'] = true;
 	    }
-	   
 
-	    
-	    
-	    
-	    
+
+
+
+
+
 	    // FIN BTP SITUATION
-	    
-	    
-	    
-	    
-	    
-	    
+
+
+
+
+
+
 	    $rank = $rank + 10;
 	    $this->cols['discount'] = array(
 	        'rank' => $rank,
@@ -2372,7 +2372,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    if ($this->atleastonediscount){
 	        $this->cols['discount']['status'] = true;
 	    }
-	    
+
 	    $rank = $rank + 10;
 	    $this->cols['totalexcltax'] = array(
 	        'rank' => $rank,
@@ -2383,8 +2383,8 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        ),
 	        'border-left' => true, // add left line separator
 	    );
-	    
-	    
+
+
 	    $parameters=array(
 	        'object' => $object,
 	        'outputlangs' => $outputlangs,
@@ -2392,7 +2392,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        'hidedesc' => $hidedesc,
 	        'hideref' => $hideref
 	    );
-	    
+
 	    $reshook=$hookmanager->executeHooks('defineColumnField',$parameters,$this);    // Note that $object may have been modified by hook
 	    if ($reshook < 0)
 	    {
@@ -2406,16 +2406,16 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    {
 	        $this->cols = $hookmanager->resArray;
 	    }
-	    
+
 	}
-	
-	
-	
+
+
+
 	/*
 	 * TODO: remove this following code when this new kind of document are in dolibarr core
 	 */
-	
-	
+
+
 	/**
 	 *   	uasort callback function to Sort colums fields
 	 *
@@ -2424,16 +2424,16 @@ class pdf_sponge_btp extends ModelePDFFactures
 	 *      @return	int								Return compare result
 	 */
 	function columnSort($a, $b) {
-	    
+
 	    if(empty($a['rank'])){ $a['rank'] = 0; }
 	    if(empty($b['rank'])){ $b['rank'] = 0; }
 	    if ($a['rank'] == $b['rank']) {
 	        return 0;
 	    }
 	    return ($a['rank'] > $b['rank']) ? -1 : 1;
-	    
+
 	}
-	
+
 	/**
 	 *   	Prepare Array Column Field
 	 *
@@ -2445,33 +2445,33 @@ class pdf_sponge_btp extends ModelePDFFactures
 	 *      @return	null
 	 */
 	function prepareArrayColumnField($object,$outputlangs,$hidedetails=0,$hidedesc=0,$hideref=0){
-	    
+
 	    global $conf;
-	    
+
 	    $this->defineColumnField($object,$outputlangs,$hidedetails,$hidedesc,$hideref);
-	    
-	    
+
+
 	    // Sorting
 	    uasort ( $this->cols, array( $this, 'columnSort' ) );
-	    
+
 	    // Positionning
 	    $curX = $this->page_largeur-$this->marge_droite; // start from right
-	    
+
 	    // Array witdh
 	    $arrayWidth = $this->page_largeur-$this->marge_droite-$this->marge_gauche;
-	    
+
 	    // Count flexible column
 	    $totalDefinedColWidth = 0;
 	    $countFlexCol = 0;
 	    foreach ($this->cols as $colKey =>& $colDef)
 	    {
 	        if(!$this->getColumnStatus($colKey)) continue; // continue if desable
-	        
+
 	        if(!empty($colDef['scale'])){
 	            // In case of column widht is defined by percentage
 	            $colDef['width'] = abs($arrayWidth * $colDef['scale'] / 100 );
 	        }
-	        
+
 	        if(empty($colDef['width'])){
 	            $countFlexCol++;
 	        }
@@ -2479,7 +2479,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	            $totalDefinedColWidth += $colDef['width'];
 	        }
 	    }
-	    
+
 	    foreach ($this->cols as $colKey =>& $colDef)
 	    {
 	        // setting empty conf with default
@@ -2489,7 +2489,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        else{
 	            $colDef['title'] = $this->defaultTitlesFieldsStyle;
 	        }
-	        
+
 	        // setting empty conf with default
 	        if(!empty($colDef['content'])){
 	            $colDef['content'] = array_replace($this->defaultContentsFieldsStyle, $colDef['content']);
@@ -2497,14 +2497,14 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        else{
 	            $colDef['content'] = $this->defaultContentsFieldsStyle;
 	        }
-	        
+
 	        if($this->getColumnStatus($colKey))
 	        {
 	            // In case of flexible column
 	            if(empty($colDef['width'])){
 	                $colDef['width'] = abs(($arrayWidth - $totalDefinedColWidth)) / $countFlexCol;
 	            }
-	            
+
 	            // Set positions
 	            $lastX = $curX;
 	            $curX = $lastX - $colDef['width'];
@@ -2513,7 +2513,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        }
 	    }
 	}
-	
+
 	/**
 	 *   	get column content width from column key
 	 *
@@ -2525,8 +2525,8 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    $colDef = $this->cols[$colKey];
 	    return  $colDef['width'] - $colDef['content']['padding'][3] - $colDef['content']['padding'][1];
 	}
-	
-	
+
+
 	/**
 	 *   	get column content X (abscissa) left position from column key
 	 *
@@ -2538,7 +2538,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    $colDef = $this->cols[$colKey];
 	    return  $colDef['xStartPos'] + $colDef['content']['padding'][3];
 	}
-	
+
 	/**
 	 *   	get column position rank from column key
 	 *
@@ -2550,7 +2550,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    if(!isset($this->cols[$colKey]['rank'])) return -1;
 	    return  $this->cols[$colKey]['rank'];
 	}
-	
+
 	/**
 	 *   	get column position rank from column key
 	 *
@@ -2564,21 +2564,21 @@ class pdf_sponge_btp extends ModelePDFFactures
 	{
 	    // prepare wanted rank
 	    $rank = -1;
-	    
+
 	    // try to get rank from target column
 	    if(!empty($targetCol)){
 	        $rank = $this->getColumnRank($targetCol);
 	        if($rank>=0 && $insertAfterTarget){ $rank++; }
 	    }
-	    
+
 	    // get rank from new column definition
 	    if($rank<0 && !empty($defArray['rank'])){
 	        $rank = $defArray['rank'];
 	    }
-	    
+
 	    // error: no rank
 	    if($rank<0){ return -1; }
-	    
+
 	    foreach ($this->cols as $colKey =>& $colDef)
 	    {
 	        if( $rank <= $colDef['rank'])
@@ -2586,14 +2586,14 @@ class pdf_sponge_btp extends ModelePDFFactures
 	            $colDef['rank'] = $colDef['rank'] + 1;
 	        }
 	    }
-	    
+
 	    $defArray['rank'] = $rank;
 	    $this->cols[$newColKey] = $defArray; // array_replace is used to preserve keys
-	    
+
 	    return $rank;
 	}
-	
-	
+
+
 	/**
 	 *   	print standard column content
 	 *
@@ -2606,7 +2606,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	function printStdColumnContent($pdf, &$curY, $colKey, $columnText = '')
 	{
 	    global $hookmanager;
-	    
+
 	    $parameters=array(
 	        'object' => $object,
 	        'curY' =>& $curY,
@@ -2622,10 +2622,10 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        $colDef = $this->cols[$colKey];
 	        $pdf->MultiCell( $this->getColumnContentWidth($colKey),2, $columnText,'',$colDef['content']['align']);
 	    }
-	    
+
 	}
-	
-	
+
+
 	/**
 	 *   	get column status from column key
 	 *
@@ -2639,13 +2639,13 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    }
 	    else  return  false;
 	}
-	
+
 	/*
 	 * END TODO: remove this when this new kind of document are in dolibarr core
 	 */
-	
-	
-	
+
+
+
 	/**
 	 *   Show table for lines
 	 *
@@ -2662,34 +2662,34 @@ class pdf_sponge_btp extends ModelePDFFactures
 	function _tableauBtp(&$pdf, $tab_top, $tab_height, $nexY, $outputlangs, $hidetop=0, $hidebottom=0, $currency='')
 	{
 	    global $conf, $object;
-	    
+
 	    // TODO à mettre dans le construct
 	    $this->posx_new_cumul = 94;
 	    $this->posx_cumul_anterieur = 130;
 	    $this->posx_month = 166;
-	    
+
 	    $tab_height -= 29; // Réduction de la hauteur global du tableau
-	    
-	    
+
+
 	    // Force to disable hidetop and hidebottom
 	    $hidebottom=0;
 	    if ($hidetop) $hidetop=-1;
-	    
+
 	    $currency = !empty($currency) ? $currency : $conf->currency;
 	    $default_font_size = pdf_getPDFFontSize($outputlangs);
-	    
+
 	    // Amount in (at tab_top - 1)
 	    $pdf->SetTextColor(0,0,0);
 	    $pdf->SetFont('','', $default_font_size - 2);
-	    
+
 	    if (empty($hidetop))
 	    {
 	        $titre = $outputlangs->transnoentities("AmountInCurrency",$outputlangs->transnoentitiesnoconv("Currency".$currency));
 	        $pdf->SetXY($this->page_largeur - $this->marge_droite - ($pdf->GetStringWidth($titre) + 3), $tab_top-4);
 	        $pdf->MultiCell(($pdf->GetStringWidth($titre) + 3), 2, $titre);
-	        
+
 	        $width = $this->page_largeur-$this->marge_gauche-$this->marge_droite-83;
-	        
+
 	        //$conf->global->MAIN_PDF_TITLE_BACKGROUND_COLOR='230,230,230';
 	        if (! empty($conf->global->MAIN_PDF_TITLE_BACKGROUND_COLOR))
 	        {
@@ -2697,14 +2697,14 @@ class pdf_sponge_btp extends ModelePDFFactures
 	            $pdf->Rect($this->marge_gauche, $tab_top+92.5, $this->page_largeur-$this->marge_gauche-$this->marge_droite, 5, 'F', null, explode(',',$conf->global->MAIN_PDF_TITLE_BACKGROUND_COLOR));
 	        }
 	    }
-	    
+
 	    $pdf->SetDrawColor(128,128,128);
 	    $pdf->SetFont('','', $default_font_size - 1);
-	    
+
 	    // Output Rect
 	    // KEEPTHIS => Affiche les bords extérieurs
 	    $this->printRectBtp($pdf,$this->marge_gauche, $tab_top, $this->page_largeur-$this->marge_gauche-$this->marge_droite, $tab_height, $hidetop, $hidebottom);	// Rect prend une longueur en 3eme param et 4eme param
-	    
+
 	    // PRINT COLUMNS TITLES
 	    $pdf->line($this->posx_new_cumul-1, $tab_top, $this->posx_new_cumul-1, $tab_top + $tab_height);
 	    if (empty($hidetop))
@@ -2712,66 +2712,66 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        $pdf->SetXY($this->posx_new_cumul-1, $tab_top+0.5);
 	        $pdf->MultiCell(35,2, $outputlangs->transnoentities("BtpNewCumul"),'','C');
 	    }
-	    
+
 	    $pdf->line($this->posx_cumul_anterieur-1, $tab_top, $this->posx_cumul_anterieur-1, $tab_top + $tab_height);
 	    if (empty($hidetop))
 	    {
 	        $pdf->SetXY($this->posx_cumul_anterieur-1, $tab_top+0.5);
 	        $pdf->MultiCell(35,2, $outputlangs->transnoentities("BtpAnteCumul"),'','C');
 	    }
-	    
+
 	    $pdf->line($this->posx_month-1, $tab_top, $this->posx_month-1, $tab_top + $tab_height);
 	    if (empty($hidetop))
 	    {
 	        $pdf->SetXY($this->posx_month-1, $tab_top+0.5);
 	        $pdf->MultiCell(35,2, $outputlangs->transnoentities("Month"),'','C');
 	    }
-	    
+
 	    // ADD HORIZONTALE LINES
 	    $pdf->line($this->posx_new_cumul-1, $tab_top+5, $this->page_largeur-$this->marge_droite, $tab_top+5);
-	    
+
 	    $pdf->line($this->posx_new_cumul-1, $tab_top+25, $this->page_largeur-$this->marge_droite, $tab_top+25);
-	    
+
 	    $pdf->line($this->marge_gauche, $tab_top+45, $this->page_largeur-$this->marge_droite, $tab_top+45);
-	    
+
 	    $pdf->line($this->marge_gauche, $tab_top+65, $this->page_largeur-$this->marge_droite, $tab_top+65);
-	    
+
 	    $pdf->line($this->marge_gauche, $tab_top+85, $this->page_largeur-$this->marge_droite, $tab_top+85);
-	    
-	    
+
+
 	    // ADD TEXT INTO CELL
 	    /**********************Titres*******************************/
 	    $pdf->SetXY($this->marge_gauche+2, $tab_top+8);
 	    $pdf->MultiCell(80,2, $outputlangs->transnoentities("BtpMainWork"),'','L');
-	    
+
 	    $pdf->SetXY($this->marge_gauche+2, $tab_top+12);
 	    $pdf->MultiCell(80,2, $outputlangs->transnoentities("BtpAdditionalWork"),'','L');
-	    
+
 	    $pdf->SetXY($this->marge_gauche+2, $tab_top+26);
 	    $pdf->MultiCell(80,2, $outputlangs->transnoentities("TotalHT"),'','C');
-	    
+
 	    $pdf->SetXY($this->marge_gauche+2, $tab_top+30);
 	    $pdf->MultiCell(80,2, $outputlangs->transnoentities("VAT"),'','C');
-	    
+
 	    $pdf->SetXY($this->marge_gauche+2, $tab_top+34);
 	    $pdf->MultiCell(80,2, $outputlangs->transnoentities("TotalTTC"),'','C');
-	    
-	    
+
+
 	    $pdf->SetFont('','B', $default_font_size - 1);
 	    $pdf->SetXY($this->marge_gauche+2, $tab_top+53);
 	    $pdf->MultiCell(80,2, $outputlangs->transnoentities("BtpTotalSituationTTC"),'','C');
 	    $pdf->SetFont('','', $default_font_size - 2);
-	    
-	    
+
+
 	    $pdf->SetXY($this->marge_gauche+2, $tab_top+74);
 	    $pdf->MultiCell(80,2, $outputlangs->transnoentities("BtpRetenueGarantie"),'','C');
-	    
+
 	    $pdf->SetFont('','B', $default_font_size - 1);
 	    $pdf->SetXY($this->marge_gauche+2, $tab_top+93);
 	    $pdf->MultiCell(80,2, $outputlangs->transnoentities("BtpRayToRest"),'','L');
 	    $pdf->SetFont('','', $default_font_size - 2);
 	    /***********************************************************/
-	    
+
 	    /**********************Données*******************************/
 	    $TToDpisplay = array(
 	        0=>array(
@@ -2784,46 +2784,46 @@ class pdf_sponge_btp extends ModelePDFFactures
 	            'mois', 'mois', 'mois_tva', 'mois_ttc', 'mois_ttc', 'retenue_garantie_mois', 'total_ttc_mois'
 	        )
 	    );
-	    
+
 	    $x = $this->marge_gauche+95;
 	    foreach($TToDpisplay as $Tab) {
-	        
+
 	        $pdf->SetXY($x, $tab_top+8);
 	        $pdf->MultiCell(80,2, price($this->TDataSituation[$Tab[0]]),'','L');
-	        
+
 	        $pdf->SetXY($x, $tab_top+26);
 	        $pdf->MultiCell(80,2, price($this->TDataSituation[$Tab[1]]),'','L');
-	        
+
 	        $pdf->SetXY($x, $tab_top+30);
 	        $pdf->MultiCell(80,2, price($this->TDataSituation[$Tab[2]]),'','L');
-	        
+
 	        $pdf->SetXY($x, $tab_top+34);
 	        $pdf->MultiCell(80,2, price($this->TDataSituation[$Tab[3]]),'','L');
-	        
-	        
+
+
 	        $pdf->SetFont('','B', $default_font_size - 1);
 	        $pdf->SetXY($x, $tab_top+53);
 	        $pdf->MultiCell(80,2, price($this->TDataSituation[$Tab[4]]),'','L');
 	        $pdf->SetFont('','', $default_font_size - 2);
-	        
-	        
+
+
 	        $pdf->SetXY($x, $tab_top+74);
 	        $pdf->MultiCell(80,2, price($this->TDataSituation[$Tab[5]]),'','L');
-	        
+
 	        $pdf->SetFont('','B', $default_font_size - 1);
 	        $pdf->SetXY($x, $tab_top+93);
 	        $pdf->MultiCell(80,2, price($this->TDataSituation[$Tab[6]]),'','L');
 	        $pdf->SetFont('','', $default_font_size - 2);
-	        
+
 	        $x+=35;
-	        
+
 	    }
 	    /************************************************************/
-	    
+
 	}
-	
+
 	function _getDataSituation(&$object) {
-	    
+
 	    $object->fetchPreviousNextSituationInvoice();
 	    $TPreviousIncoice = &$object->tab_previous_situation_invoice;
 	    $facDerniereSituation = &end($TPreviousIncoice);
@@ -2831,47 +2831,47 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        'derniere_situation'=>$facDerniereSituation
 	        ,'date_derniere_situation'=>$facDerniereSituation->date
 	    );
-	    
+
 	    $cumul_anterieur_ht = $cumul_anterieur_tva = $retenue_garantie = 0;
-	    
+
 	    if(!empty($TPreviousIncoice)) {
 	        foreach($TPreviousIncoice as $fac) {
 	            $cumul_anterieur_ht += $fac->total_ht;
 	            $cumul_anterieur_tva += $fac->total_tva;
-	            $retenue_garantie_anterieure += $fac->total_ttc * $fac->array_options['options_retenue_garantie'] / 100;
+	            $retenue_garantie_anterieure += $fac->total_ttc * $fac->retained_warranty / 100;
 	        }
 	    }
-	    
+
 	    $nouveau_cumul = $cumul_anterieur_ht + $object->total_ht;
 	    $nouveau_cumul_tva = $cumul_anterieur_tva + $object->total_tva;
-	    $retenue_garantie = $retenue_garantie_anterieure + ($object->total_ttc * $object->array_options['options_retenue_garantie'] / 100);
-	    
+	    $retenue_garantie = $retenue_garantie_anterieure + ($object->total_ttc * $object->retained_warranty / 100);
+
 	    $TDataSituation['cumul_anterieur'] = $cumul_anterieur_ht;
 	    $TDataSituation['cumul_anterieur_tva'] = $cumul_anterieur_tva;
 	    $TDataSituation['cumul_anterieur_ttc'] = $cumul_anterieur_ht + $cumul_anterieur_tva;
 	    $TDataSituation['retenue_garantie_anterieure'] = $retenue_garantie_anterieure;
 	    $TDataSituation['total_ttc_anterieur'] = $TDataSituation['cumul_anterieur_ttc'] - $TDataSituation['retenue_garantie_anterieure'];
-	    
+
 	    $TDataSituation['nouveau_cumul'] = $nouveau_cumul;
 	    $TDataSituation['nouveau_cumul_tva'] = $nouveau_cumul_tva;
 	    $TDataSituation['nouveau_cumul_ttc'] = $nouveau_cumul + $nouveau_cumul_tva;
 	    $TDataSituation['retenue_garantie'] = $retenue_garantie;
 	    $TDataSituation['total_ttc'] = $TDataSituation['nouveau_cumul_ttc'] - $TDataSituation['retenue_garantie'];
-	    
+
 	    $TDataSituation['mois'] = $object->total_ht;
 	    $TDataSituation['mois_tva'] = $object->total_tva;
 	    $TDataSituation['mois_ttc'] = $TDataSituation['mois'] + $TDataSituation['mois_tva'];
 	    $TDataSituation['retenue_garantie_mois'] = $retenue_garantie - $retenue_garantie_anterieure;
 	    $TDataSituation['total_ttc_mois'] = $TDataSituation['mois_ttc'] - $TDataSituation['retenue_garantie_mois'];
-	    
+
 	    return $TDataSituation;
-	    
+
 	}
-	
+
 	function _getInfosLineDerniereSituation(&$object, &$current_line)
 	{
 	    if (empty($object->situation_cycle_ref) || $object->situation_counter <= 1) return;
-	    
+
 	    $facDerniereSituation = &$this->TDataSituation['derniere_situation'];
 	    //var_dump($current_line);exit;
 	    // On cherche la ligne précédente de la ligne sur laquelle on se trouve :
@@ -2882,9 +2882,9 @@ class pdf_sponge_btp extends ModelePDFFactures
 	            $l->total_ht = $subtotal_ht;
 	            $subtotal_ht = 0;
 	        }
-	        
+
 	        if($l->rowid == $current_line->fk_prev_id) {
-	            
+
 	            // Récupération du total_ht sans prendre en compte la progression (pour la colonne "sommes")
 	            $tabprice = $this->calcul_price_total($l->qty, $l->subprice, $l->remise_percent, $l->tva_tx, $l->localtax1_tx, $l->localtax2_tx, 0, 'HT', $l->info_bits, $l->product_type);
 	            $total_ht  = $tabprice[0];
@@ -2899,18 +2899,18 @@ class pdf_sponge_btp extends ModelePDFFactures
 	                ,'total_ht_without_progress'=>$total_ht
 	                ,'total_ht'=>$l->total_ht
 	            );
-	            
+
 	        }
-	        
+
 	    }
 	}
-	
+
 	function calcul_price_total($qty, $pu, $remise_percent_ligne, $txtva, $uselocaltax1_rate, $uselocaltax2_rate, $remise_percent_global, $price_base_type, $info_bits, $type, $seller = '',$localtaxes_array='')
 	{
 	    global $conf,$mysoc,$db;
-	    
+
 	    $result=array();
-	    
+
 	    // Clean parameters
 	    if (empty($txtva)) $txtva=0;
 	    if (empty($seller) || ! is_object($seller))
@@ -2930,15 +2930,15 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    }
 	    // Too verbose. Enable for debug only
 	    //dol_syslog("calcul_price_total qty=".$qty." pu=".$pu." remiserpercent_ligne=".$remise_percent_ligne." txtva=".$txtva." uselocaltax1_rate=".$uselocaltax1_rate." uselocaltax2_rate=".$uselocaltax2_rate);
-	    
+
 	    $countryid=$seller->country_id;
 	    if ($uselocaltax1_rate < 0) $uselocaltax1_rate=$seller->localtax1_assuj;
 	    if ($uselocaltax2_rate < 0) $uselocaltax2_rate=$seller->localtax2_assuj;
-	    
+
 	    // Now we search localtaxes information ourself (rates and types).
 	    $localtax1_type=0;
 	    $localtax2_type=0;
-	    
+
 	    if (is_array($localtaxes_array))
 	    {
 	        $localtax1_type = $localtaxes_array[0];
@@ -2972,12 +2972,12 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    $tot_sans_remise = $pu * $qty;
 	    $tot_avec_remise_ligne = $tot_sans_remise       * (1 - ($remise_percent_ligne / 100));
 	    $tot_avec_remise       = $tot_avec_remise_ligne * (1 - ($remise_percent_global / 100));
-	    
+
 	    // initialize result array
 	    for ($i=0; $i <= 15; $i++) $result[$i] = 0;
-	    
+
 	    // if there's some localtax including vat, we calculate localtaxes (we will add later)
-	    
+
 	    //If input unit price is 'HT', we need to have the totals with main VAT for a correct calculation
 	    if ($price_base_type != 'TTC')
 	    {
@@ -2991,9 +2991,9 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        $tot_avec_remise_wt = $tot_avec_remise;
 	        $pu_wt = $pu;
 	    }
-	    
+
 	    //print 'rr'.$price_base_type.'-'.$txtva.'-'.$tot_sans_remise_wt."-".$pu_wt."-".$uselocaltax1_rate."-".$localtax1_rate."-".$localtax1_type."\n";
-	    
+
 	    $localtaxes = array(0,0,0);
 	    $apply_tax = false;
 	    switch($localtax1_type) {
@@ -3010,14 +3010,14 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    if ($uselocaltax1_rate && $apply_tax) {
 	        $result[14] = price2num(($tot_sans_remise_wt * (1 + ( $localtax1_rate / 100))) - $tot_sans_remise_wt, 'MT');
 	        $localtaxes[0] += $result[14];
-	        
+
 	        $result[9] = price2num(($tot_avec_remise_wt * (1 + ( $localtax1_rate / 100))) - $tot_avec_remise_wt, 'MT');
 	        $localtaxes[1] += $result[9];
-	        
+
 	        $result[11] = price2num(($pu_wt * (1 + ( $localtax1_rate / 100))) - $pu_wt, 'MU');
 	        $localtaxes[2] += $result[11];
 	    }
-	    
+
 	    $apply_tax = false;
 	    switch($localtax2_type) {
 	        case '2':     // localtax on product or service
@@ -3033,14 +3033,14 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    if ($uselocaltax2_rate && $apply_tax) {
 	        $result[15] = price2num(($tot_sans_remise_wt * (1 + ( $localtax2_rate / 100))) - $tot_sans_remise_wt, 'MT');
 	        $localtaxes[0] += $result[15];
-	        
+
 	        $result[10] = price2num(($tot_avec_remise_wt * (1 + ( $localtax2_rate / 100))) - $tot_avec_remise_wt, 'MT');
 	        $localtaxes[1] += $result[10];
-	        
+
 	        $result[12] = price2num(($pu_wt * (1 + ( $localtax2_rate / 100))) - $pu_wt, 'MU');
 	        $localtaxes[2] += $result[12];
 	    }
-	    
+
 	    //dol_syslog("price.lib::calcul_price_total $qty, $pu, $remise_percent_ligne, $txtva, $price_base_type $info_bits");
 	    if ($price_base_type == 'HT')
 	    {
@@ -3049,12 +3049,12 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        $result[8] = price2num($tot_sans_remise * (1 + ( (($info_bits & 1)?0:$txtva) / 100)) + $localtaxes[0], 'MT');	// Selon TVA NPR ou non
 	        $result8bis= price2num($tot_sans_remise * (1 + ( $txtva / 100)) + $localtaxes[0], 'MT');	// Si TVA consideree normale (non NPR)
 	        $result[7] = price2num($result8bis - ($result[6] + $localtaxes[0]), 'MT');
-	        
+
 	        $result[0] = price2num($tot_avec_remise, 'MT');
 	        $result[2] = price2num($tot_avec_remise * (1 + ( (($info_bits & 1)?0:$txtva) / 100)) + $localtaxes[1], 'MT');	// Selon TVA NPR ou non
 	        $result2bis= price2num($tot_avec_remise * (1 + ( $txtva / 100)) + $localtaxes[1], 'MT');	// Si TVA consideree normale (non NPR)
 	        $result[1] = price2num($result2bis - ($result[0] + $localtaxes[1]), 'MT');	// Total VAT = TTC - (HT + localtax)
-	        
+
 	        $result[3] = price2num($pu, 'MU');
 	        $result[5] = price2num($pu * (1 + ( (($info_bits & 1)?0:$txtva) / 100)) + $localtaxes[2], 'MU');	// Selon TVA NPR ou non
 	        $result5bis= price2num($pu * (1 + ($txtva / 100)) + $localtaxes[2], 'MU');	// Si TVA consideree normale (non NPR)
@@ -3067,20 +3067,20 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        $result[6] = price2num($tot_sans_remise / (1 + ((($info_bits & 1)?0:$txtva) / 100)), 'MT');	// Selon TVA NPR ou non
 	        $result6bis= price2num($tot_sans_remise / (1 + ($txtva / 100)), 'MT');	// Si TVA consideree normale (non NPR)
 	        $result[7] = price2num($result[8] - ($result6bis + $localtaxes[0]), 'MT');
-	        
+
 	        $result[2] = price2num($tot_avec_remise + $localtaxes[1], 'MT');
 	        $result[0] = price2num($tot_avec_remise / (1 + ((($info_bits & 1)?0:$txtva) / 100)), 'MT');	// Selon TVA NPR ou non
 	        $result0bis= price2num($tot_avec_remise / (1 + ($txtva / 100)), 'MT');	// Si TVA consideree normale (non NPR)
 	        $result[1] = price2num($result[2] - ($result0bis + $localtaxes[1]), 'MT');	// Total VAT = TTC - (HT + localtax)
-	        
+
 	        $result[5] = price2num($pu + $localtaxes[2], 'MU');
 	        $result[3] = price2num($pu / (1 + ((($info_bits & 1)?0:$txtva) / 100)), 'MU');	// Selon TVA NPR ou non
 	        $result3bis= price2num($pu / (1 + ($txtva / 100)), 'MU');	// Si TVA consideree normale (non NPR)
 	        $result[4] = price2num($result[5] - ($result3bis + $localtaxes[2]), 'MU');
 	    }
-	    
+
 	    // if there's some localtax without vat, we calculate localtaxes (we will add them at end)
-	    
+
 	    //If input unit price is 'TTC', we need to have the totals without main VAT for a correct calculation
 	    if ($price_base_type == 'TTC')
 	    {
@@ -3088,7 +3088,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        $tot_avec_remise= price2num($tot_avec_remise / (1 + ($txtva / 100)),'MU');
 	        $pu = price2num($pu / (1 + ($txtva / 100)),'MU');
 	    }
-	    
+
 	    $apply_tax = false;
 	    switch($localtax1_type) {
 	        case '1':     // localtax on product or service
@@ -3104,14 +3104,14 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    if ($uselocaltax1_rate && $apply_tax) {
 	        $result[14] = price2num(($tot_sans_remise * (1 + ( $localtax1_rate / 100))) - $tot_sans_remise, 'MT');	// amount tax1 for total_ht_without_discount
 	        $result[8] += $result[14];																				// total_ttc_without_discount + tax1
-	        
+
 	        $result[9] = price2num(($tot_avec_remise * (1 + ( $localtax1_rate / 100))) - $tot_avec_remise, 'MT');	// amount tax1 for total_ht
 	        $result[2] += $result[9];																				// total_ttc + tax1
-	        
+
 	        $result[11] = price2num(($pu * (1 + ( $localtax1_rate / 100))) - $pu, 'MU');							// amount tax1 for pu_ht
 	        $result[5] += $result[11];																				// pu_ht + tax1
 	    }
-	    
+
 	    $apply_tax = false;
 	    switch($localtax2_type) {
 	        case '1':     // localtax on product or service
@@ -3127,14 +3127,14 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    if ($uselocaltax2_rate && $apply_tax) {
 	        $result[15] = price2num(($tot_sans_remise * (1 + ( $localtax2_rate / 100))) - $tot_sans_remise, 'MT');	// amount tax2 for total_ht_without_discount
 	        $result[8] += $result[15];																				// total_ttc_without_discount + tax2
-	        
+
 	        $result[10] = price2num(($tot_avec_remise * (1 + ( $localtax2_rate / 100))) - $tot_avec_remise, 'MT');	// amount tax2 for total_ht
 	        $result[2] += $result[10];																				// total_ttc + tax2
-	        
+
 	        $result[12] = price2num(($pu * (1 + ( $localtax2_rate / 100))) - $pu, 'MU');							// amount tax2 for pu_ht
 	        $result[5] += $result[12];																				// pu_ht + tax2
 	    }
-	    
+
 	    // If rounding is not using base 10 (rare)
 	    if (! empty($conf->global->MAIN_ROUNDING_RULE_TOT))
 	    {
@@ -3155,16 +3155,16 @@ class pdf_sponge_btp extends ModelePDFFactures
 	            $result[10]=round($result[10]/$conf->global->MAIN_ROUNDING_RULE_TOT, 0)*$conf->global->MAIN_ROUNDING_RULE_TOT;
 	        }
 	    }
-	    
+
 	    // initialize result array
 	    //for ($i=0; $i <= 15; $i++) $result[$i] = (float) $result[$i];
-	    
+
 	    dol_syslog('Price.lib::calcul_price_total MAIN_ROUNDING_RULE_TOT='.$conf->global->MAIN_ROUNDING_RULE_TOT.' pu='.$pu.' qty='.$qty.' price_base_type='.$price_base_type.' total_ht='.$result[0].'-total_vat='.$result[1].'-total_ttc='.$result[2]);
-	    
+
 	    return $result;
 	}
-	
-	
+
+
 	/**
 	 * Rect pdf
 	 *
@@ -3184,6 +3184,6 @@ class pdf_sponge_btp extends ModelePDFFactures
 	    if (empty($hidebottom)) $pdf->line($x+$l, $y+$h, $x, $y+$h);
 	    $pdf->line($x, $y+$h, $x, $y);
 	}
-	
-	
+
+
 }
