@@ -2277,7 +2277,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 		$rank = $rank + 10;
 		$this->cols['progress_amount'] = array(
 			'rank' => $rank,
-			'width' => 19, // in mm
+			'width' => 26, // in mm
 			'status' => true,
 			'title' => array(
 				'textkey' => date('F',$object->date)
@@ -2311,7 +2311,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 		$rank = $rank + 10;
 		$this->cols['prev_progress_amount'] = array(
 			'rank' => $rank,
-			'width' => 19, // in mm
+			'width' => 26, // in mm
 	        'status' => false,
 			'title' => array(
 				'textkey' => date('F', $this->TDataSituation['date_derniere_situation'])
@@ -2613,7 +2613,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 			if(empty($columnText)) return;
 			$pdf->SetXY($this->getColumnContentXStart($colKey),$curY); // Set curent position
 			$colDef = $this->cols[$colKey];
-			$pdf->MultiCell( $this->getColumnContentWidth($colKey),2, $columnText,'',$colDef['content']['align']);
+			$pdf->writeHTMLCell($colDef['width'], 2, $colDef['xStartPos'], $curY, $columnText, 0, 1, 0, true, $colDef['content']['align']);
 		}
 
 	}
