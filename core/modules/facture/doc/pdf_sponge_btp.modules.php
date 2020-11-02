@@ -2987,6 +2987,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 		// Retained warranty
 		$retenue_garantie = $this->getRetainedWarrantyAmount($object);
+		if($retenue_garantie == -1) $retenue_garantie = 0;
 
 		$TDataSituation['nouveau_cumul']['retenue_garantie'] = $retenue_garantie + $retenue_garantie_anterieure;
 		$TDataSituation['nouveau_cumul']['total_ttc'] = $TDataSituation['nouveau_cumul']['TTC'] - ($retenue_garantie + $retenue_garantie_anterieure);
