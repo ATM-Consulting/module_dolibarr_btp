@@ -3025,7 +3025,10 @@ class pdf_sponge_btp extends ModelePDFFactures
 			 * Si on teste juste "! empty($prevSituationPercent)" toutes les lignes de la 1ere situation sont considérées comme travaux supplémentaires
 			 * Et vu qu'il ne peut pas y avoir de travaux supplémentaires dans la 1ere situation, ça donne ça :
 			 */
-			if(!empty($l->fk_prev_id) || empty($facDerniereSituation->lines)) $TDataSituation['mois']['HT'] += $calc_ht;
+			if(!empty($l->fk_prev_id) || empty($facDerniereSituation->lines)) {
+			    $TDataSituation['mois']['HT'] += $calc_ht;
+                $TDataSituation['mois']['TTC'] = $TDataSituation['mois']['HT']  + $TDataSituation['mois']['TVA'] ;
+            }
 		}
 
 		if(! empty($facDerniereSituation->lines)) {
