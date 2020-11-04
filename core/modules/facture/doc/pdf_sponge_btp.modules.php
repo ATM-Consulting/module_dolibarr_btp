@@ -3027,6 +3027,8 @@ class pdf_sponge_btp extends ModelePDFFactures
 			 */
 			if(!empty($l->fk_prev_id) || empty($facDerniereSituation->lines)) {
 			    $TDataSituation['mois']['HT'] += $calc_ht;
+			    /* TK12029 Correction mauvais calcul TVA et TTC */
+                $TDataSituation['mois']['TVA'] = $TDataSituation['mois'][$l->tva_tx]['TVA'];
                 $TDataSituation['mois']['TTC'] = $TDataSituation['mois']['HT']  + $TDataSituation['mois']['TVA'] ;
             }
 		}
