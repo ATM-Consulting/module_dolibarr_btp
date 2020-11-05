@@ -2864,11 +2864,20 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 	}
 
+
+	/*NOTE :
+	Travaux principaux : lignes de la facture de situation qui étaient déjà présentes sur la facture antérieure
+	Travaux supplémentaires : lignes de la facture de situation qui se sont ajoutées par rapport à la facture antérieure
+	Exemple : S1 avec l1 (tp), l2 (tp)
+	          S2 avec l1 (tp), l2 (tp), l3 (ts)
+	          S3 avec l1 (tp), l2 (tp), l3 (tp), l4 (ts)
+	*/
 	/**
 	 * @param $object Facture
 	 * @return array
 	 */
 	function _getDataSituation(&$object) {
+
 		global $conf, $CACHE_get_prev_progress;
 		$object->fetchPreviousNextSituationInvoice();
 		/** @var Facture[] $TPreviousInvoices */
