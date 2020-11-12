@@ -18,12 +18,8 @@
 # Generic
 #
 
-# Module label 'ModuleXXXName'
-# (where XXX is value of numeric property 'numero' of module)
 Module104911Name = BTP
-# Module description 'ModuleXXXDesc'
-# (where XXX is value of numeric property 'numero' of module)
-Module104911Desc = BTP
+Module104911Desc = BTP (Bâtiment et Travaux Publics) 
 
 #
 # Admin page
@@ -42,13 +38,13 @@ BtpAbout = About BTP
 BtpAboutPage = BTP about page
 
 
-PDFCrabeBtpDescription=Situation invoice
-PDFCrabeBtpTitle=Situation n° %d
-BtpWarningsObjectIsNotASituation=Warning : This models is specifis to situation invoice
-BtpMainWork=Main Work
-BtpAdditionalWork=Additional Work
-BtpNewCumul=New sum amount
-BtpAnteCumul=Prévious sum amount
-BtpTotalSituationTTC=TOTAL SITUATION - TTC
-BtpRetenueGarantie=Garantie - TTC
-BtpRayToRest=Total to payed - TTC
+PDFCrabeBtpDescription = Situation invoice
+PDFCrabeBtpTitle = Situation n° %d
+BtpWarningsObjectIsNotASituation = Warning : This models is specifis to situation invoice
+BtpMainWork = Main Work
+BtpAdditionalWork = Additional Work
+BtpNewCumul = New sum amount
+BtpAnteCumul = Previous sum amount
+BtpTotalSituationTTC = TOTAL SITUATION - incl. TAX
+BtpRetenueGarantie = WARRANTY - incl. TAX
+BtpRayToRest = Total to payed - incl. TAX
