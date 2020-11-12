@@ -1,28 +1,9 @@
-# <one line to give the program's name and a brief idea of what it does.>
-# Copyright (C) <year>  <name of author>
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Module BTP langs en_US
 
 #
 # Generic
 #
-
-# Module label 'ModuleXXXName'
-# (where XXX is value of numeric property 'numero' of module)
 Module104911Name = BTP
-# Module description 'ModuleXXXDesc'
-# (where XXX is value of numeric property 'numero' of module)
 Module104911Desc = BTP
 
 #
@@ -42,13 +23,13 @@ BtpAbout = About BTP
 BtpAboutPage = BTP about page
 
 
-PDFCrabeBtpDescription=Situation invoice
-PDFCrabeBtpTitle=Situation n° %d
-BtpWarningsObjectIsNotASituation=Warning : This models is specifis to situation invoice
-BtpMainWork=Main Work
-BtpAdditionalWork=Additional Work
-BtpNewCumul=New sum amount
-BtpAnteCumul=Prévious sum amount
-BtpTotalSituationTTC=TOTAL SITUATION - TTC
-BtpRetenueGarantie=Garantie - TTC
-BtpRayToRest=Total to payed - TTC
+PDFCrabeBtpDescription = Situation invoice
+PDFCrabeBtpTitle = Situation n° %d
+BtpWarningsObjectIsNotASituation = Warning : This models is specifis to situation invoice
+BtpMainWork = Main Work
+BtpAdditionalWork = Additional Work
+BtpNewCumul = New sum amount
+BtpAnteCumul = Previous sum amount
+BtpTotalSituationTTC = TOTAL SITUATION (incl. tax)
+BtpRetenueGarantie = Retention Warranty (incl. tax)
+BtpRayToRest = Remainder to be invoiced on the total (excl. VAT)
