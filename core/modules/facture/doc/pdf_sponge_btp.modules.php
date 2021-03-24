@@ -2277,7 +2277,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 		$rank = $rank + 10;
 		$this->cols['progress_amount'] = array(
 			'rank' => $rank,
-			'width' => 19, // in mm
+			'width' => 26, // in mm
 			'status' => true,
 			'title' => array(
 				'textkey' => date('F',$object->date)
@@ -2311,7 +2311,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 		$rank = $rank + 10;
 		$this->cols['prev_progress_amount'] = array(
 			'rank' => $rank,
-			'width' => 19, // in mm
+			'width' => 26, // in mm
 	        'status' => false,
 			'title' => array(
 				'textkey' => date('F', $this->TDataSituation['date_derniere_situation'])
@@ -2613,7 +2613,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 			if(empty($columnText)) return;
 			$pdf->SetXY($this->getColumnContentXStart($colKey),$curY); // Set curent position
 			$colDef = $this->cols[$colKey];
-			$pdf->MultiCell( $this->getColumnContentWidth($colKey),2, $columnText,'',$colDef['content']['align']);
+			$pdf->writeHTMLCell($colDef['width'], 2, $colDef['xStartPos'], $curY, $columnText, 0, 1, 0, true, $colDef['content']['align']);
 		}
 
 	}
@@ -2864,11 +2864,20 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 	}
 
+
+	/*NOTE :
+	Travaux principaux : lignes de la facture de situation qui étaient déjà présentes sur la facture antérieure
+	Travaux supplémentaires : lignes de la facture de situation qui se sont ajoutées par rapport à la facture antérieure
+	Exemple : S1 avec l1 (tp), l2 (tp)
+	          S2 avec l1 (tp), l2 (tp), l3 (ts)
+	          S3 avec l1 (tp), l2 (tp), l3 (tp), l4 (ts)
+	*/
 	/**
 	 * @param $object Facture
 	 * @return array
 	 */
 	function _getDataSituation(&$object) {
+
 		global $conf, $CACHE_get_prev_progress;
 		$object->fetchPreviousNextSituationInvoice();
 		/** @var Facture[] $TPreviousInvoices */
@@ -2987,6 +2996,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 		// Retained warranty
 		$retenue_garantie = $this->getRetainedWarrantyAmount($object);
+		if($retenue_garantie == -1) $retenue_garantie = 0;
 
 		$TDataSituation['nouveau_cumul']['retenue_garantie'] = $retenue_garantie + $retenue_garantie_anterieure;
 		$TDataSituation['nouveau_cumul']['total_ttc'] = $TDataSituation['nouveau_cumul']['TTC'] - ($retenue_garantie + $retenue_garantie_anterieure);
