@@ -38,12 +38,12 @@ BtpAbout = About BTP
 BtpAboutPage = BTP about page
 
 
-PDFCrabeBtpDescription = Situation invoice
-PDFCrabeBtpTitle = Situation n° %d
-BtpWarningsObjectIsNotASituation = Warning : This models is specifis to situation invoice
-BtpMainWork = Main Work
-BtpAdditionalWork = Additional Work
-BtpNewCumul = New sum amount
+PDFCrabeBtpDescription=Situation invoice
+PDFCrabeBtpTitle=Situation n° %d
+BtpWarningsObjectIsNotASituation=Warning : This models is specifis to situation invoice
+BtpMainWork=Main Work
+BtpAdditionalWork=Additional Work
+BtpNewCumul=New sum amount
 BtpAnteCumul = Previous sum amount
 BtpTotalSituationTTC = TOTAL SITUATION - incl. TAX
 BtpRetenueGarantie = WARRANTY - incl. TAX
