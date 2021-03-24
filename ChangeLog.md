@@ -1,7 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## Version 1.1.1 [ 2021-03-08 ]
+## UNRELEASED
 
-### Fix
-- V13 GETPOST compatibility
+
+## 1.1
+
+- FIX : V13 GETPOST compatibility *08/03/2021*
