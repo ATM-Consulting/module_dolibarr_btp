@@ -62,7 +62,7 @@ class modBtp extends DolibarrModules
 		// (where XXX is value of numeric property 'numero' of module)
 		$this->description = "Description of module Btp";
 		// Possible values for version are: 'development', 'experimental' or version
-		$this->version = '1.1.5';
+		$this->version = '1.1.6';
 		// Key used in llx_const table to save module status enabled/disabled
 		// (where MYMODULE is value of property name of module in uppercase)
 		$this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
@@ -131,7 +131,7 @@ class modBtp extends DolibarrModules
 		$this->hidden = false;
 		// List of modules class name as string that must be enabled if this module is enabled
 		// Example : $this->depends('modAnotherModule', 'modYetAnotherModule')
-		$this->depends = array('modnomenclature','modSubtotal','modWorkstation','modSociete'
+		$this->depends = array('modnomenclature','modSubtotal','modSociete'
 				,'modPropale'
 				,'modCommande'
 				,'modFournisseur'
