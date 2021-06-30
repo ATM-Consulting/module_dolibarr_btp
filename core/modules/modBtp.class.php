@@ -57,12 +57,15 @@ class modBtp extends DolibarrModules
 		// used if translation string 'ModuleXXXName' not found
 		// (where XXX is value of numeric property 'numero' of module)
 		$this->name = preg_replace('/^mod/i', '', get_class($this));
+		$this->editor_name = 'ATM Consulting';
+		$this->editor_url = 'https://www.atm-consulting.fr';
+		$this->family = "ATM Consulting - BTP";
 		// Module description
 		// used if translation string 'ModuleXXXDesc' not found
 		// (where XXX is value of numeric property 'numero' of module)
-		$this->description = "Description of module Btp";
+		$this->description = "Module ATM BTP: provides PDF templates specifically designed for the construction industry";
 		// Possible values for version are: 'development', 'experimental' or version
-		$this->version = '1.1.6';
+		$this->version = '1.1.7';
 		// Key used in llx_const table to save module status enabled/disabled
 		// (where MYMODULE is value of property name of module in uppercase)
 		$this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
@@ -132,24 +135,24 @@ class modBtp extends DolibarrModules
 		// List of modules class name as string that must be enabled if this module is enabled
 		// Example : $this->depends('modAnotherModule', 'modYetAnotherModule')
 		$this->depends = array('modnomenclature','modSubtotal','modSociete'
-				,'modPropale'
-				,'modCommande'
-				,'modFournisseur'
-				,'modFacture'
-				,'modMargin'
-				,'modProduct'
-				/* sujet à discuter
-				,'modTarif'
-				,'modmetre'
-				,'modBanque'
-				,'modService'
-				,'modStock'
-				,'modProjet'
-				,'modCategorie'
-				,'modFckeditor'
-				,'modBookmark'
-				,'modDoc2Project'
-				,'modSearchProductCategory'*/
+		                       ,'modPropale'
+		                       ,'modCommande'
+		                       ,'modFournisseur'
+		                       ,'modFacture'
+		                       ,'modMargin'
+		                       ,'modProduct'
+		                       /* sujet à discuter
+							   ,'modTarif'
+							   ,'modmetre'
+							   ,'modBanque'
+							   ,'modService'
+							   ,'modStock'
+							   ,'modProjet'
+							   ,'modCategorie'
+							   ,'modFckeditor'
+							   ,'modBookmark'
+							   ,'modDoc2Project'
+							   ,'modSearchProductCategory'*/
 
 		);
 		// List of modules id to disable if this one is disabled
@@ -167,9 +170,9 @@ class modBtp extends DolibarrModules
 		// (name, type ['chaine' or ?], value, description, visibility, entity ['current' or 'allentities'], delete on unactive)
 		// Example:
 		$this->const = array(
-				array('MAIN_FORCELANGDIR','chaine','/btp/customlangs','Directory where custom translations will be stored',1,'current',1)
-				,array('INVOICE_USE_SITUATION','chaine','1','Enable invoice situation',1,'current',1)
-		        ,array('BTP_SIMPLE_DISPLAY','chaine','1','Display only the usefull informations for BTP users',1,'current',1)
+			array('MAIN_FORCELANGDIR','chaine','/btp/customlangs','Directory where custom translations will be stored',1,'current',1)
+			,array('INVOICE_USE_SITUATION','chaine','1','Enable invoice situation',1,'current',1)
+			,array('BTP_SIMPLE_DISPLAY','chaine','1','Display only the usefull informations for BTP users',1,'current',1)
 		);
 
 		// Array to add new pages in new tabs
@@ -477,7 +480,7 @@ class modBtp extends DolibarrModules
 	 */
 	public function init($options = '')
 	{
-	    global $db, $conf;
+		global $db, $conf;
 
 		$sql = array();
 
@@ -487,7 +490,7 @@ class modBtp extends DolibarrModules
 		$ret = delDocumentModel('crabe_btp', 'invoice');
 		if ($ret > 0)
 		{
-		    $ret = addDocumentModel('crabe_btp', 'invoice', 'crabe_btp', null);
+			$ret = addDocumentModel('crabe_btp', 'invoice', 'crabe_btp', null);
 		}
 
 
@@ -505,14 +508,14 @@ class modBtp extends DolibarrModules
 	 */
 	public function remove($options = '')
 	{
-	    global $db, $conf;
+		global $db, $conf;
 
 		$sql = array();
 
 		$ret = delDocumentModel('crabe_btp', 'invoice');
 		if ($ret > 0)
 		{
-		    if ($conf->global->FACTURE_ADDON_PDF == "crabe_btp") dolibarr_del_const($db, 'FACTURE_ADDON_PDF',$conf->entity);
+			if ($conf->global->FACTURE_ADDON_PDF == "crabe_btp") dolibarr_del_const($db, 'FACTURE_ADDON_PDF',$conf->entity);
 		}
 
 		return $this->_remove($sql, $options);
