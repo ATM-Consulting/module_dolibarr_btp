@@ -67,6 +67,11 @@ BtpRetenueGarantie=Retenue Garantie - TTC
 BtpTotalProgress=Total progression %d %%
 BtpTotalRayToRest=Reste à facturer sur le total HT
 BtpRayToRest=MONTANT A PAYER - TTC
+BtpTotHt=Total HT
+BtpTotHTCurrentSituation=Total HT sit. n° %d
+BtpCurrentSituation=Situation actuelle (n° %d)
+BtpPercentageOfPreviousSituation=%% sit. n° %d
+BtpPercentageOfCurrentSituation=%% sit. n° %d
 
 # Retained warranty
 BTPToPayOn=A payer le %s
