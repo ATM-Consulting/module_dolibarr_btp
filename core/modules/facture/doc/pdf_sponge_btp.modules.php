@@ -2129,7 +2129,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	 */
 	function defineColumnField($object,$outputlangs,$hidedetails=0,$hidedesc=0,$hideref=0){
 
-		global $conf, $hookmanager;
+		global $conf, $hookmanager, $langs;
 
 		// Default field style for content
 		$this->defaultContentsFieldsStyle = array(
@@ -2233,7 +2233,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 		$rank = $rank + 10;
 		$this->cols['qty'] = array(
 			'rank' => $rank,
-			'width' => 16, // in mm
+			'width' => 13, // in mm
 			'status' => true,
 			'title' => array(
 				'textkey' => 'Qty'
@@ -2261,10 +2261,10 @@ class pdf_sponge_btp extends ModelePDFFactures
 		$rank = $rank + 10;
 		$this->cols['btpsomme'] = array(
 			'rank' => $rank,
-			'width' => 26, // in mm
+			'width' => 19, // in mm
 	        'status' => false,
 			'title' => array(
-				'textkey' => 'BtpAnteCumul'
+				'textkey' => 'BtpTotHt'
 			),
 			'border-left' => true, // add left line separator
 		);
@@ -2280,7 +2280,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 			'width' => 26, // in mm
 			'status' => true,
 			'title' => array(
-				'textkey' => date('F',$object->date)
+				'textkey' => $langs->transnoentities('PDFCrabeBtpTitle', $object->situation_counter)
 			),
 			'border-left' => true, // add left line separator
 		);
@@ -2296,7 +2296,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 			'width' => 19, // in mm
 			'status' => false,
 			'title' => array(
-				'label' => '%'
+				'textkey' => $langs->transnoentities('BtpPercentageOfCurrentSituation', $object->situation_counter)
 			),
 			'border-left' => true, // add left line separator
 		);
@@ -2306,6 +2306,12 @@ class pdf_sponge_btp extends ModelePDFFactures
 			$this->cols['progress']['status'] = true;
 		}
 
+		$object->fetchPreviousNextSituationInvoice();
+		$lastElement = end($object->tab_previous_situation_invoice);
+		if(empty($lastElement))
+		{
+			$lastElement = 0;
+		}
 
 		// Colonne "Progression précédente"
 		$rank = $rank + 10;
@@ -2314,7 +2320,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 			'width' => 26, // in mm
 	        'status' => false,
 			'title' => array(
-				'textkey' => date('F', $this->TDataSituation['date_derniere_situation'])
+				'textkey' => $langs->transnoentities('PDFCrabeBtpTitle', $lastElement->situation_counter)
 			),
 			'border-left' => true, // add left line separator
 		);
@@ -2330,7 +2336,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 			'width' => 19, // in mm
 			'status' => false,
 			'title' => array(
-				'label' => '%'
+				'textkey' => $langs->transnoentities('BtpPercentageOfPreviousSituation', $lastElement->situation_counter)
 			),
 			'border-left' => true, // add left line separator
 		);
@@ -2369,10 +2375,10 @@ class pdf_sponge_btp extends ModelePDFFactures
 		$rank = $rank + 10;
 		$this->cols['totalexcltax'] = array(
 			'rank' => $rank,
-			'width' => 26, // in mm
+			'width' => 27, // in mm
 			'status' => true,
 			'title' => array(
-				'textkey' => 'TotalHT'
+				'textkey' => $langs->transnoentities('BtpTotHTCurrentSituation', $object->situation_counter)
 			),
 			'border-left' => true, // add left line separator
 		);
@@ -2723,7 +2729,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 		if (empty($hidetop))
 		{
 			$pdf->SetXY($this->posx_month-1, $tab_top+0.5);
-			$pdf->MultiCell(35,2, $outputlangs->transnoentities("Month"),'','C');
+			$pdf->MultiCell(36,2, $outputlangs->transnoentities("BtpCurrentSituation", $object->situation_counter),'','C');
 		}
 
 		// ADD HORIZONTALE LINES
