@@ -3143,6 +3143,10 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 		if(is_callable(array($object, 'getRetainedWarrantyAmount'))){
 			return $object->getRetainedWarrantyAmount($rounding);
+			//On surcharge la valeur de la retenue de garantie car quand elle renvoie -1, elle est interprétée comme une valeur monétaire et réduit le total TTC de 1
+			$retainedDataReturnValue = $object->getRetainedWarrantyAmount($rounding);
+
+			return $retainedDataReturnValue == -1 ? 0 : $retainedDataReturnValue;
 		}
 		else
 		{
