@@ -140,6 +140,10 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
 		setup_print_on_off('INVOICE_USE_DEFAULT_DOCUMENT');
 	}
 
+	if(floatval(DOL_VERSION) >= 15.0){
+		setup_print_on_off('BTP_USE_MARGINS_WITH_NOMENCLATURE_DETAILS');
+	}
+
 
     print '</table>';
 

@@ -53,6 +53,7 @@ MAIN_ENABLE_IMPORT_LINKED_OBJECT_LINES=Permettre l'import de lignes issues d'un 
 MAIN_ENABLE_IMPORT_LINKED_OBJECT_LINES_HELP=Attention, le nombre de documents compatibles dépend de la version de dolibarr
 INVOICE_KEEP_DISCOUNT_LINES_AS_IN_ORIGIN=Lors de l'ajout d'une ligne négative dans une facture, ne pas créer de remise fixe
 INVOICE_KEEP_DISCOUNT_LINES_AS_IN_ORIGIN_HELP=Cette option est une option cachée de Dolibarr, elle n'est pas liée au module BTP
+BTP_USE_MARGINS_WITH_NOMENCLATURE_DETAILS=Tenir compte de la part de produits / services disponibles dans les ouvrages et sous ouvrages des lignes pour l'affichage des marges dans les documents de vente
 
 PDFCrabeBtpDescription=Modèle pdf spécifique Situation
 PDFCrabeBtpTitle=Situation n° %d
@@ -72,6 +73,7 @@ BtpTotHTCurrentSituation=Total HT sit. n° %d
 BtpCurrentSituation=Situation actuelle (n° %d)
 BtpPercentageOfPreviousSituation=%% sit. n° %d
 BtpPercentageOfCurrentSituation=%% sit. n° %d
+BtpMarginsDetailsWithNomenclaturesHelp=Les marges présentes dans ce tableau tiennent compte de la part de produits / services disponibles dans les ouvrages et sous ouvrages des lignes (il est possible de revenir à un affichage standard dans la configuration du module BTP)
 
 # Retained warranty
 BTPToPayOn=A payer le %s
