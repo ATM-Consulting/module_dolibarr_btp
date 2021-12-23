@@ -54,6 +54,7 @@ MAIN_ENABLE_IMPORT_LINKED_OBJECT_LINES_HELP=Attention, le nombre de documents co
 INVOICE_KEEP_DISCOUNT_LINES_AS_IN_ORIGIN=Lors de l'ajout d'une ligne négative dans une facture, ne pas créer de remise fixe
 INVOICE_KEEP_DISCOUNT_LINES_AS_IN_ORIGIN_HELP=Cette option est une option cachée de Dolibarr, elle n'est pas liée au module BTP
 BTP_USE_MARGINS_WITH_NOMENCLATURE_DETAILS=Tenir compte de la part de produits / services disponibles dans les ouvrages et sous ouvrages des lignes pour l'affichage des marges dans les documents de vente
+BTP_USE_MARGINS_WITH_NOMENCLATURE_DETAILS_HELP=Pour que le calcul du détail de la part de produits / services dans les marges soit juste, aucun prix de revient ou prix d'achat ne doit être défini sur un ouvrage ou sous ouvrage, seuls les produits / services doivent avoir cette information.<br>Un ouvrage contenu dans un autre ne devra pas non plus avoir de coût personnalisé
 
 PDFCrabeBtpDescription=Modèle pdf spécifique Situation
 PDFCrabeBtpTitle=Situation n° %d
