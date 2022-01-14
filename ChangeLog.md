@@ -3,9 +3,14 @@ All notable changes to this project will be documented in this file
 
 ## UNRELEASED
 
+
+
 ## 1.2
 
-NEW : Conf pour que les marges présentes dans le tableau des cmd, propal, factures tiennent compte de la part de produits / services disponibles dans les ouvrages et sous ouvrages des lignes
+- NEW : Nouvelle configuration *14/01/2022* - 1.2.0   
+  nouvelle configuration pour que les marges présentes dans le tableau des cmd, propal, factures 
+  tiennent compte de la part de produits / services disponibles dans les ouvrages et sous ouvrages des lignes
+
 
 ## 1.1
 
