@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file
 
 ## UNRELEASED
 
-
+- NEW : Change col order *07/03/2022* - 1.3.0
 
 ## 1.2
 

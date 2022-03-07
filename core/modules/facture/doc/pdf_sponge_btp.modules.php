@@ -2273,6 +2273,50 @@ class pdf_sponge_btp extends ModelePDFFactures
 	        $this->cols['btpsomme']['status'] = true;
 	    }
 
+
+
+		$object->fetchPreviousNextSituationInvoice();
+		$lastElement = end($object->tab_previous_situation_invoice);
+		if(empty($lastElement))
+		{
+			$lastElement = 0;
+		}
+
+		// Colonne "Progression précédente"
+		$rank = $rank + 10;
+		$this->cols['prev_progress_amount'] = array(
+			'rank' => $rank,
+			'width' => 26, // in mm
+			'status' => false,
+			'title' => array(
+				'textkey' => $langs->transnoentities('PDFCrabeBtpTitle', $lastElement->situation_counter)
+			),
+			'border-left' => true, // add left line separator
+		);
+		if($this->situationinvoice && ! empty($this->TDataSituation['date_derniere_situation']))
+		{
+			$this->cols['prev_progress_amount']['status'] = true;
+		}
+
+		// Colonne "Pourcentage Progression précédente"
+		$rank = $rank + 10;
+		$this->cols['prev_progress'] = array(
+			'rank' => $rank,
+			'width' => 19, // in mm
+			'status' => false,
+			'title' => array(
+				'textkey' => $langs->transnoentities('BtpPercentageOfPreviousSituation', $lastElement->situation_counter)
+			),
+			'border-left' => true, // add left line separator
+		);
+
+		if($this->situationinvoice && ! empty($this->TDataSituation['date_derniere_situation']))
+		{
+			$this->cols['prev_progress']['status'] = true;
+		}
+
+
+
 		// Colonne "Progression actuelle"
 		$rank = $rank + 10;
 		$this->cols['progress_amount'] = array(
@@ -2304,46 +2348,6 @@ class pdf_sponge_btp extends ModelePDFFactures
 		if($this->situationinvoice)
 		{
 			$this->cols['progress']['status'] = true;
-		}
-
-		$object->fetchPreviousNextSituationInvoice();
-		$lastElement = end($object->tab_previous_situation_invoice);
-		if(empty($lastElement))
-		{
-			$lastElement = 0;
-		}
-
-		// Colonne "Progression précédente"
-		$rank = $rank + 10;
-		$this->cols['prev_progress_amount'] = array(
-			'rank' => $rank,
-			'width' => 26, // in mm
-	        'status' => false,
-			'title' => array(
-				'textkey' => $langs->transnoentities('PDFCrabeBtpTitle', $lastElement->situation_counter)
-			),
-			'border-left' => true, // add left line separator
-		);
-	    if($this->situationinvoice && ! empty($this->TDataSituation['date_derniere_situation']))
-		{
-			$this->cols['prev_progress_amount']['status'] = true;
-		}
-
-		// Colonne "Pourcentage Progression précédente"
-		$rank = $rank + 10;
-		$this->cols['prev_progress'] = array(
-			'rank' => $rank,
-			'width' => 19, // in mm
-			'status' => false,
-			'title' => array(
-				'textkey' => $langs->transnoentities('BtpPercentageOfPreviousSituation', $lastElement->situation_counter)
-			),
-			'border-left' => true, // add left line separator
-		);
-
-	    if($this->situationinvoice && ! empty($this->TDataSituation['date_derniere_situation']))
-		{
-			$this->cols['prev_progress']['status'] = true;
 		}
 
 

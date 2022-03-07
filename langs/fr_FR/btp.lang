@@ -80,3 +80,5 @@ BtpMarginsDetailsWithNomenclaturesHelp=Les marges présentes dans ce tableau tie
 BTPToPayOn=A payer le %s
 BTPtoPayOn=à payer le %s
 BTPRetainedWarranty=Retenue de garantie
+CumulPrevSituationAmount = Cumul sit.
+CumulLastSituationPercent = Cumul sit.%%
