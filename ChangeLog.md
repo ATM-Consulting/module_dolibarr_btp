@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file
 
 ## UNRELEASED
 
-
+- NEW : Intégration bénéfice prévisionnel sur vue d'ensemble chantier - *31/05/2022* - 1.3.0
 
 ## 1.2
 
