@@ -104,7 +104,10 @@ class modBtp extends DolibarrModules
 			// Set this to relative path of js file if module must load a js on all pages
 			// 'js' => array('btp/js/btp.js'),
 			// Set here all hooks context managed by module
-			'hooks' => array('invoicecard'),
+			'hooks' => array(
+				'invoicecard',
+				'projectOverview'
+			),
 			// To force the default directories names
 			// 'dir' => array('output' => 'othermodulename'),
 			// Set here all workflow context managed by module
