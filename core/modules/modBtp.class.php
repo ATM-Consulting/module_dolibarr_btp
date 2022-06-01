@@ -65,7 +65,7 @@ class modBtp extends DolibarrModules
 		// (where XXX is value of numeric property 'numero' of module)
 		$this->description = "Module ATM BTP: provides PDF templates specifically designed for the construction industry";
 		// Possible values for version are: 'development', 'experimental' or version
-		$this->version = '1.2.0';
+		$this->version = '1.3.0';
 		// Key used in llx_const table to save module status enabled/disabled
 		// (where MYMODULE is value of property name of module in uppercase)
 		$this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
@@ -104,7 +104,10 @@ class modBtp extends DolibarrModules
 			// Set this to relative path of js file if module must load a js on all pages
 			// 'js' => array('btp/js/btp.js'),
 			// Set here all hooks context managed by module
-			'hooks' => array('invoicecard'),
+			'hooks' => array(
+				'invoicecard',
+				'projectOverview'
+			),
 			// To force the default directories names
 			// 'dir' => array('output' => 'othermodulename'),
 			// Set here all workflow context managed by module

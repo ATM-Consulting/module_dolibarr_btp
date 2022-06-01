@@ -144,6 +144,12 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
 		setup_print_on_off('BTP_USE_MARGINS_WITH_NOMENCLATURE_DETAILS');
 	}
 
+	if(floatval(DOL_VERSION) >= 13.0){
+		setup_print_title($langs->trans("Project"));
+		setup_print_on_off('PROJECT_SHOW_FORECAST_PROFIT_BOARD');
+		setup_print_input_form_part('PROJECT_FORECAST_DEFAULT_THM');
+	}
+
 
     print '</table>';
 

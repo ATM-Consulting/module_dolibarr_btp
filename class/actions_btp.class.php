@@ -41,19 +41,27 @@ class ActionsBtp
      * @var array Errors
      */
     public $errors = array();
-    
-    
+
+
     /**
      * @var array Hook results. Propagated to $hookmanager->resArray for later reuse
      */
     public $results = array();
-    
+
     /**
      * @var string String displayed by executeHook() immediately after return
      */
     public $resprints;
-    
-    
+
+	/**
+	 * @var array list of elements linked to a project
+	 * used for projet/element.php customisation
+	 */
+	public $listofreferent;
+
+	public $forecastProfitedPrinted = false;
+
+
     /**
      * Constructor
      *
@@ -63,7 +71,7 @@ class ActionsBtp
     {
         $this->db = $db;
     }
-    
+
     /**
      * Overloading the doActions function : replacing the parent's function with the one below
      *
@@ -76,28 +84,28 @@ class ActionsBtp
     public function doActions($parameters, &$object, &$action, $hookmanager)
     {
         global $conf, $user, $langs;
-        
+
         $error = 0; // Error counter
-        
+
         $contexts = explode(':',$parameters['context']);
-        
+
         if (in_array('invoicecard',$contexts)) {
-            
+
         }
-        
+
     }
-    
-    
+
+
     public function formObjectOptions($parameters, &$object, &$action, $hookmanager)
     {
         global $conf, $user, $langs;
-        
+
         $error = 0; // Error counter
-        
+
         $contexts = explode(':',$parameters['context']);
-        
+
         if (in_array('invoicecard',$contexts)) { // do something only for the context 'somecontext1' or 'somecontext2'
-            if( $object->type == Facture::TYPE_SITUATION && (float) DOL_VERSION < 8.0){ 
+            if( $object->type == Facture::TYPE_SITUATION && (float) DOL_VERSION < 8.0){
             // pour les factures de situations on selectionne le modèle crabe_btp par défaut
             ?>
             <script type="text/javascript">
@@ -119,7 +127,7 @@ class ActionsBtp
         }
 
     }
-    
+
     /**
      * Overloading the doActions function : replacing the parent's function with the one below
      *
@@ -132,21 +140,21 @@ class ActionsBtp
     public function doMassActions($parameters, &$object, &$action, $hookmanager)
     {
         global $conf, $user, $langs;
-        
+
         $error = 0; // Error counter
-               
+
         if (in_array($parameters['currentcontext'], array('somecontext1','somecontext2'))) {  // do something only for the context 'somecontext1' or 'somecontext2'
-            
+
             foreach($parameters['toselect'] as $objectid)
             {
                 // Do action on each object id
-                
+
             }
         }
 
     }
-    
-    
+
+
     /**
      * Overloading the addMoreMassActions function : replacing the parent's function with the one below
      *
@@ -159,16 +167,44 @@ class ActionsBtp
     public function addMoreMassActions($parameters, &$object, &$action, $hookmanager)
     {
         global $conf, $user, $langs;
-        
+
         $error = 0; // Error counter
-        
+
         if (in_array($parameters['currentcontext'], array('somecontext1','somecontext2')))  // do something only for the context 'somecontext'
         {
             $this->resprints = '<option value="0"'.($disabled?' disabled="disabled"':'').'>'.$langs->trans("MyModuleMassAction").'</option>';
         }
-        
+
     }
-    
-    
-    
+
+	public function completeListOfReferent($parameters, &$object, &$action, $hookmanager)
+	{
+		global $conf;
+
+		if (!empty($conf->global->PROJECT_SHOW_FORECAST_PROFIT_BOARD)) $this->listofreferent = $parameters['listofreferent'];
+	}
+
+	public function printOverviewProfit($parameters, &$object, &$action, $hookmanager)
+	{
+		global $conf, $user, $langs;
+
+//		print 'lol';
+		dol_include_once('btp/lib/btp.lib.php');
+
+		if (!empty($conf->global->PROJECT_SHOW_FORECAST_PROFIT_BOARD) && ! $this->forecastProfitedPrinted)
+		{
+			$this->listofreferent['propal']['margin'] = 'add';
+			$this->listofreferent['propal']['name'] = 'ProposalsExcludingRefused';
+			$this->listofreferent['order']['margin'] = 'add';
+			$this->listofreferent['order_supplier']['margin'] = 'minus';
+			unset($this->listofreferent['invoice']['margin'], $this->listofreferent['invoice_supplier']['margin']);
+
+			printForecastProfitBoard($object, $this->listofreferent, $parameters['dates'], $parameters['datee']);
+			$this->forecastProfitedPrinted = true;
+		}
+
+		return 0;
+	}
+
+
 }

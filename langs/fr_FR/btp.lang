@@ -38,6 +38,8 @@ SituationParamsAvailablesHere=Parametres des factures de situations disponibles 
 PRODUCT_USE_UNITS = Activer le support des unités sur les produits
 INVOICE_USE_DEFAULT_DOCUMENT = Activer le support des documents par défaut
 INVOICE_USE_DEFAULT_DOCUMENT_HELP = Permet de sélectionner un modèle de documents de facture par défaut en fonction du type de facture. Sur la page de création de facture, le modèle est modifié dynamiquement lors de la sélection du type de facture.
+PROJECT_SHOW_FORECAST_PROFIT_BOARD=Voir le bénéfice prévisionnel sur la vue d'ensemble projet
+PROJECT_FORECAST_DEFAULT_THM=Taux Horaire Moyen par défaut pris en compte dans le calcul du bénéfice prévisionnel (valorisation des tâches)
 
 #
 # Page À propos
@@ -75,6 +77,9 @@ BtpCurrentSituation=Situation actuelle (n° %d)
 BtpPercentageOfPreviousSituation=%% sit. n° %d
 BtpPercentageOfCurrentSituation=%% sit. n° %d
 BtpMarginsDetailsWithNomenclaturesHelp=Les marges présentes dans ce tableau tiennent compte de la part de produits / services disponibles dans les ouvrages et sous ouvrages des lignes (il est possible de revenir à un affichage standard dans la configuration du module BTP)
+ForecastProfit=Bénéfice prévisionnel
+RealProfit=Bénéfice réel
+ProposalsExcludingRefused=Propositions commerciales (sauf refusées)
 
 # Retained warranty
 BTPToPayOn=A payer le %s
