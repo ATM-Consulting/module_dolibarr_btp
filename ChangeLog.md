@@ -3,7 +3,11 @@ All notable changes to this project will be documented in this file
 
 ## UNRELEASED
 
-- NEW : Intégration bénéfice prévisionnel sur vue d'ensemble chantier - *31/05/2022* - 1.3.0
+## 1.3
+
+- NEW : Intégration bénéfice prévisionnel sur vue d'ensemble chantier - *31/05/2022* - 1.3.0  
+  Ajoute une configuration pour que les marges présentes dans le tableau des cmd, propal, factures
+  tiennent compte de la part de produits / services disponibles dans les ouvrages et sous ouvrages des lignes 
 
 ## 1.2
 
