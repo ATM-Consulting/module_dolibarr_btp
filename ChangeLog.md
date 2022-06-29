@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file
 
 ## 1.3
 
+- FIX : taille du tableau préliminaire variable - *29/06/2022* - 1.3.1
 - NEW : Intégration bénéfice prévisionnel sur vue d'ensemble chantier - *31/05/2022* - 1.3.0  
   *(récupération de 8.0_btp)* 
 
