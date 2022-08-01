@@ -133,6 +133,9 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 		$this->page_largeur = 297;
 		$this->page_hauteur = 210;
+        $this->posx_new_cumul = 94;
+        $this->posx_cumul_anterieur = 130;
+        $this->posx_month = 166;
 
 		$this->format = array($this->page_largeur,$this->page_hauteur);
 		$this->marge_gauche=isset($conf->global->MAIN_PDF_MARGIN_LEFT)?$conf->global->MAIN_PDF_MARGIN_LEFT:10;
@@ -395,7 +398,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 				$tab_height = 130;
 				$tab_height_newpage = 150;
 
-				$this->_tableauBtp($pdf, $tab_top, $this->page_hauteur - 90 + $height_note - $heightforinfotot - $heightforfreetext - $heightforfooter, 0, $outputlangs, 0, 0, $object->multicurrency_code);
+				$this->_tableauBtp($pdf, $tab_top, $this->page_hauteur - 100 - $heightforfreetext - $heightforfooter, 0, $outputlangs, 0, 0, $object->multicurrency_code);
 				$bottomlasttab=$this->page_hauteur - $heightforinfotot - $heightforfreetext - $heightforfooter + 1;
 
 				$this->_pagefoot($pdf,$object,$outputlangs,1);
@@ -650,15 +653,12 @@ class pdf_sponge_btp extends ModelePDFFactures
 							$pageposafter=$pdf->getPage();
 							$posyafter=$pdf->GetY();
 							//var_dump($posyafter); var_dump(($this->page_hauteur - ($heightforfooter+$heightforfreetext+$heightforinfotot))); exit;
-							if ($posyafter > ($this->page_hauteur - ($heightforfooter+$heightforfreetext+$heightforinfotot)))	// There is no space left for total+free text
-							{
-								if ($i == ($nblignes-1))	// No more lines, and no space left to show total, so we create a new page
-								{
-									$pdf->AddPage('','',true);
-									if (! empty($tplidx)) $pdf->useTemplate($tplidx);
-									$pdf->setPage($pageposafter+1);
-								}
-							}
+							if ($i == ($nblignes-1) && $posyafter > ($this->page_hauteur - ($heightforfooter+$heightforfreetext+$heightforinfotot)))
+                            {
+                                $pdf->AddPage('','',true);
+                                if (! empty($tplidx)) $pdf->useTemplate($tplidx);
+                                $pdf->setPage($pageposafter+1);
+                            }
 							else
 							{
 								// We found a page break
@@ -2663,11 +2663,6 @@ class pdf_sponge_btp extends ModelePDFFactures
 		global $conf, $object, $db;
 
 		$form = new Form($db);
-
-		// TODO à mettre dans le construct
-		$this->posx_new_cumul = 94;
-		$this->posx_cumul_anterieur = 130;
-		$this->posx_month = 166;
 
 		$tab_height -= 29; // Réduction de la hauteur global du tableau
 		$displayWarranty = $this->displayRetainedWarranty($object);
