@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file
 
 ## 1.3
 
+- FIX : fatal error dans le modèle sponge_btp dû à une fuite de mémoire - *04/08/2022* - 1.3.2
+  - suppression de caches inutiles
+  - optimisation des calculs en boucle
 - FIX : taille du tableau préliminaire variable - *29/06/2022* - 1.3.1
 - NEW : Intégration bénéfice prévisionnel sur vue d'ensemble chantier - *31/05/2022* - 1.3.0  
   *(récupération de 8.0_btp)* 
