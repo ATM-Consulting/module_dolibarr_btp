@@ -599,109 +599,110 @@ class pdf_sponge_btp extends ModelePDFFactures
 				$pagenb = $pageposbeforeprintlines;
 				for ($i = 0; $i < $nblignes; $i++)
 				{
+                    $curY = $nexY;
+                    $pdf->SetFont('','', $default_font_size - 1);   // Into loop to work with multipage
+                    $pdf->SetTextColor(0,0,0);
 
-					$curY = $nexY;
-					$pdf->SetFont('','', $default_font_size - 1);   // Into loop to work with multipage
-					$pdf->SetTextColor(0,0,0);
+                    // Define size of image if we need it
+                    $imglinesize=array();
+                    if (! empty($realpatharray[$i])) $imglinesize=pdf_getSizeForImage($realpatharray[$i]);
 
-					// Define size of image if we need it
-					$imglinesize=array();
-					if (! empty($realpatharray[$i])) $imglinesize=pdf_getSizeForImage($realpatharray[$i]);
+                    $pdf->setTopMargin($tab_top_newpage);
+                    $pdf->setPageOrientation('', 1, $heightforfooter+$heightforfreetext+$heightforinfotot);	// The only function to edit the bottom margin of current page to set it.
+                    $pageposbefore=$pdf->getPage();
 
-					$pdf->setTopMargin($tab_top_newpage);
-					$pdf->setPageOrientation('', 1, $heightforfooter+$heightforfreetext+$heightforinfotot);	// The only function to edit the bottom margin of current page to set it.
-					$pageposbefore=$pdf->getPage();
+                    $showpricebeforepagebreak=1;
+                    $posYAfterImage=0;
+                    $posYAfterDescription=0;
 
-					$showpricebeforepagebreak=1;
-					$posYAfterImage=0;
-					$posYAfterDescription=0;
+                    if($this->getColumnStatus('photo'))
+                    {
+                        // We start with Photo of product line
+                        if (isset($imglinesize['width']) && isset($imglinesize['height']) && ($curY + $imglinesize['height']) > ($this->page_hauteur-($heightforfooter+$heightforfreetext+$heightforinfotot)))	// If photo too high, we moved completely on new page
+                        {
+                            $pdf->AddPage('','',true);
+                            if (! empty($tplidx)) $pdf->useTemplate($tplidx);
+                            $pdf->setPage($pageposbefore+1);
 
-					if($this->getColumnStatus('photo'))
-					{
-						// We start with Photo of product line
-						if (isset($imglinesize['width']) && isset($imglinesize['height']) && ($curY + $imglinesize['height']) > ($this->page_hauteur-($heightforfooter+$heightforfreetext+$heightforinfotot)))	// If photo too high, we moved completely on new page
-						{
-							$pdf->AddPage('','',true);
-							if (! empty($tplidx)) $pdf->useTemplate($tplidx);
-							$pdf->setPage($pageposbefore+1);
+                            $curY = $tab_top_newpage;
+                            $showpricebeforepagebreak=0;
+                        }
 
-							$curY = $tab_top_newpage;
-							$showpricebeforepagebreak=0;
-						}
+                        if (!empty($this->cols['photo']) && isset($imglinesize['width']) && isset($imglinesize['height']))
+                        {
+                            $pdf->Image($realpatharray[$i], $this->getColumnContentXStart('photo'), $curY, $imglinesize['width'], $imglinesize['height'], '', '', '', 2, 300);	// Use 300 dpi
+                            // $pdf->Image does not increase value return by getY, so we save it manually
+                            $posYAfterImage=$curY+$imglinesize['height'];
+                        }
+                    }
 
-						if (!empty($this->cols['photo']) && isset($imglinesize['width']) && isset($imglinesize['height']))
-						{
-							$pdf->Image($realpatharray[$i], $this->getColumnContentXStart('photo'), $curY, $imglinesize['width'], $imglinesize['height'], '', '', '', 2, 300);	// Use 300 dpi
-							// $pdf->Image does not increase value return by getY, so we save it manually
-							$posYAfterImage=$curY+$imglinesize['height'];
-						}
-					}
+                    // Description of product line
+                    if ($this->getColumnStatus('desc'))
+                    {
+                        $pdf->startTransaction();
 
-					// Description of product line
-					if ($this->getColumnStatus('desc'))
-					{
-						$pdf->startTransaction();
-						pdf_writelinedesc($pdf,$object,$i,$outputlangs,$this->getColumnContentWidth('desc'),3,$this->getColumnContentXStart('desc'),$curY,$hideref,$hidedesc);
-						$pageposafter=$pdf->getPage();
-						if ($pageposafter > $pageposbefore)	// There is a pagebreak
-						{
-							$pdf->rollbackTransaction(true);
-							$pageposafter=$pageposbefore;
-							//print $pageposafter.'-'.$pageposbefore;exit;
-							$pdf->setPageOrientation('', 1, $heightforfooter);	// The only function to edit the bottom margin of current page to set it.
-							pdf_writelinedesc($pdf,$object,$i,$outputlangs,$this->getColumnContentWidth('desc'),3,$this->getColumnContentXStart('desc'),$curY,$hideref,$hidedesc);
-							$pageposafter=$pdf->getPage();
-							$posyafter=$pdf->GetY();
-							//var_dump($posyafter); var_dump(($this->page_hauteur - ($heightforfooter+$heightforfreetext+$heightforinfotot))); exit;
-							if ($i == ($nblignes-1) && $posyafter > ($this->page_hauteur - ($heightforfooter+$heightforfreetext+$heightforinfotot)))
+                        pdf_writelinedesc($pdf,$object,$i,$outputlangs,$this->getColumnContentWidth('desc'),3,$this->getColumnContentXStart('desc'),$curY,$hideref,$hidedesc);
+
+                        $pageposafter=$pdf->getPage();
+                        if ($pageposafter > $pageposbefore)	// There is a pagebreak
+                        {
+                            $pdf->rollbackTransaction(true);
+                            $pageposafter=$pageposbefore;
+                            //print $pageposafter.'-'.$pageposbefore;exit;
+                            $pdf->setPageOrientation('', 1, $heightforfooter);	// The only function to edit the bottom margin of current page to set it.
+                            pdf_writelinedesc($pdf,$object,$i,$outputlangs,$this->getColumnContentWidth('desc'),3,$this->getColumnContentXStart('desc'),$curY,$hideref,$hidedesc);
+                            $pageposafter=$pdf->getPage();
+                            $posyafter=$pdf->GetY();
+                            //var_dump($posyafter); var_dump(($this->page_hauteur - ($heightforfooter+$heightforfreetext+$heightforinfotot))); exit;
+                            if ($i == ($nblignes-1) && $posyafter > ($this->page_hauteur - ($heightforfooter+$heightforfreetext+$heightforinfotot)))
                             {
                                 $pdf->AddPage('','',true);
                                 if (! empty($tplidx)) $pdf->useTemplate($tplidx);
                                 $pdf->setPage($pageposafter+1);
                             }
-							else
-							{
-								// We found a page break
-								$showpricebeforepagebreak=0;
-							}
-						}
-						else	// No pagebreak
-						{
-							$pdf->commitTransaction();
-						}
-						$posYAfterDescription=$pdf->GetY();
-					}
+                            else
+                            {
+                                // We found a page break
+                                $showpricebeforepagebreak=0;
+                            }
+                        }
+                        else	// No pagebreak
+                        {
+                            $pdf->commitTransaction();
+                        }
+                        $posYAfterDescription=$pdf->GetY();
+                    }
 
-					$nexY = $pdf->GetY();
-					$pageposafter=$pdf->getPage();
-					$pdf->setPage($pageposbefore);
-					$pdf->setTopMargin($this->marge_haute);
-					$pdf->setPageOrientation('', 1, 0);	// The only function to edit the bottom margin of current page to set it.
+                    $nexY = $pdf->GetY();
+                    $pageposafter=$pdf->getPage();
+                    $pdf->setPage($pageposbefore);
+                    $pdf->setTopMargin($this->marge_haute);
+                    $pdf->setPageOrientation('', 1, 0);	// The only function to edit the bottom margin of current page to set it.
 
-					// We suppose that a too long description or photo were moved completely on next page
-					if ($pageposafter > $pageposbefore && empty($showpricebeforepagebreak)) {
-						$pdf->setPage($pageposafter); $curY = $tab_top_newpage;
-					}
+                    // We suppose that a too long description or photo were moved completely on next page
+                    if ($pageposafter > $pageposbefore && empty($showpricebeforepagebreak)) {
+                        $pdf->setPage($pageposafter); $curY = $tab_top_newpage;
+                    }
 
-					$pdf->SetFont('','', $default_font_size - 1);   // On repositionne la police par defaut
+                    $pdf->SetFont('','', $default_font_size - 1);   // On repositionne la police par defaut
 
-					// VAT Rate
-					if ($this->getColumnStatus('vat'))
-					{
-						$vat_rate = pdf_getlinevatrate($object, $i, $outputlangs, $hidedetails);
-						$this->printStdColumnContent($pdf, $curY, 'vat', $vat_rate);
-						$nexY = max($pdf->GetY(),$nexY);
-					}
+                    // VAT Rate
+                    if ($this->getColumnStatus('vat'))
+                    {
+                        $vat_rate = pdf_getlinevatrate($object, $i, $outputlangs, $hidedetails);
+                        $this->printStdColumnContent($pdf, $curY, 'vat', $vat_rate);
+                        $nexY = max($pdf->GetY(),$nexY);
+                    }
 
-					// Unit price before discount
-					if ($this->getColumnStatus('subprice'))
-					{
-						$up_excl_tax = pdf_getlineupexcltax($object, $i, $outputlangs, $hidedetails);
-						$this->printStdColumnContent($pdf, $curY, 'subprice', $up_excl_tax);
-						$nexY = max($pdf->GetY(),$nexY);
-					}
+                    // Unit price before discount
+                    if ($this->getColumnStatus('subprice'))
+                    {
+                        $up_excl_tax = pdf_getlineupexcltax($object, $i, $outputlangs, $hidedetails);
+                        $this->printStdColumnContent($pdf, $curY, 'subprice', $up_excl_tax);
+                        $nexY = max($pdf->GetY(),$nexY);
+                    }
 
-					// Quantity
+                    // Quantity
 					// Enough for 6 chars
 					if ($this->getColumnStatus('qty'))
 					{
@@ -808,7 +809,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 					$sign=1;
 					if (isset($object->type) && $object->type == 2 && ! empty($conf->global->INVOICE_POSITIVE_CREDIT_NOTE)) $sign=-1;
 					// Collecte des totaux par valeur de tva dans $this->tva["taux"]=total_tva
-					$prev_progress = $this->cache_get_prev_progress($object->lines[$i], $object->id);
+					$prev_progress = $object->lines[$i]->get_prev_progress($object->id, true);
 					if ($prev_progress > 0 && !empty($object->lines[$i]->situation_percent)) // Compute progress from previous situation
 					{
 						if ($conf->multicurrency->enabled && $object->multicurrency_tx != 1) $tvaligne = $sign * $object->lines[$i]->multicurrency_total_tva * ($object->lines[$i]->situation_percent - $prev_progress) / $object->lines[$i]->situation_percent;
@@ -1313,7 +1314,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 			$avancementGlobal = 0;
 		}
 
-		$object->fetchPreviousNextSituationInvoice();
+		if (empty($object->tab_previous_situation_invoice)) $object->fetchPreviousNextSituationInvoice();
 		$TPreviousInvoices = $object->tab_previous_situation_invoice;
 
 		$total_a_payer = 0;
@@ -2306,11 +2307,11 @@ class pdf_sponge_btp extends ModelePDFFactures
 			$this->cols['progress']['status'] = true;
 		}
 
-		$object->fetchPreviousNextSituationInvoice();
-		$lastElement = end($object->tab_previous_situation_invoice);
-		if(empty($lastElement))
+		$derniere_situation = $this->TDataSituation['derniere_situation'];
+
+		if(empty($derniere_situation))
 		{
-			$lastElement = 0;
+			$derniere_situation = 0;
 		}
 
 		// Colonne "Progression précédente"
@@ -2320,7 +2321,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 			'width' => 26, // in mm
 	        'status' => false,
 			'title' => array(
-				'textkey' => $langs->transnoentities('PDFCrabeBtpTitle', $lastElement->situation_counter)
+				'textkey' => $langs->transnoentities('PDFCrabeBtpTitle', $derniere_situation->situation_counter)
 			),
 			'border-left' => true, // add left line separator
 		);
@@ -2336,7 +2337,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 			'width' => 19, // in mm
 			'status' => false,
 			'title' => array(
-				'textkey' => $langs->transnoentities('BtpPercentageOfPreviousSituation', $lastElement->situation_counter)
+				'textkey' => $langs->transnoentities('BtpPercentageOfPreviousSituation', $derniere_situation->situation_counter)
 			),
 			'border-left' => true, // add left line separator
 		);
@@ -2879,21 +2880,14 @@ class pdf_sponge_btp extends ModelePDFFactures
 	 */
 	function _getDataSituation(&$object) {
 
-		global $conf, $CACHE_get_prev_progress;
-		$object->fetchPreviousNextSituationInvoice();
+		global $conf;
+        $object->fetchPreviousNextSituationInvoice();
 		/** @var Facture[] $TPreviousInvoices */
 		$TPreviousInvoices = $object->tab_previous_situation_invoice;
+        unset($object->tab_previous_situation_invoice);
 
 		$TPreviousInvoices = array_reverse($TPreviousInvoices);
         $facDerniereSituation = $TPreviousInvoices[0];
-
-        // get_prev_progress() Cache optimisation with $CACHE_get_prev_progress allready used by get_prev_progress()
-		if(!is_array($CACHE_get_prev_progress)) $CACHE_get_prev_progress = array();
-		foreach ($TPreviousInvoices as $prevFactToCache){
-			if(!isset($CACHE_get_prev_progress[$prevFactToCache->id])){
-				$CACHE_get_prev_progress[$prevFactToCache->id] = $prevFactToCache;
-			}
-		}
 
         $TDataSituation = array();
 
@@ -2926,7 +2920,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 					$prevSituationPercent = 0;
 					$isFirstSituation = false;
 					if (!empty($l->fk_prev_id)){
-						$prevSituationPercent = $this->cache_get_prev_progress($l, $previousInvoice->id);
+						$prevSituationPercent = $l->get_prev_progress($previousInvoice->id, true);
 					}
 					elseif(! array_key_exists($i+1, $TPreviousInvoices)) $isFirstSituation = true;
 
@@ -2966,6 +2960,15 @@ class pdf_sponge_btp extends ModelePDFFactures
 			'travaux_sup' => $TDataSituation['cumul_anterieur']['travaux_sup']
 		);
 
+        $TDataSituation['mois'] = array(
+            'HT' => 0,
+            'TVA' => $object->total_tva,
+            'TTC' => $object->total_ht + $object->total_tva,
+            'retenue_garantie' => $retenue_garantie,
+            'total_ttc' => $object->total_ht + $object->total_tva - $retenue_garantie,
+            'travaux_sup' => 0
+        );
+
 		foreach($object->lines as $k => $l) {
 			$total_ht = floatval($l->total_ht);
 			if (empty($total_ht)) continue;
@@ -2973,7 +2976,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 			// Si $prevSituationPercent vaut 0 c'est que la ligne $l est un travail supplémentaire
 			$prevSituationPercent = 0;
 			if (!empty($l->fk_prev_id)) {
-				$prevSituationPercent = $this->cache_get_prev_progress($l, $object->id);
+				$prevSituationPercent = $l->get_prev_progress($object->id, true);
 			}
 
 			$calc_ht = $l->subprice * $l->qty * (1 - $l->remise_percent/100) * ($l->situation_percent - $prevSituationPercent)/100;
@@ -2988,11 +2991,21 @@ class pdf_sponge_btp extends ModelePDFFactures
 				$TDataSituation['nouveau_cumul'][$l->tva_tx]['TVA'] += $calc_ht * ($l->tva_tx/100);
 			}
 
+            if(! isset($TDataSituation['mois'][$l->tva_tx])) {
+                $TDataSituation['mois'][$l->tva_tx]['HT'] = $calc_ht;
+                $TDataSituation['mois'][$l->tva_tx]['TVA'] = $calc_ht * ($l->tva_tx/100);
+            }
+            else {
+                $TDataSituation['mois'][$l->tva_tx]['HT'] += $calc_ht;
+                $TDataSituation['mois'][$l->tva_tx]['TVA'] += $calc_ht * ($l->tva_tx/100);
+            }
+
 			/* On veut juste les travaux principaux dans cette variable
 			 * Si on teste juste "! empty($prevSituationPercent)" toutes les lignes de la 1ere situation sont considérées comme travaux supplémentaires
 			 * Et vu qu'il ne peut pas y avoir de travaux supplémentaires dans la 1ere situation, ça donne ça :
 			 */
 			if(!empty($l->fk_prev_id) || empty($facDerniereSituation->lines)) $TDataSituation['nouveau_cumul']['HT'] += $calc_ht;
+            if(!empty($l->fk_prev_id) || empty($facDerniereSituation->lines)) $TDataSituation['mois']['HT'] += $calc_ht;
 		}
 
 		// Retained warranty
@@ -3001,42 +3014,6 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 		$TDataSituation['nouveau_cumul']['retenue_garantie'] = $retenue_garantie + $retenue_garantie_anterieure;
 		$TDataSituation['nouveau_cumul']['total_ttc'] = $TDataSituation['nouveau_cumul']['TTC'] - ($retenue_garantie + $retenue_garantie_anterieure);
-
-		$TDataSituation['mois'] = array(
-			'HT' => 0,
-			'TVA' => $object->total_tva,
-			'TTC' => $object->total_ht + $object->total_tva,
-			'retenue_garantie' => $retenue_garantie,
-			'total_ttc' => $object->total_ht + $object->total_tva - $retenue_garantie,
-			'travaux_sup' => 0
-		);
-		foreach($object->lines as $k => $l) {
-			$total_ht = floatval($l->total_ht);
-			if(empty($total_ht)) continue;
-
-			// Si $prevSituationPercent vaut 0 c'est que la ligne $l est un travail supplémentaire
-			$prevSituationPercent = 0;
-			$prevExist = false;
-			if (!empty($l->fk_prev_id) && !empty($facDerniereSituation->lines)) {
-				$prevSituationPercent = $this->cache_get_prev_progress($l, $object->id);
-			}
-
-			$calc_ht = $l->subprice * $l->qty * (1 - $l->remise_percent/100) * ($l->situation_percent - $prevSituationPercent)/100;
-			if(! isset($TDataSituation['mois'][$l->tva_tx])) {
-				$TDataSituation['mois'][$l->tva_tx]['HT'] = $calc_ht;
-				$TDataSituation['mois'][$l->tva_tx]['TVA'] = $calc_ht * ($l->tva_tx/100);
-			}
-			else {
-				$TDataSituation['mois'][$l->tva_tx]['HT'] += $calc_ht;
-				$TDataSituation['mois'][$l->tva_tx]['TVA'] += $calc_ht * ($l->tva_tx/100);
-			}
-
-			/* On veut juste les travaux principaux dans cette variable
-			 * Si on teste juste "! empty($prevSituationPercent)" toutes les lignes de la 1ere situation sont considérées comme travaux supplémentaires
-			 * Et vu qu'il ne peut pas y avoir de travaux supplémentaires dans la 1ere situation, ça donne ça :
-			 */
-			if(!empty($l->fk_prev_id) || empty($facDerniereSituation->lines)) $TDataSituation['mois']['HT'] += $calc_ht;
-		}
 
 		if(! empty($facDerniereSituation->lines)) {
 			$TFacLinesKey = array_keys($facDerniereSituation->lines);
@@ -3052,35 +3029,6 @@ class pdf_sponge_btp extends ModelePDFFactures
 		}
 
 		return $TDataSituation;
-	}
-
-	/**
-	 * Returns situation_percent of the previous line.
-	 * Warning: If invoice is a replacement invoice, this->fk_prev_id is id of the replaced line.
-	 *
-	 * @param  FactureLigne   $line
-	 * @param  int     $invoiceid      Invoice id
-	 * @param  bool    $include_credit_note		Include credit note or not
-	 * @return int                     >= 0
-	 */
-	function cache_get_prev_progress(FactureLigne $line, $invoiceid, $include_credit_note=true){
-		global $CACHE_result_get_prev_progress;
-
-		if(!is_array($CACHE_result_get_prev_progress)){
-			$CACHE_result_get_prev_progress = array();
-		}
-
-		if(!is_array($CACHE_result_get_prev_progress[$invoiceid])){
-			$CACHE_result_get_prev_progress[$invoiceid] = array();
-		}
-
-		if(!isset($CACHE_result_get_prev_progress[$invoiceid][$line->id])){
-			$result = $line->get_prev_progress($invoiceid, $include_credit_note);
-			$CACHE_result_get_prev_progress[$invoiceid][$line->id] = $result;
-		}
-
-		return $CACHE_result_get_prev_progress[$invoiceid][$line->id];
-
 	}
 
 	/**
@@ -3170,9 +3118,9 @@ class pdf_sponge_btp extends ModelePDFFactures
 				}
 
 				if ($displayWarranty && !empty($object->situation_final)) {
-					$object->fetchPreviousNextSituationInvoice();
+                    if (empty($object->tab_previous_situation_invoice)) $object->fetchPreviousNextSituationInvoice();
 					$TPreviousIncoice = $object->tab_previous_situation_invoice;
-
+                    unset($object->tab_previous_situation_invoice);
 					$total2BillWT = 0;
 					foreach ($TPreviousIncoice as &$fac) {
 						$total2BillWT += $fac->total_ttc;
