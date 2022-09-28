@@ -85,3 +85,4 @@ ProposalsExcludingRefused=Propositions commerciales (sauf refusées)
 BTPToPayOn=A payer le %s
 BTPtoPayOn=à payer le %s
 BTPRetainedWarranty=Retenue de garantie
+OrdersFormProposals=Propositions commerciales liées à des commandes
