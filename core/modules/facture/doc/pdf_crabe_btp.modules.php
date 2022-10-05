@@ -2368,7 +2368,8 @@ class pdf_crabe_btp extends ModelePDFFactures
 		$object->fetchObjectLinked();
 		// évite le dédoublement de la ref commande si plusieurs objets liés 'commande'
 		if (($showLinkedObject && count($object->linkedObjects['commande']) > 1) || count($object->linkedObjects['commande']) <= 1){
-			$posy = pdf_writeLinkedObjects($pdf, $object, $outputlangs, $posx, $posy, $w, 3, 'R', $default_font_size);		}
+			$posy = pdf_writeLinkedObjects($pdf, $object, $outputlangs, $posx, $posy, $w, 3, 'R', $default_font_size);		
+			}
 
 		if ($showaddress)
 		{
