@@ -365,7 +365,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 
 		/**** FIN TABLEAU SPECIFIQUE ****/
 
-				$this->_pagehead($pdf, $object, 0, $outputlangs);
+				$this->_pagehead($pdf, $object, 0, $outputlangs, FALSE);
 				$pdf->SetFont('','', $default_font_size - 1);
 				$pdf->MultiCell(0, 3, '');		// Set interline to 3
 				$pdf->SetTextColor(0,0,0);
@@ -2212,9 +2212,10 @@ class pdf_crabe_btp extends ModelePDFFactures
 	 *  @param  Object		$object     	Object to show
 	 *  @param  int	    	$showaddress    0=no, 1=yes
 	 *  @param  Translate	$outputlangs	Object lang for output
+	 *  @param  boolean  $showLinkedObject
 	 *  @return	void
 	 */
-	function _pagehead(&$pdf, $object, $showaddress, $outputlangs)
+	function _pagehead(&$pdf, $object, $showaddress, $outputlangs, $showLinkedObject = TRUE)
 	{
 		global $conf,$langs;
 
@@ -2364,7 +2365,11 @@ class pdf_crabe_btp extends ModelePDFFactures
 		$posy+=1;
 
 		// Show list of linked objects
-		$posy = pdf_writeLinkedObjects($pdf, $object, $outputlangs, $posx, $posy, $w, 3, 'R', $default_font_size);
+		$object->fetchObjectLinked();
+		// évite le dédoublement de la ref commande si plusieurs objets liés 'commande'
+		if (($showLinkedObject && count($object->linkedObjects['commande']) > 1) || count($object->linkedObjects['commande']) <= 1){
+			$posy = pdf_writeLinkedObjects($pdf, $object, $outputlangs, $posx, $posy, $w, 3, 'R', $default_font_size);		
+			}
 
 		if ($showaddress)
 		{
