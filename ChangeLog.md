@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file
 
 ## 1.3
 
+- FIX : dédoublement de la ref commande dans note_public lors de la génération des pdf 'crabe_btp' & 'sponge_btp' *05/10/2022* - 1.3.3
 - FIX : fatal error dans le modèle sponge_btp dû à une fuite de mémoire - *04/08/2022* - 1.3.2
   - suppression de caches inutiles
   - optimisation des calculs en boucle
