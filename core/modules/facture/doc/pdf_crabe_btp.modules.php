@@ -1142,7 +1142,8 @@ class pdf_crabe_btp extends ModelePDFFactures
 		    }
 		}
 
-		$avancementGlobal = $totalAvancement / $totalFacture * 100;
+		if(!empty($totalFacture)) $avancementGlobal = $totalAvancement / $totalFacture * 100;
+		else $avancementGlobal = 0;
 		//var_dump($avancementGlobal);exit;
 		$object->fetchPreviousNextSituationInvoice();
 		$TPreviousInvoice = $object->tab_previous_situation_invoice;
@@ -2367,9 +2368,11 @@ class pdf_crabe_btp extends ModelePDFFactures
 		// Show list of linked objects
 		$object->fetchObjectLinked();
 		// évite le dédoublement de la ref commande si plusieurs objets liés 'commande'
-		if (($showLinkedObject && count($object->linkedObjects['commande']) > 1) || count($object->linkedObjects['commande']) <= 1){
-			$posy = pdf_writeLinkedObjects($pdf, $object, $outputlangs, $posx, $posy, $w, 3, 'R', $default_font_size);		
+		if(is_array($object->linkedObjects['commande'])) {
+			if (($showLinkedObject && count($object->linkedObjects['commande']) > 1) || count($object->linkedObjects['commande']) <= 1) {
+				$posy = pdf_writeLinkedObjects($pdf, $object, $outputlangs, $posx, $posy, $w, 3, 'R', $default_font_size);
 			}
+		}
 
 		if ($showaddress)
 		{
