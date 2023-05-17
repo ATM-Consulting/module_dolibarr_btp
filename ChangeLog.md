@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file
 ## UNRELEASED
 
 ## 1.3
-
+- FIX : mise en forme du tableau des totaux bas de page facture de situation  - *17/05/2023* - 1.3.3  
 - FIX : fatal error dans le modèle sponge_btp dû à une fuite de mémoire - *04/08/2022* - 1.3.2
   - suppression de caches inutiles
   - optimisation des calculs en boucle
