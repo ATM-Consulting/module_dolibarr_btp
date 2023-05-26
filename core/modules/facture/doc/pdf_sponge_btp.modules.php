@@ -920,12 +920,14 @@ class pdf_sponge_btp extends ModelePDFFactures
 				$posy=$this->_tableau_info($pdf, $object, $bottomlasttab, $outputlangs);
 
 				// Affiche zone totaux
-				$posy=$this->_tableau_tot($pdf, $object, $deja_regle, $bottomlasttab, $outputlangs);
+				$posy = $this->_tableau_tot($pdf, $object, $deja_regle, $bottomlasttab, $outputlangs);
 
 				// Affiche zone versements
 				if (($deja_regle || $amount_credit_notes_included || $amount_deposits_included) && empty($conf->global->INVOICE_NO_PAYMENT_DETAILS))
 				{
-					$posy=$this->_tableau_versements($pdf, $object, $posy, $outputlangs);
+					$posy = $this->setNewPage($posy, $pdf, $object, $outputlangs,170);
+
+					$posy = $this->_tableau_versements($pdf, $object, $posy, $outputlangs);
 				}
 
 				// Pied de page
@@ -1347,13 +1349,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 			foreach ($TPreviousInvoices as &$previousInvoice){
 
-				if($posy  > 180 ) {
-					$this->_pagefoot($pdf,$object,$outputlangs,1);
-					$pdf->addPage();
-					$pdf->setY($this->marge_haute);
-					$posy = $pdf->GetY();
-				}
-
+				$posy = $this->setNewPage($posy, $pdf, $object, $outputlangs,180);
 				// cumul TVA précédent
 				$index++;
 				$pdf->SetFillColor(255,255,255);
@@ -1378,7 +1374,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 				$pdf->setY($posy);
 
 			}
-
+			$posy = $this->setNewPage($posy,  $pdf, $object, $outputlangs);
 			// Display curent total
 			$pdf->SetFillColor(255,255,255);
 			$pdf->SetXY($col1x, $posy);
@@ -1394,12 +1390,12 @@ class pdf_sponge_btp extends ModelePDFFactures
 				$facSign = '-'; // les avoirs
 			}
 
-
+			$posy = $this->setNewPage($posy, $pdf, $object, $outputlangs);
 			$displayAmount = ' '.$facSign.' '.price($object->total_ht, 0, $outputlangs);
 			$pdf->MultiCell($largcol2, $tab2_hl, $displayAmount, 0, 'R', 1);
 
 			$posy += $tab2_hl;
-
+			$posy = $this->setNewPage($posy, $pdf, $object, $outputlangs);
 			// Display all total
 			$pdf->SetFont('','', $default_font_size - 1);
 			$pdf->SetFillColor(255,255,255);
@@ -1412,19 +1408,14 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 			$posy += $tab2_hl;
 
-			if($posy  > 180 ) {
-				$pdf->addPage();
-				$pdf->setY($this->marge_haute);
-				$posy = $pdf->GetY();
-			}
-
+			$posy = $this->setNewPage($posy, $pdf, $object, $outputlangs);
 		    $tab2_top = $posy + 3;
 			$index=0;
 
 		}
 
 		$pdf->SetFont('','', $default_font_size - 1);
-
+		$tab2_top = $this->setNewPage($tab2_top, $pdf, $object, $outputlangs);
 		// Total HT
 		$pdf->SetFillColor(255,255,255);
 		$pdf->SetXY($col1x, $tab2_top + 0);
@@ -1434,6 +1425,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 		$pdf->SetXY($col2x, $tab2_top + 0);
 		$pdf->MultiCell($largcol2, $tab2_hl, price($sign * ($total_ht + (! empty($object->remise)?$object->remise:0)), 0, $outputlangs), 0, 'R', 1);
 
+		$posy = $this->setNewPage($tab2_top,$pdf, $object, $outputlangs);
 		// Show VAT by rates and total
 		$pdf->SetFillColor(248,248,248);
 
@@ -1510,6 +1502,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 							}
 							$totalvat = $outputlangs->transcountrynoentities("TotalLT2",$mysoc->country_code).' ';
 							$totalvat.=vatrate(abs($tvakey),1).$tvacompl;
+							$tab2_top = $this->setNewPage($tab2_top, $pdf, $object, $outputlangs);
 							$pdf->MultiCell($col2x-$col1x, $tab2_hl, $totalvat, 0, 'L', 1);
 
 							$pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
@@ -1538,6 +1531,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 							$tvacompl = " (".$outputlangs->transnoentities("NonPercuRecuperable").")";
 						}
 						$totalvat =$outputlangs->transcountrynoentities("TotalVAT",$mysoc->country_code).' ';
+						$tab2_top = $this->setNewPage($tab2_top, $pdf, $object, $outputlangs);
 						$totalvat.=vatrate($tvakey,1).$tvacompl;
 						$pdf->MultiCell($col2x-$col1x, $tab2_hl, $totalvat, 0, 'L', 1);
 
@@ -1570,7 +1564,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 							}
 							$totalvat = $outputlangs->transcountrynoentities("TotalLT1",$mysoc->country_code).' ';
 							$totalvat.=vatrate(abs($tvakey),1).$tvacompl;
-
+							$tab2_top = $this->setNewPage($tab2_top, $pdf, $object, $outputlangs);
 							$pdf->MultiCell($col2x-$col1x, $tab2_hl, $totalvat, 0, 'L', 1);
 							$pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
 							$pdf->MultiCell($largcol2, $tab2_hl, price($tvaval, 0, $outputlangs), 0, 'R', 1);
@@ -1602,7 +1596,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 								$tvacompl = " (".$outputlangs->transnoentities("NonPercuRecuperable").")";
 							}
 							$totalvat = $outputlangs->transcountrynoentities("TotalLT2",$mysoc->country_code).' ';
-
+							$tab2_top = $this->setNewPage($tab2_top, $pdf, $object, $outputlangs);
 							$totalvat.=vatrate(abs($tvakey),1).$tvacompl;
 							$pdf->MultiCell($col2x-$col1x, $tab2_hl, $totalvat, 0, 'L', 1);
 
@@ -1617,6 +1611,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 				if (price2num($object->revenuestamp) != 0)
 				{
 					$index++;
+					$tab2_top = $this->setNewPage($tab2_top, $pdf, $object, $outputlangs);
 					$pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
 					$pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("RevenueStamp"), $useborder, 'L', 1);
 
@@ -1626,11 +1621,11 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 				// Total TTC
 				$index++;
+				$tab2_top = $this->setNewPage($tab2_top, $pdf, $object, $outputlangs);
 				$pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
 				$pdf->SetTextColor(0,0,60);
 				$pdf->SetFillColor(224,224,224);
 				$pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("TotalTTC"), $useborder, 'L', 1);
-
 				$pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
 				$pdf->MultiCell($largcol2, $tab2_hl, price($sign * $total_ttc, 0, $outputlangs), $useborder, 'R', 1);
 
@@ -1677,6 +1672,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 						// Billed - retained warranty
 						$index++;
+						$tab2_top = $this->setNewPage($tab2_top, $pdf, $object, $outputlangs);
 						$pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
 						$pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("BTPToPayOn", dol_print_date($object->date_lim_reglement, 'day')), $useborder, 'L', 1);
 
@@ -1685,6 +1681,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 						// retained warranty
 						$index++;
+						$tab2_top = $this->setNewPage($tab2_top, $pdf, $object, $outputlangs);
 						$pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
 
 						$retainedWarrantyToPayOn = $outputlangs->transnoentities("BTPRetainedWarranty") . ' ('.$object->retained_warranty.'%)';
@@ -1709,8 +1706,10 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 		if (($deja_regle > 0 || $creditnoteamount > 0 || $depositsamount > 0) && empty($conf->global->INVOICE_NO_PAYMENT_DETAILS))
 		{
+
 			// Already paid + Deposits
 			$index++;
+			$tab2_top = $this->setNewPage($tab2_top, $pdf, $object, $outputlangs);
 			$pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
 			$pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("Paid"), 0, 'L', 0);
 			$pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
@@ -1720,6 +1719,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 			if ($creditnoteamount)
 			{
 				$index++;
+				$tab2_top = $this->setNewPage($tab2_top, $pdf, $object, $outputlangs);
 				$pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
 				$pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("CreditNotes"), 0, 'L', 0);
 				$pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
@@ -1730,6 +1730,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 			if ($object->close_code == Facture::CLOSECODE_DISCOUNTVAT)
 			{
 				$index++;
+				$tab2_top =  $this->setNewPage($tab2_top, $pdf, $object, $outputlangs);
 				$pdf->SetFillColor(255,255,255);
 
 				$pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
@@ -1741,6 +1742,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 			}
 
 			$index++;
+			$tab2_top = $this->setNewPage($tab2_top,$pdf, $object, $outputlangs,164);
 			$pdf->SetTextColor(0,0,60);
 			$pdf->SetFillColor(224,224,224);
 			$pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
@@ -2009,7 +2011,8 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 		$object->fetchObjectLinked();
 		// évite le dédoublement de la ref commande si plusieurs objets liés 'commande'
-		if (($showLinkedObject && count($object->linkedObjects['commande']) > 1) || count($object->linkedObjects['commande']) <= 1){
+
+		if (($showLinkedObject && is_array($object->linkedObjects['commande']) && count($object->linkedObjects['commande']) > 1) || (is_array($object->linkedObjects['commande']) && count($object->linkedObjects['commande'])) <= 1){
 			$posy = pdf_writeLinkedObjects($pdf, $object, $outputlangs, $posx, $posy, $w, 3, 'R', $default_font_size);
 		}
 		if ($current_y < $pdf->getY())
@@ -3469,6 +3472,29 @@ class pdf_sponge_btp extends ModelePDFFactures
 		$pdf->line($x+$l, $y, $x+$l, $y+$h);
 		if (empty($hidebottom)) $pdf->line($x+$l, $y+$h, $x, $y+$h);
 		$pdf->line($x, $y+$h, $x, $y);
+	}
+
+	/**
+	 * @param $posy
+	 * @param $pdf
+
+	 * @param Object $object
+	 * @param $outputlangs
+	 * @return array
+	 */
+	public function setNewPage($posy,   &$pdf,  object &$object, $outputlangs,$maxY = 168)
+	{
+		global $conf;
+
+		if ($posy > $maxY) {
+			$this->_pagefoot($pdf,$object,$outputlangs,1);
+			$pdf->addPage();
+			$pdf->setY($this->marge_haute);
+			if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) $posy = $this->_pagehead($pdf, $object, 0, $outputlangs);
+			$posy = (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD) ? 42 : 10);
+		}
+
+		return $posy;
 	}
 
 
