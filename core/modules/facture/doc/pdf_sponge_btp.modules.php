@@ -2011,7 +2011,8 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 		$object->fetchObjectLinked();
 		// évite le dédoublement de la ref commande si plusieurs objets liés 'commande'
-		if (($showLinkedObject && count($object->linkedObjects['commande']) > 1) || count($object->linkedObjects['commande']) <= 1){
+
+		if (($showLinkedObject && is_array($object->linkedObjects['commande']) && count($object->linkedObjects['commande']) > 1) || (is_array($object->linkedObjects['commande']) && count($object->linkedObjects['commande'])) <= 1){
 			$posy = pdf_writeLinkedObjects($pdf, $object, $outputlangs, $posx, $posy, $w, 3, 'R', $default_font_size);
 		}
 		if ($current_y < $pdf->getY())
@@ -3481,7 +3482,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	 * @param $outputlangs
 	 * @return array
 	 */
-	public function setNewPage($posy,   &$pdf,  object &$object, $outputlangs,$maxY = 174)
+	public function setNewPage($posy,   &$pdf,  object &$object, $outputlangs,$maxY = 168)
 	{
 		global $conf;
 
