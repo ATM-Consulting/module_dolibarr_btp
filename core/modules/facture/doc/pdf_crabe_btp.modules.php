@@ -759,6 +759,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 				// Affiche zone versements
 				if ($deja_regle || $amount_credit_notes_included || $amount_deposits_included)
 				{
+					$posy = $this->setNewPage($posy, $pdf, $object, $outputlangs,170);
 					$posy=$this->_tableau_versements($pdf, $object, $posy, $outputlangs);
 				}
 
@@ -1136,8 +1137,8 @@ class pdf_crabe_btp extends ModelePDFFactures
 		foreach ($object->lines as $line)
 		{
 		    if(!class_exists('TSubtotal') || !TSubtotal::isModSubtotalLine($line)){
-
-		        $totalFacture += $line->total_ht / ($line->situation_percent / 100);
+				$divider = $line->situation_percent > 0 ? $line->situation_percent / 100  : 1;
+		        $totalFacture += $line->total_ht /  $divider;
 		        $totalAvancement+=$line->total_ht;
 		    }
 		}
@@ -1145,7 +1146,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 		if(!empty($totalFacture)) $avancementGlobal = $totalAvancement / $totalFacture * 100;
 		else $avancementGlobal = 0;
 		//var_dump($avancementGlobal);exit;
-		$object->fetchPreviousNextSituationInvoice();
+		if (empty($object->tab_previous_situation_invoice)) $object->fetchPreviousNextSituationInvoice();
 		$TPreviousInvoice = $object->tab_previous_situation_invoice;
 
 		$total_a_payer = 0;
@@ -1182,12 +1183,8 @@ class pdf_crabe_btp extends ModelePDFFactures
 
 		    foreach ($TPreviousInvoice as &$fac){
 
-		        if($posy  > 180 ) {
-		            $this->_pagefoot($pdf,$object,$outputlangs,1);
-		            $pdf->addPage();
-		            $pdf->setY($this->marge_haute);
-		            $posy = $pdf->GetY();
-		        }
+
+				$posy = $this->setNewPage($posy, $pdf, $object, $outputlangs,180);
 
 		        // cumul TVA précédent
 		        $index++;
@@ -1206,11 +1203,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 
 		    }
 
-		    if($posy  > 180 ) {
-		        $pdf->addPage();
-		        $pdf->setY($this->marge_haute);
-		        $posy = $pdf->GetY();
-		    }
+			$posy = $this->setNewPage($posy,  $pdf, $object, $outputlangs);
 
 		    $tab2_top = $posy;
 		    $index=0;
@@ -1219,6 +1212,8 @@ class pdf_crabe_btp extends ModelePDFFactures
 
 		// Total HT
 		$index++;
+		$posy += $tab2_hl;
+		$tab2_top = $this->setNewPage($posy, $pdf, $object, $outputlangs);
 		$pdf->SetFillColor(255,255,255);
 		$pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
 		$pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("TotalHT"), 0, 'L', 1);
@@ -1265,6 +1260,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 
 								$totalvat = $outputlangs->transcountrynoentities("TotalLT1",$mysoc->country_code).' ';
 								$totalvat.=vatrate(abs($tvakey),1).$tvacompl;
+								$tab2_top = $this->setNewPage($tab2_top, $pdf, $object, $outputlangs);
 								$pdf->MultiCell($col2x-$col1x, $tab2_hl, $totalvat, 0, 'L', 1);
 
 								$pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
@@ -1299,6 +1295,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 								}
 								$totalvat = $outputlangs->transcountrynoentities("TotalLT2",$mysoc->country_code).' ';
 								$totalvat.=vatrate(abs($tvakey),1).$tvacompl;
+								$tab2_top = $this->setNewPage($tab2_top, $pdf, $object, $outputlangs);
 								$pdf->MultiCell($col2x-$col1x, $tab2_hl, $totalvat, 0, 'L', 1);
 
 								$pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
@@ -1327,6 +1324,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 						}
 						$totalvat =$outputlangs->transnoentities("TotalVAT").' ';
 						$totalvat.=vatrate($tvakey,1).$tvacompl;
+						$tab2_top = $this->setNewPage($tab2_top, $pdf, $object, $outputlangs);
 						$pdf->MultiCell($col2x-$col1x, $tab2_hl, $totalvat, 0, 'L', 1);
 
 						$pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
@@ -1358,7 +1356,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 								}
 								$totalvat = $outputlangs->transcountrynoentities("TotalLT1",$mysoc->country_code).' ';
 								$totalvat.=vatrate(abs($tvakey),1).$tvacompl;
-
+								$tab2_top = $this->setNewPage($tab2_top, $pdf, $object, $outputlangs);
 								$pdf->MultiCell($col2x-$col1x, $tab2_hl, $totalvat, 0, 'L', 1);
 								$pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
 								$pdf->MultiCell($largcol2, $tab2_hl, price($tvaval, 0, $outputlangs), 0, 'R', 1);
@@ -1392,6 +1390,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 								$totalvat = $outputlangs->transcountrynoentities("TotalLT2",$mysoc->country_code).' ';
 
 								$totalvat.=vatrate(abs($tvakey),1).$tvacompl;
+								$tab2_top = $this->setNewPage($tab2_top, $pdf, $object, $outputlangs);
 								$pdf->MultiCell($col2x-$col1x, $tab2_hl, $totalvat, 0, 'L', 1);
 
 								$pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
@@ -1405,6 +1404,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 				if (price2num($object->revenuestamp) != 0)
 				{
 					$index++;
+					$tab2_top = $this->setNewPage($tab2_top, $pdf, $object, $outputlangs);
 					$pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
 					$pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("RevenueStamp"), $useborder, 'L', 1);
 
@@ -1414,6 +1414,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 
 				// Total TTC
 				$index++;
+				$tab2_top = $this->setNewPage($tab2_top, $pdf, $object, $outputlangs);
 				$pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
 				$pdf->SetTextColor(0,0,60);
 				$pdf->SetFillColor(224,224,224);
@@ -1430,6 +1431,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 
 				    $pdf->SetFont('','', $default_font_size - 1);
 				    $pdf->SetFillColor(255,255,255);
+					$tab2_top = $this->setNewPage($tab2_top, $pdf, $object, $outputlangs);
 				    $pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
 				    $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities('BtpTotalRayToRest'), 0, 'L', 1);
 
@@ -1452,6 +1454,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 		{
 			// Already paid + Deposits
 			$index++;
+			$tab2_top = $this->setNewPage($tab2_top, $pdf, $object, $outputlangs);
 			$pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
 			$pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("Paid"), 0, 'L', 0);
 			$pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
@@ -1461,6 +1464,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 			if ($creditnoteamount)
 			{
 				$index++;
+				$tab2_top = $this->setNewPage($tab2_top, $pdf, $object, $outputlangs);
 				$pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
 				$pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("CreditNotes"), 0, 'L', 0);
 				$pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
@@ -1472,7 +1476,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 			{
 				$index++;
 				$pdf->SetFillColor(255,255,255);
-
+				$tab2_top =  $this->setNewPage($tab2_top, $pdf, $object, $outputlangs);
 				$pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
 				$pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("EscompteOfferedShort"), $useborder, 'L', 1);
 				$pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
@@ -1484,6 +1488,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 			$index++;
 			$pdf->SetTextColor(0,0,60);
 			$pdf->SetFillColor(224,224,224);
+			$tab2_top = $this->setNewPage($tab2_top,$pdf, $object, $outputlangs,164);
 			$pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
 			$pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("RemainderToPay"), $useborder, 'L', 1);
 			$pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
@@ -1868,7 +1873,8 @@ class pdf_crabe_btp extends ModelePDFFactures
 
 		$object->fetchPreviousNextSituationInvoice();
 		$TPreviousIncoice = &$object->tab_previous_situation_invoice;
-		$facDerniereSituation = &end($TPreviousIncoice);
+		$facDerniereSituation = end($TPreviousIncoice);
+		//reset($TPreviousIncoice);
 		$TDataSituation = array(
 									'derniere_situation'=>$facDerniereSituation
 									,'date_derniere_situation'=>$facDerniereSituation->date
@@ -2471,7 +2477,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 	 *      @param	int			$hidefreetext		1=Hide free text
 	 *      @return	int								Return height of bottom margin including footer text
 	 */
-	function _pagefoot(&$pdf,$object,$outputlangs,$hidefreetext=0)
+	function _pagefoot(&$pdf, $object, $outputlangs, $hidefreetext=0)
 	{
 		global $conf;
 		$showdetails=$conf->global->MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS;
@@ -2498,6 +2504,29 @@ class pdf_crabe_btp extends ModelePDFFactures
 	    if (empty($hidebottom)) $pdf->line($x+$l, $y+$h, $x, $y+$h);
 	    $pdf->line($x, $y+$h, $x, $y);
     }
+
+	/**
+	 * @param $posy
+	 * @param $pdf
+
+	 * @param Object $object
+	 * @param $outputlangs
+	 * @return array
+	 */
+	public function setNewPage($posy,   &$pdf,  object &$object, $outputlangs,$maxY = 168)
+	{
+		global $conf;
+
+		if ($posy > $maxY) {
+			$this->_pagefoot($pdf,$object,$outputlangs,1);
+			$pdf->addPage();
+			$pdf->setY($this->marge_haute);
+			if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) $posy = $this->_pagehead($pdf, $object, 0, $outputlangs);
+			$posy = (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD) ? 42 : 10);
+		}
+
+		return $posy;
+	}
 
 }
 
