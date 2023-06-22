@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file
 ## UNRELEASED
 
 ## 1.3
+- FIX : setNewPage bad type hint - *22/06/2023* - 1.3.8
 - FIX : mise en forme du tableau des totaux bas de page facture de situation crabe_btp  - *31/05/2023* - 1.3.6
 - FIX : mise en forme du tableau des totaux bas de page facture de situation sponge_btp - *17/05/2023* - 1.3.5  
 
