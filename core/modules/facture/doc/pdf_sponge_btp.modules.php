@@ -3161,6 +3161,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 		if (empty($object->situation_cycle_ref) || $object->situation_counter <= 1) return;
 
 		$facDerniereSituation = &$this->TDataSituation['derniere_situation'];
+		if (empty($facDerniereSituation->lines)) return;
 		//var_dump($current_line);exit;
 		// On cherche la ligne précédente de la ligne sur laquelle on se trouve :
 		$subtotal_ht=0;
