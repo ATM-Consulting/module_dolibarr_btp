@@ -2509,11 +2509,11 @@ class pdf_crabe_btp extends ModelePDFFactures
 	 * @param $posy
 	 * @param $pdf
 
-	 * @param Object $object
+	 * @param $object
 	 * @param $outputlangs
 	 * @return array
 	 */
-	public function setNewPage($posy,   &$pdf,  object &$object, $outputlangs,$maxY = 168)
+	public function setNewPage($posy,   &$pdf, &$object, $outputlangs,$maxY = 168)
 	{
 		global $conf;
 
