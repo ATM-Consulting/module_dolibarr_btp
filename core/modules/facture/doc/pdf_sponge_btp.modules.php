@@ -2919,7 +2919,8 @@ class pdf_sponge_btp extends ModelePDFFactures
 		);
 
 		if(!empty($TPreviousInvoices)) {
-			foreach($TPreviousInvoices as $i => $previousInvoice) {
+            $isFirstSituation = false;
+            foreach($TPreviousInvoices as $i => $previousInvoice) {
 				$TDataSituation['cumul_anterieur']['HT'] += $previousInvoice->total_ht;
 				$TDataSituation['cumul_anterieur']['TVA'] += $previousInvoice->total_tva;
 
@@ -2928,7 +2929,6 @@ class pdf_sponge_btp extends ModelePDFFactures
 					if(empty($total_ht)) continue;
 
 					$prevSituationPercent = 0;
-					$isFirstSituation = false;
 					if (!empty($l->fk_prev_id)){
 						$prevSituationPercent = $l->get_prev_progress($previousInvoice->id, true);
 					}
@@ -3038,6 +3038,12 @@ class pdf_sponge_btp extends ModelePDFFactures
 			}
 		}
 
+
+        // si c'est la première facture de situation alors il n'y a pas de raison que la situation actuelle et le nouveau cumul soit différents.
+        if(empty($TDataSituation['derniere_situation'])) {
+            $TDataSituation['mois']     = $TDataSituation['nouveau_cumul'];
+        }
+
 		return $TDataSituation;
 	}
 
@@ -3095,7 +3101,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	function getRetainedWarrantyAmount($object, $rounding=-1) {
 
 		if(is_callable(array($object, 'getRetainedWarrantyAmount'))){
-			return $object->getRetainedWarrantyAmount($rounding);
+			//return $object->getRetainedWarrantyAmount($rounding);
 			//On surcharge la valeur de la retenue de garantie car quand elle renvoie -1, elle est interprétée comme une valeur monétaire et réduit le total TTC de 1
 			$retainedDataReturnValue = $object->getRetainedWarrantyAmount($rounding);
 

@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file
 ## UNRELEASED
 
 ## 1.3
+- FIX : sponge_btp: sur première facture de situation: nouveau cumul et situation actuelle rendus identiques - *24/11/2023* - 1.3.9
 - FIX : setNewPage bad type hint - *22/06/2023* - 1.3.8
 - FIX : warning foreach in sponge - *22/06/2023* - 1.3.7
 - FIX : mise en forme du tableau des totaux bas de page facture de situation crabe_btp  - *31/05/2023* - 1.3.6
@@ -20,10 +21,10 @@ All notable changes to this project will be documented in this file
 
 ## 1.2
 
+- FIX : Compatibilité v16 : this->family *09/06/2022* - 1.2.1
 - NEW : Nouvelle configuration *14/01/2022* - 1.2.0  
   Ajoute une configuration pour que les marges présentes dans le tableau des cmd, propal, factures
   tiennent compte de la part de produits / services disponibles dans les ouvrages et sous ouvrages des lignes
-
 
 ## 1.1
 
