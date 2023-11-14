@@ -3039,7 +3039,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 		}
 
 
-        // si c'est la première facture de situation alors il n'y a pas de raison que la situation actuel et le nouveau cumul soit différents.
+        // si c'est la première facture de situation alors il n'y a pas de raison que la situation actuelle et le nouveau cumul soit différents.
         if(empty($TDataSituation['derniere_situation'])) {
             $TDataSituation['mois']     = $TDataSituation['nouveau_cumul'];
         }
