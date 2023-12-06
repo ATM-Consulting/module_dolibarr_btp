@@ -122,7 +122,7 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
     // FORCE reload page
     setup_print_on_off('INVOICE_USE_SITUATION', false, '', false, 300, true);
 
-    if(!empty($conf->global->INVOICE_USE_SITUATION)) {
+    if(getDolGlobalString('INVOICE_USE_SITUATION')) {
         if(intval(DOL_VERSION) >= 11
             || file_exists(DOL_DOCUMENT_ROOT . '/admin/facture_situation.php' ) // For X.x_btp compatible branch
         )

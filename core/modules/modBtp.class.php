@@ -520,7 +520,7 @@ class modBtp extends DolibarrModules
 		$ret = delDocumentModel('crabe_btp', 'invoice');
 		if ($ret > 0)
 		{
-			if ($conf->global->FACTURE_ADDON_PDF == "crabe_btp") dolibarr_del_const($db, 'FACTURE_ADDON_PDF',$conf->entity);
+			if (getDolGlobalString('FACTURE_ADDON_PDF') == "crabe_btp") dolibarr_del_const($db, 'FACTURE_ADDON_PDF',$conf->entity);
 		}
 
 		return $this->_remove($sql, $options);

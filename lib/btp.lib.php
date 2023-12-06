@@ -231,7 +231,7 @@ function printForecastProfitBoard(Project &$object, &$listofreferent, $dates, $d
 
 				// Each element with at least one line is output
 				$qualifiedforfinalprofit=true;
-				if ($key == 'intervention' && empty($conf->global->PROJECT_INCLUDE_INTERVENTION_AMOUNT_IN_PROFIT)) $qualifiedforfinalprofit=false;
+				if ($key == 'intervention' && !getDolGlobalString('PROJECT_INCLUDE_INTERVENTION_AMOUNT_IN_PROFIT')) $qualifiedforfinalprofit=false;
 				//var_dump($key);
 
 				// Calculate margin

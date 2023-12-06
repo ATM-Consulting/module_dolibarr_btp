@@ -123,7 +123,7 @@ class ActionsBtp extends btp\RetroCompatCommonHookActions
                 }
             });
             </script>
-            <?php
+<?php
             }
         }
 
@@ -182,7 +182,7 @@ class ActionsBtp extends btp\RetroCompatCommonHookActions
 	{
 		global $conf;
 
-		if (!empty($conf->global->PROJECT_SHOW_FORECAST_PROFIT_BOARD)) $this->listofreferent = $parameters['listofreferent'];
+		if (getDolGlobalString('PROJECT_SHOW_FORECAST_PROFIT_BOARD')) $this->listofreferent = $parameters['listofreferent'];
 	}
 
 	public function printOverviewProfit($parameters, &$object, &$action, $hookmanager)
@@ -192,7 +192,7 @@ class ActionsBtp extends btp\RetroCompatCommonHookActions
 //		print 'lol';
 		dol_include_once('btp/lib/btp.lib.php');
 
-		if (!empty($conf->global->PROJECT_SHOW_FORECAST_PROFIT_BOARD) && ! $this->forecastProfitedPrinted)
+		if (getDolGlobalString('PROJECT_SHOW_FORECAST_PROFIT_BOARD') && ! $this->forecastProfitedPrinted)
 		{
 			$this->listofreferent['propal']['margin'] = 'add';
 			$this->listofreferent['propal']['name'] = 'ProposalsExcludingRefused';
