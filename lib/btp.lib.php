@@ -111,7 +111,7 @@ function printForecastProfitBoard(Project &$object, &$listofreferent, $dates, $d
 
 			if($key == 'project_task' && ! empty($object->lines)) {
 				$total_ht_by_line = $total_ttc_by_line = 0;
-				$thm = $conf->global->PROJECT_FORECAST_DEFAULT_THM;
+				$thm = getDolGlobalInt('PROJECT_FORECAST_DEFAULT_THM');
 				$i = count($object->lines);
 
 				foreach($object->lines as $l) {
@@ -195,7 +195,7 @@ function printForecastProfitBoard(Project &$object, &$listofreferent, $dates, $d
 					elseif ($tablename == 'stock_mouvement') $total_ht_by_line=$element->price*abs($element->qty);
 					elseif ($tablename == 'projet_task')
 					{
-						$thm = $conf->global->PROJECT_FORECAST_DEFAULT_THM;
+						$thm = getDolGlobalInt('PROJECT_FORECAST_DEFAULT_THM');
 						$total_ht_by_line = price2num(($element->planned_workload / 3600) * $thm, 'MT');
 					}
 					else $total_ht_by_line=$element->total_ht;
@@ -231,7 +231,7 @@ function printForecastProfitBoard(Project &$object, &$listofreferent, $dates, $d
 
 				// Each element with at least one line is output
 				$qualifiedforfinalprofit=true;
-				if ($key == 'intervention' && !getDolGlobalString('PROJECT_INCLUDE_INTERVENTION_AMOUNT_IN_PROFIT')) $qualifiedforfinalprofit=false;
+				if ($key == 'intervention' && !getDolGlobalInt('PROJECT_INCLUDE_INTERVENTION_AMOUNT_IN_PROFIT')) $qualifiedforfinalprofit=false;
 				//var_dump($key);
 
 				// Calculate margin
