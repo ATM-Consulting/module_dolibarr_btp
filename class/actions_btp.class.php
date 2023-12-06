@@ -27,7 +27,8 @@
 /**
  * Class ActionsMyModule
  */
-class ActionsBtp
+require_once __DIR__ . '/../backport/v19/core/class/commonhookactions.class.php';
+class ActionsBtp extends btp\RetroCompatCommonHookActions
 {
     /**
      * @var DoliDB Database handler.
