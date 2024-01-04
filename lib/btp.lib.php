@@ -25,7 +25,7 @@
 
 function btpAdminPrepareHead()
 {
-    global $langs, $conf;
+    global $langs, $conf, $object;
 
     $langs->load("btp@btp");
 

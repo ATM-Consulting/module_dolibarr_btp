@@ -349,7 +349,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 				$tab_height = 130;
 				$tab_height_newpage = 150;
 
-				$this->_tableauBtp($pdf, $tab_top, $this->page_hauteur - 90 + $height_note - $heightforinfotot - $heightforfreetext - $heightforfooter, 0, $outputlangs, 0, 0, $object->multicurrency_code);
+				$this->_tableauBtp($pdf, $tab_top, $this->page_hauteur - 90 - $heightforinfotot - $heightforfreetext - $heightforfooter, 0, $outputlangs, 0, 0, $object->multicurrency_code);
 				$bottomlasttab=$this->page_hauteur - $heightforinfotot - $heightforfreetext - $heightforfooter + 1;
 
 				$this->_pagefoot($pdf,$object,$outputlangs,1);
@@ -377,7 +377,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 
 				// Incoterm
 				$height_incoterms = 0;
-				if ($conf->incoterm->enabled)
+				if (!empty($conf->incoterm->enabled))
 				{
 					$desc_incoterms = $object->getIncotermsForPDF();
 					if ($desc_incoterms)
@@ -482,12 +482,12 @@ class pdf_crabe_btp extends ModelePDFFactures
 
 					$pdf->startTransaction();
 
-					if($object->lines[$i]->is_bold) {
+					if(!empty($object->lines[$i]->is_bold)) {
 						$pdf->SetTextColor(0,0,60);
 						$pdf->SetFont('','B', $default_font_size - 1);
 					}
 
-					pdf_writelinedesc($pdf,$object,$i,$outputlangs,$this->posxtva-$curX-$progress_width,3,$curX,$curY,$hideref,$hidedesc);
+					pdf_writelinedesc($pdf,$object,$i,$outputlangs,$this->posxtva-$curX,3,$curX,$curY,$hideref,$hidedesc);
 					$pageposafter=$pdf->getPage();
 					if ($pageposafter > $pageposbefore)	// There is a pagebreak
 					{
@@ -593,7 +593,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 					// "Sommes"
 					if(!class_exists('TSubtotal') || !TSubtotal::isModSubtotalLine($object->lines[$i])){
     					$pdf->SetXY($this->posxsommes, $curY);
-    					$pdf->MultiCell($this->posxprogress_current-$this->posxsommes-0.8, 4, price($TInfosLigneSituationPrecedente['total_ht_without_progress']), 0, 'L');
+    					$pdf->MultiCell($this->posxprogress_current-$this->posxsommes-0.8, 4, price($TInfosLigneSituationPrecedente['total_ht_without_progress'] ?? 0), 0, 'L');
 
 					// "Progession actuelle line"
         				$progress = pdf_getlineprogress($object, $i, $outputlangs, $hidedetails);
@@ -609,13 +609,13 @@ class pdf_crabe_btp extends ModelePDFFactures
 					// "Progession précédente line"
 					if(!class_exists('TSubtotal') || !TSubtotal::isModSubtotalLine($object->lines[$i])){
     					$pdf->SetXY($this->posxprogress_prec, $curY);
-    					$pdf->MultiCell($this->posxmonth_prec-$this->posxprogress_prec-0.8, 4, $TInfosLigneSituationPrecedente['progress_prec'].'%', 0, 'R');
+    					$pdf->MultiCell($this->posxmonth_prec-$this->posxprogress_prec-0.8, 4, ($TInfosLigneSituationPrecedente['progress_prec'] ?? 0).'%', 0, 'R');
 					}
 
 					// "Progession précédente mois"
 					if(!class_exists('TSubtotal') || !TSubtotal::isTitle($object->lines[$i])){
     					$pdf->SetXY($this->posxmonth_prec, $curY);
-    					$pdf->MultiCell($this->posxdiscount-$this->posxmonth_prec-0.8, 4, price($TInfosLigneSituationPrecedente['total_ht']), 0, 'R');
+    					$pdf->MultiCell($this->posxdiscount-$this->posxmonth_prec-0.8, 4, price($TInfosLigneSituationPrecedente['total_ht'] ?? 0), 0, 'R');
 					}
 
 					// correction de présentation (la ligne n'était pas grisée jusqu'au bout)
@@ -648,10 +648,10 @@ class pdf_crabe_btp extends ModelePDFFactures
 					$prev_progress = $object->lines[$i]->get_prev_progress($object->id);
 					if ($prev_progress > 0) // Compute progress from previous situation
 					{
-						if ($conf->multicurrency->enabled && $object->multicurrency_tx != 1) $tvaligne = $sign * $object->lines[$i]->multicurrency_total_tva * ($object->lines[$i]->situation_percent - $prev_progress) / $object->lines[$i]->situation_percent;
+						if (!empty($conf->multicurrency->enabled) && $object->multicurrency_tx != 1) $tvaligne = $sign * $object->lines[$i]->multicurrency_total_tva * ($object->lines[$i]->situation_percent - $prev_progress) / $object->lines[$i]->situation_percent;
 						else $tvaligne = $sign * $object->lines[$i]->total_tva * ($object->lines[$i]->situation_percent - $prev_progress) / $object->lines[$i]->situation_percent;
 					} else {
-						if ($conf->multicurrency->enabled && $object->multicurrency_tx != 1) $tvaligne= $sign * $object->lines[$i]->multicurrency_total_tva;
+						if (!empty($conf->multicurrency->enabled) && $object->multicurrency_tx != 1) $tvaligne= $sign * $object->lines[$i]->multicurrency_total_tva;
 						else $tvaligne= $sign * $object->lines[$i]->total_tva;
 					}
 
@@ -777,7 +777,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 				global $action;
 				$reshook=$hookmanager->executeHooks('afterPDFCreation',$parameters,$this,$action);    // Note that $action and $object may have been modified by some hooks
 
-				if (!empty(getDolGlobalString('MAIN_UMASK'))) {
+				if (!empty(getDolGlobalString('MAIN_UMASK')))
 				@chmod($file, octdec(getDolGlobalString('MAIN_UMASK')));
 				return 1;   // No error
 			}
@@ -1217,7 +1217,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 		$pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
 		$pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("TotalHT"), 0, 'L', 1);
 
-		$total_ht = ($conf->multicurrency->enabled && $object->multicurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
+		$total_ht = (!empty($conf->multicurrency->enabled) && $object->multicurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
 		$pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
 		$pdf->MultiCell($largcol2, $tab2_hl, price($sign * ($total_ht + (! empty($object->remise)?$object->remise:0)), 0, $outputlangs), 0, 'R', 1);
 
@@ -1419,7 +1419,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 				$pdf->SetFillColor(224,224,224);
 				$pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("TotalTTC"), $useborder, 'L', 1);
 
-				$total_ttc = ($conf->multicurrency->enabled && $object->multiccurency_tx != 1) ? $object->multicurrency_total_ttc : $object->total_ttc;
+				$total_ttc = (!empty($conf->multicurrency->enabled) && $object->multiccurency_tx != 1) ? $object->multicurrency_total_ttc : $object->total_ttc;
 				$pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
 				$pdf->MultiCell($largcol2, $tab2_hl, price($sign * $total_ttc, 0, $outputlangs), $useborder, 'R', 1);
 
@@ -1434,7 +1434,8 @@ class pdf_crabe_btp extends ModelePDFFactures
 				    $pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
 				    $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities('BtpTotalRayToRest'), 0, 'L', 1);
 
-				    $total_ht = ($conf->multicurrency->enabled && $object->multicurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
+
+				    $total_ht = (!empty($conf->multicurrency->enabled) && $object->multicurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
 				    $pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
 				    $pdf->MultiCell($largcol2, $tab2_hl, price($total_a_payer-$deja_paye-$object->total_ht, 0, $outputlangs), 0, 'R', 1);
 				}
@@ -1667,7 +1668,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 		$pdf->line($this->posxmonth_prec, $tab_top, $this->posxmonth_prec, $tab_top + $tab_height);
 		if (empty($hidetop)) {
 			$pdf->SetXY($this->posxmonth_prec - 1, $tab_top + 1);
-			$pdf->MultiCell($this->posxdiscount - $this->posxmonth_prec, 2, $outputlangs->transnoentities(date('F', $this->TDataSituation['date_derniere_situation'])), '',
+			if(!empty($this->TDataSituation['date_derniere_situation'])) $pdf->MultiCell($this->posxdiscount - $this->posxmonth_prec, 2, $outputlangs->transnoentities(date('F', $this->TDataSituation['date_derniere_situation'])), '',
 				'C');
 		}
 
@@ -1876,11 +1877,11 @@ class pdf_crabe_btp extends ModelePDFFactures
 		//reset($TPreviousIncoice);
 		$TDataSituation = array(
 									'derniere_situation'=>$facDerniereSituation
-									,'date_derniere_situation'=>$facDerniereSituation->date
+									,'date_derniere_situation'=>$facDerniereSituation->date ?? ''
 								);
 
 		$cumul_anterieur_ht = $cumul_anterieur_tva = $retenue_garantie = 0;
-
+		$retenue_garantie_anterieure = 0;
 		if(!empty($TPreviousIncoice)) {
 			foreach($TPreviousIncoice as $fac) {
 				$cumul_anterieur_ht += $fac->total_ht;
@@ -1891,7 +1892,8 @@ class pdf_crabe_btp extends ModelePDFFactures
 
 		$nouveau_cumul = $cumul_anterieur_ht + $object->total_ht;
 		$nouveau_cumul_tva = $cumul_anterieur_tva + $object->total_tva;
-		$retenue_garantie = $retenue_garantie_anterieure + ($object->total_ttc * $object->array_options['options_retenue_garantie'] / 100);
+
+		$retenue_garantie = $retenue_garantie_anterieure + ($object->total_ttc * ($object->array_options['options_retenue_garantie'] ?? 0) / 100);
 
 		$TDataSituation['cumul_anterieur'] = $cumul_anterieur_ht;
 		$TDataSituation['cumul_anterieur_tva'] = $cumul_anterieur_tva;

@@ -273,9 +273,9 @@ class pdf_sponge_btp extends ModelePDFFactures
 		{
 			$object->fetch_thirdparty();
 
-			$deja_regle = $object->getSommePaiement(($conf->multicurrency->enabled && $object->multicurrency_tx != 1) ? 1 : 0);
-			$amount_credit_notes_included = $object->getSumCreditNotesUsed(($conf->multicurrency->enabled && $object->multicurrency_tx != 1) ? 1 : 0);
-			$amount_deposits_included = $object->getSumDepositsUsed(($conf->multicurrency->enabled && $object->multicurrency_tx != 1) ? 1 : 0);
+			$deja_regle = $object->getSommePaiement((!empty($conf->multicurrency->enabled) && $object->multicurrency_tx != 1) ? 1 : 0);
+			$amount_credit_notes_included = $object->getSumCreditNotesUsed((!empty($conf->multicurrency->enabled) && $object->multicurrency_tx != 1) ? 1 : 0);
+			$amount_deposits_included = $object->getSumDepositsUsed((!empty($conf->multicurrency->enabled) && $object->multicurrency_tx != 1) ? 1 : 0);
 
 			// Definition of $dir and $file
 			if ($object->specimen)
@@ -314,7 +314,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 				// Set nblignes with the new facture lines content after hook
 				$nblignes = count($object->lines);
 				$nbpayments = count($object->getListOfPayments());
-		        $nbprevsituation = is_array($object->tab_previous_situation_invoice) ? count($object->tab_previous_situation_invoice) : 0;
+		        $nbprevsituation = !empty($object->tab_previous_situation_invoice) &&is_array($object->tab_previous_situation_invoice) ? count($object->tab_previous_situation_invoice) : 0;
 
 				// Create pdf instance
 				$pdf=pdf_getInstance($this->format);
@@ -430,7 +430,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 				// Incoterm
 				$height_incoterms = 0;
-				if ($conf->incoterm->enabled)
+				if (!empty($conf->incoterm->enabled))
 				{
 					$desc_incoterms = $object->getIncotermsForPDF();
 					if ($desc_incoterms)
@@ -812,10 +812,10 @@ class pdf_sponge_btp extends ModelePDFFactures
 					$prev_progress = $object->lines[$i]->get_prev_progress($object->id, true);
 					if ($prev_progress > 0 && !empty($object->lines[$i]->situation_percent)) // Compute progress from previous situation
 					{
-						if ($conf->multicurrency->enabled && $object->multicurrency_tx != 1) $tvaligne = $sign * $object->lines[$i]->multicurrency_total_tva * ($object->lines[$i]->situation_percent - $prev_progress) / $object->lines[$i]->situation_percent;
+						if (!empty($conf->multicurrency->enabled) && $object->multicurrency_tx != 1) $tvaligne = $sign * $object->lines[$i]->multicurrency_total_tva * ($object->lines[$i]->situation_percent - $prev_progress) / $object->lines[$i]->situation_percent;
 						else $tvaligne = $sign * $object->lines[$i]->total_tva * ($object->lines[$i]->situation_percent - $prev_progress) / $object->lines[$i]->situation_percent;
 					} else {
-						if ($conf->multicurrency->enabled && $object->multicurrency_tx != 1) $tvaligne= $sign * $object->lines[$i]->multicurrency_total_tva;
+						if (!empty($conf->multicurrency->enabled) && $object->multicurrency_tx != 1) $tvaligne= $sign * $object->lines[$i]->multicurrency_total_tva;
 						else $tvaligne= $sign * $object->lines[$i]->total_tva;
 					}
 
@@ -1421,7 +1421,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 		$pdf->SetXY($col1x, $tab2_top + 0);
 		$pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("TotalHT"), 0, 'L', 1);
 
-		$total_ht = ($conf->multicurrency->enabled && $object->multicurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
+		$total_ht = (!empty($conf->multicurrency->enabled) && $object->multicurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
 		$pdf->SetXY($col2x, $tab2_top + 0);
 		$pdf->MultiCell($largcol2, $tab2_hl, price($sign * ($total_ht + (! empty($object->remise)?$object->remise:0)), 0, $outputlangs), 0, 'R', 1);
 
@@ -1429,7 +1429,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 		// Show VAT by rates and total
 		$pdf->SetFillColor(248,248,248);
 
-		$total_ttc = ($conf->multicurrency->enabled && $object->multicurrency_tx != 1) ? $object->multicurrency_total_ttc : $object->total_ttc;
+		$total_ttc = (!empty($conf->multicurrency->enabled) && $object->multicurrency_tx != 1) ? $object->multicurrency_total_ttc : $object->total_ttc;
 
 		$this->atleastoneratenotnull=0;
 		if (!getDolGlobalInt('MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT'))
@@ -1698,8 +1698,8 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 		$pdf->SetTextColor(0,0,0);
 
-		$creditnoteamount=$object->getSumCreditNotesUsed(($conf->multicurrency->enabled && $object->multicurrency_tx != 1) ? 1 : 0);
-		$depositsamount=$object->getSumDepositsUsed(($conf->multicurrency->enabled && $object->multicurrency_tx != 1) ? 1 : 0);
+		$creditnoteamount=$object->getSumCreditNotesUsed((!empty($conf->multicurrency->enabled) && $object->multicurrency_tx != 1) ? 1 : 0);
+		$depositsamount=$object->getSumDepositsUsed((!empty($conf->multicurrency->enabled) && $object->multicurrency_tx != 1) ? 1 : 0);
 		//print "x".$creditnoteamount."-".$depositsamount;exit;
 		$resteapayer = price2num($total_ttc - $deja_regle - $creditnoteamount - $depositsamount, 'MT');
 		if ($object->paye) $resteapayer=0;
@@ -2317,7 +2317,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 			$this->cols['progress']['status'] = true;
 		}
 
-		$derniere_situation = $this->TDataSituation['derniere_situation'];
+		if(!empty($this->TDataSituation['derniere_situation'])) $derniere_situation = $this->TDataSituation['derniere_situation'];
 
 		if(empty($derniere_situation))
 		{
@@ -2331,7 +2331,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 			'width' => 26, // in mm
 	        'status' => false,
 			'title' => array(
-				'textkey' => $langs->transnoentities('PDFCrabeBtpTitle', $derniere_situation->situation_counter)
+				'textkey' => $langs->transnoentities('PDFCrabeBtpTitle', $derniere_situation->situation_counter ?? 0)
 			),
 			'border-left' => true, // add left line separator
 		);
@@ -2347,7 +2347,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 			'width' => 19, // in mm
 			'status' => false,
 			'title' => array(
-				'textkey' => $langs->transnoentities('BtpPercentageOfPreviousSituation', $derniere_situation->situation_counter)
+				'textkey' => $langs->transnoentities('BtpPercentageOfPreviousSituation', $derniere_situation->situation_counter ?? 0)
 			),
 			'border-left' => true, // add left line separator
 		);
@@ -2615,7 +2615,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 	 */
 	function printStdColumnContent($pdf, &$curY, $colKey, $columnText = '')
 	{
-		global $hookmanager;
+		global $hookmanager, $object;
 
 		$parameters=array(
 			'object' => $object,
@@ -2897,7 +2897,7 @@ class pdf_sponge_btp extends ModelePDFFactures
         unset($object->tab_previous_situation_invoice);
 
 		$TPreviousInvoices = array_reverse($TPreviousInvoices);
-        $facDerniereSituation = $TPreviousInvoices[0];
+        if(!empty($TPreviousInvoices[0])) $facDerniereSituation = $TPreviousInvoices[0];
 
         $TDataSituation = array();
 
@@ -2992,8 +2992,8 @@ class pdf_sponge_btp extends ModelePDFFactures
 			$calc_ht = $l->subprice * $l->qty * (1 - $l->remise_percent/100) * ($l->situation_percent - $prevSituationPercent)/100;
 			if(! isset($TDataSituation['nouveau_cumul'][$l->tva_tx])) {
 				$TDataSituation['nouveau_cumul'][$l->tva_tx] = array(
-					'HT' => $TDataSituation['cumul_anterieur'][$l->tva_tx]['HT'] + $calc_ht,
-					'TVA' => $TDataSituation['cumul_anterieur'][$l->tva_tx]['TVA'] + $calc_ht * ($l->tva_tx/100)
+					'HT' => ($TDataSituation['cumul_anterieur'][$l->tva_tx]['HT'] ?? 0) + $calc_ht,
+					'TVA' => ($TDataSituation['cumul_anterieur'][$l->tva_tx]['TVA'] ?? 0) + $calc_ht * ($l->tva_tx/100)
 				);
 			}
 			else {
