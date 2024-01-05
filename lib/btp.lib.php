@@ -75,7 +75,7 @@ function printForecastProfitBoard(Project &$object, &$listofreferent, $dates, $d
 	foreach ($listofreferent as $key => $value) {
 		$name = $langs->trans($value['name']);
 		$qualified = $value['test'];
-		$margin = $value['margin'];
+		$margin = $value['margin'] ?? null;
 		if ($qualified && isset($margin)) {		// If this element must be included into profit calculation ($margin is 'minus' or 'add')
 			if ($margin == 'add') {
 				$tooltiponprofitplus .= ' &gt; '.$name." (+)<br>\n";
@@ -93,18 +93,19 @@ function printForecastProfitBoard(Project &$object, &$listofreferent, $dates, $d
 	print '<td align="right" width="100">'.$langs->trans("AmountHT").'</td>';
 	print '<td align="right" width="100">'.$langs->trans("AmountTTC").'</td>';
 	print '</tr>';
-
+    $total_revenue_ht = 0;
 	foreach($listofreferent as $key => $value) {
 		$name=$langs->trans($value['name']);
 		$classname=$value['class'];
 		$tablename=$value['table'];
 		$datefieldname=$value['datefieldname'];
 		$qualified=$value['test'];
-		$margin = $value['margin'];
+		$margin = $value['margin'] ?? 0;
+        $project_field = $value['project_field'] ?? 'fk_projet';
 		if($qualified && isset($margin)) {
 			$element = new $classname($db);
 
-			$elementarray = $object->get_element_list($key, $tablename, $datefieldname, $dates, $datee, !empty($project_field)?$project_field:'fk_projet');
+			$elementarray = $object->get_element_list($key, $tablename, $datefieldname, $dates, $datee, $project_field);
 			if($key == 'project_task' && empty($object->lines)) {
 				$object->getLinesArray($user);
 			}
@@ -145,7 +146,7 @@ function printForecastProfitBoard(Project &$object, &$listofreferent, $dates, $d
 				print '</td>';
 				print '</tr>';
 			}
-			else if (count($elementarray)>0 && is_array($elementarray))
+			else if (is_array($elementarray) && count($elementarray)>0)
 			{
 				$total_ht = 0;
 				$total_ttc = 0;
@@ -156,7 +157,7 @@ function printForecastProfitBoard(Project &$object, &$listofreferent, $dates, $d
 				{
 					$tmp=explode('_', $elementarray[$i]);
 					$idofelement=$tmp[0];
-					$idofelementuser=$tmp[1];
+					$idofelementuser=$tmp[1] ?? 0;
 
 					$element->fetch($idofelement);
 					if ($idofelementuser) $elementuser->fetch($idofelementuser);

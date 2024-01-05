@@ -754,7 +754,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 						$columkey = 'btpsomme';
 						if ($this->getColumnStatus($columkey))
 						{
-							$printval = price($TInfosLigneSituationPrecedente['total_ht_without_progress']);
+							$printval = price($TInfosLigneSituationPrecedente['total_ht_without_progress'] ?? 0);
 							$this->printStdColumnContent($pdf, $curY, $columkey, $printval);
 							$nexY = max($pdf->GetY(),$nexY);
 						}
@@ -773,7 +773,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 						$columkey = 'prev_progress';
 						if ($this->getColumnStatus($columkey))
 						{
-							$printval = $TInfosLigneSituationPrecedente['progress_prec'].'%';
+							$printval = ($TInfosLigneSituationPrecedente['progress_prec']??0).'%';
 							$this->printStdColumnContent($pdf, $curY, $columkey, $printval);
 							$nexY = max($pdf->GetY(),$nexY);
 						}
@@ -782,7 +782,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 						$columkey = 'prev_progress_amount';
 						if ($this->getColumnStatus($columkey))
 						{
-							$printval = price($TInfosLigneSituationPrecedente['total_ht']);
+							$printval = price($TInfosLigneSituationPrecedente['total_ht']??0);
 							$this->printStdColumnContent($pdf, $curY, $columkey, $printval);
 							$nexY = max($pdf->GetY(),$nexY);
 						}

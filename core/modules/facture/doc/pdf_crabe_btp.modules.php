@@ -1886,7 +1886,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 			foreach($TPreviousIncoice as $fac) {
 				$cumul_anterieur_ht += $fac->total_ht;
 				$cumul_anterieur_tva += $fac->total_tva;
-				$retenue_garantie_anterieure += $fac->total_ttc * $fac->array_options['options_retenue_garantie'] / 100;
+				$retenue_garantie_anterieure += $fac->total_ttc * ($fac->array_options['options_retenue_garantie'] ?? 0) / 100;
 			}
 		}
 
@@ -1924,6 +1924,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 		$facDerniereSituation = &$this->TDataSituation['derniere_situation'];
 		//var_dump($current_line);exit;
 		// On cherche la ligne précédente de la ligne sur laquelle on se trouve :
+		$subtotal_ht = 0;
 		foreach($facDerniereSituation->lines as $l) {
 			if ($l->special_code == 9) continue;
 			$subtotal_ht += $l->total_ht;
