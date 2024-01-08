@@ -3,11 +3,15 @@ All notable changes to this project will be documented in this file
 
 ## UNRELEASED
 
+
+
+## Release 1.5
+- NEW : Add TechATM and rebuild About page + Update US translation - *08/01/2024* - 1.5.0
 - NEW : Dolibarr compatibility V19 - *04/12/2023* - 1.4.0 
   	Changed Dolibarr compatibility range to 15 min - 19 max  
   	Changed PHP compatibility range to 7.0 min - 8.2 max
 
-## 1.3
+## Release 1.3
 - FIX : sponge_btp: sur première facture de situation: nouveau cumul et situation actuelle rendus identiques - *24/11/2023* - 1.3.9
 - FIX : setNewPage bad type hint - *22/06/2023* - 1.3.8
 - FIX : warning foreach in sponge - *22/06/2023* - 1.3.7
@@ -23,14 +27,14 @@ All notable changes to this project will be documented in this file
 - NEW : Intégration bénéfice prévisionnel sur vue d'ensemble chantier - *31/05/2022* - 1.3.0  
   *(récupération de 8.0_btp)* 
 
-## 1.2
+## Release 1.2
 
 - FIX : Compatibilité v16 : this->family *09/06/2022* - 1.2.1
 - NEW : Nouvelle configuration *14/01/2022* - 1.2.0  
   Ajoute une configuration pour que les marges présentes dans le tableau des cmd, propal, factures
   tiennent compte de la part de produits / services disponibles dans les ouvrages et sous ouvrages des lignes
 
-## 1.1
+## Release 1.1
 
 - FIX : Changement de la valeur de retour par défault dans le cas d'une retenue de garantie à 0% qui provoquait une incohérence entre les deux lignes TTC sur pdf_sponge_btp - 19/11/2021 - *1.1.9*
 - FIX : Traduction sur facture de situation *26/06/2021* - 1.1.8

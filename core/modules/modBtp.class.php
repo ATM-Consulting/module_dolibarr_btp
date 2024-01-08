@@ -67,7 +67,7 @@ class modBtp extends DolibarrModules
 		// (where XXX is value of numeric property 'numero' of module)
 		$this->description = "Module ATM BTP: provides PDF templates specifically designed for the construction industry";
 		// Possible values for version are: 'development', 'experimental' or version
-		$this->version = '1.4.0';
+		$this->version = '1.5.0';
 		// Key used in llx_const table to save module status enabled/disabled
 		// (where MYMODULE is value of property name of module in uppercase)
 		$this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
@@ -170,6 +170,12 @@ class modBtp extends DolibarrModules
 		$this->need_dolibarr_version = array(15, 0);
 		// Language files list (langfiles@btp)
 		$this->langfiles = array("btp@btp");
+
+
+		// Url to the file with your last numberversion of this module
+		require_once __DIR__ . '/../../class/techatm.class.php';
+		$this->url_last_version = \btp\TechATM::getLastModuleVersionUrl($this);
+
 		// Constants
 		// List of particular constants to add when module is enabled
 		// (name, type ['chaine' or ?], value, description, visibility, entity ['current' or 'allentities'], delete on unactive)
