@@ -95,10 +95,10 @@ class pdf_crabe_btp extends ModelePDFFactures
 		$this->page_largeur = $formatarray['width'];
 		$this->page_hauteur = $formatarray['height'];
 		$this->format = array($this->page_largeur,$this->page_hauteur);
-		$this->marge_gauche=isset($conf->global->MAIN_PDF_MARGIN_LEFT)?$conf->global->MAIN_PDF_MARGIN_LEFT:10;
-		$this->marge_droite=isset($conf->global->MAIN_PDF_MARGIN_RIGHT)?$conf->global->MAIN_PDF_MARGIN_RIGHT:10;
-		$this->marge_haute =isset($conf->global->MAIN_PDF_MARGIN_TOP)?$conf->global->MAIN_PDF_MARGIN_TOP:10;
-		$this->marge_basse =isset($conf->global->MAIN_PDF_MARGIN_BOTTOM)?$conf->global->MAIN_PDF_MARGIN_BOTTOM:10;
+		$this->marge_gauche = getDolGlobalInt('MAIN_PDF_MARGIN_LEFT',10);
+		$this->marge_droite = getDolGlobalInt('MAIN_PDF_MARGIN_RIGHT', 10);
+		$this->marge_haute  = getDolGlobalInt('MAIN_PDF_MARGIN_TOP',10);
+		$this->marge_basse  = getDolGlobalInt('MAIN_PDF_MARGIN_BOTTOM', 10);
 
 		$this->option_logo = 1;                    // Affiche logo
 		$this->option_tva = 1;                     // Gere option tva FACTURE_TVAOPTION
@@ -119,7 +119,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 
 		// Define position of columns
 		$this->posxdesc=$this->marge_gauche+1;
-		if($conf->global->PRODUCT_USE_UNITS)
+		if(getDolGlobalInt('PRODUCT_USE_UNITS'))
 		{
 			$this->posxtva=99;
 			$this->posxunit=114;
@@ -142,8 +142,8 @@ class pdf_crabe_btp extends ModelePDFFactures
 		$this->posxmonth_prec=228;
 
 		$this->postotalht=257;
-		if (! empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT)) $this->posxtva=$this->posxunit;
-		$this->posxpicture=$this->posxtva - (empty($conf->global->MAIN_DOCUMENTS_WITH_PICTURE_WIDTH)?20:$conf->global->MAIN_DOCUMENTS_WITH_PICTURE_WIDTH);	// width of images
+		if (getDolGlobalInt('MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT')) $this->posxtva=$this->posxunit;
+		$this->posxpicture=$this->posxtva - getDolGlobalInt('MAIN_DOCUMENTS_WITH_PICTURE_WIDTH',20);	// width of images
 		if ($this->page_largeur < 210) // To work with US executive format
 		{
 		    $this->posxpicture-=20;
@@ -185,7 +185,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 
 		if (! is_object($outputlangs)) $outputlangs=$langs;
 		// For backward compatibility with FPDF, force output charset to ISO, because FPDF expect text to be encoded in ISO
-		if (! empty($conf->global->MAIN_USE_FPDF)) $outputlangs->charset_output='ISO-8859-1';
+		if (getDolGlobalInt('MAIN_USE_FPDF')) $outputlangs->charset_output='ISO-8859-1';
 
 
 		if (empty($object) || $object->type != Facture::TYPE_SITUATION)
@@ -204,7 +204,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 
 		// Loop on each lines to detect if there is at least one image to show
 		$realpatharray=array();
-		if (! empty($conf->global->MAIN_GENERATE_INVOICES_WITH_PICTURE))
+		if (getDolGlobalInt('MAIN_GENERATE_INVOICES_WITH_PICTURE'))
 		{
 			for ($i = 0 ; $i < $nblignes ; $i++)
 			{
@@ -282,7 +282,7 @@ class pdf_crabe_btp extends ModelePDFFactures
                 $pdf->SetAutoPageBreak(1,0);
 
                 $heightforinfotot = 50+(4*$nbpayments);	// Height reserved to output the info and total part and payment part
-		        $heightforfreetext= (isset($conf->global->MAIN_PDF_FREETEXT_HEIGHT)?$conf->global->MAIN_PDF_FREETEXT_HEIGHT:5);	// Height reserved to output the free text on last page
+		        $heightforfreetext= getDolGlobalInt('MAIN_PDF_FREETEXT_HEIGHT',5);	// Height reserved to output the free text on last page
 	            $heightforfooter = $this->marge_basse + 8;	// Height reserved to output the footer (value include bottom margin)
 
                 if (class_exists('TCPDF'))
@@ -293,9 +293,9 @@ class pdf_crabe_btp extends ModelePDFFactures
                 $pdf->SetFont(pdf_getPDFFont($outputlangs));
 
                 // Set path to the background PDF File
-                if (empty($conf->global->MAIN_DISABLE_FPDI) && ! empty($conf->global->MAIN_ADD_PDF_BACKGROUND))
+                if (!getDolGlobalInt('MAIN_DISABLE_FPDI') && getDolGlobalInt('MAIN_ADD_PDF_BACKGROUND'))
                 {
-				    $pagecount = $pdf->setSourceFile($conf->mycompany->dir_output.'/'.$conf->global->MAIN_ADD_PDF_BACKGROUND);
+				    $pagecount = $pdf->setSourceFile($conf->mycompany->dir_output.'/' . getDolGlobalString('MAIN_ADD_PDF_BACKGROUND'));
 				    $tplidx = $pdf->importPage(1);
                 }
 
@@ -308,7 +308,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 				$pdf->SetCreator("Dolibarr ".DOL_VERSION);
 				$pdf->SetAuthor($outputlangs->convToOutputCharset($user->getFullName($outputlangs)));
 				$pdf->SetKeyWords($outputlangs->convToOutputCharset($object->ref)." ".$outputlangs->transnoentities("Invoice")." ".$outputlangs->convToOutputCharset($object->thirdparty->name));
-				if (! empty($conf->global->MAIN_DISABLE_PDF_COMPRESSION)) $pdf->SetCompression(false);
+				if (getDolGlobalInt('MAIN_DISABLE_PDF_COMPRESSION')) $pdf->SetCompression(false);
 
 				$pdf->SetMargins($this->marge_gauche, $this->marge_haute, $this->marge_droite);   // Left, Top, Right
 
@@ -320,7 +320,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 						$this->atleastonediscount++;
 					}
 				}
-				if (empty($this->atleastonediscount) && empty($conf->global->PRODUCT_USE_UNITS))    // retreive space not used by discount
+				if (empty($this->atleastonediscount) && !getDolGlobalInt('PRODUCT_USE_UNITS'))    // retreive space not used by discount
 				{
 					$this->posxpicture+=($this->postotalht - $this->posxdiscount);
 					$this->posxtva+=($this->postotalht - $this->posxdiscount);
@@ -345,11 +345,11 @@ class pdf_crabe_btp extends ModelePDFFactures
 		/**** DEBUT TABLEAU SPECIFIQUE ****/
 
 				$tab_top = 90;
-				$tab_top_newpage = (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)?42:10);
+				$tab_top_newpage = (getDolGlobalInt('MAIN_PDF_DONOTREPEAT_HEAD') ? 10: 42);
 				$tab_height = 130;
 				$tab_height_newpage = 150;
 
-				$this->_tableauBtp($pdf, $tab_top, $this->page_hauteur - 90 + $height_note - $heightforinfotot - $heightforfreetext - $heightforfooter, 0, $outputlangs, 0, 0, $object->multicurrency_code);
+				$this->_tableauBtp($pdf, $tab_top, $this->page_hauteur - 90 - $heightforinfotot - $heightforfreetext - $heightforfooter, 0, $outputlangs, 0, 0, $object->multicurrency_code);
 				$bottomlasttab=$this->page_hauteur - $heightforinfotot - $heightforfreetext - $heightforfooter + 1;
 
 				$this->_pagefoot($pdf,$object,$outputlangs,1);
@@ -371,13 +371,13 @@ class pdf_crabe_btp extends ModelePDFFactures
 				$pdf->SetTextColor(0,0,0);
 
 				$tab_top = 42;
-				$tab_top_newpage = (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)?52:10);
+				$tab_top_newpage = (getDolGlobalInt('MAIN_PDF_DONOTREPEAT_HEAD') ? 10 : 52);
 				$tab_height = 130;
 				$tab_height_newpage = 150;
 
 				// Incoterm
 				$height_incoterms = 0;
-				if ($conf->incoterm->enabled)
+				if (!empty($conf->incoterm->enabled))
 				{
 					$desc_incoterms = $object->getIncotermsForPDF();
 					if ($desc_incoterms)
@@ -400,7 +400,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 
 				// Affiche notes
 				$notetoshow=empty($object->note_public)?'':$object->note_public;
-				if (! empty($conf->global->MAIN_ADD_SALE_REP_SIGNATURE_IN_NOTE))
+				if (getDolGlobalInt('MAIN_ADD_SALE_REP_SIGNATURE_IN_NOTE'))
 				{
 					// Get first sale rep
 					if (is_object($object->thirdparty))
@@ -462,7 +462,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 					{
 						$pdf->AddPage('','',true);
 						if (! empty($tplidx)) $pdf->useTemplate($tplidx);
-						if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) $this->_pagehead($pdf, $object, 0, $outputlangs);
+						if (!getDolGlobalInt('MAIN_PDF_DONOTREPEAT_HEAD')) $this->_pagehead($pdf, $object, 0, $outputlangs);
 						$pdf->setPage($pageposbefore+1);
 
 						$curY = $tab_top_newpage;
@@ -482,12 +482,12 @@ class pdf_crabe_btp extends ModelePDFFactures
 
 					$pdf->startTransaction();
 
-					if($object->lines[$i]->is_bold) {
+					if(!empty($object->lines[$i]->is_bold)) {
 						$pdf->SetTextColor(0,0,60);
 						$pdf->SetFont('','B', $default_font_size - 1);
 					}
 
-					pdf_writelinedesc($pdf,$object,$i,$outputlangs,$this->posxtva-$curX-$progress_width,3,$curX,$curY,$hideref,$hidedesc);
+					pdf_writelinedesc($pdf,$object,$i,$outputlangs,$this->posxtva-$curX,3,$curX,$curY,$hideref,$hidedesc);
 					$pageposafter=$pdf->getPage();
 					if ($pageposafter > $pageposbefore)	// There is a pagebreak
 					{
@@ -511,7 +511,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 							{
 								$pdf->AddPage('','',true);
 								if (! empty($tplidx)) $pdf->useTemplate($tplidx);
-								if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) $this->_pagehead($pdf, $object, 0, $outputlangs);
+								if (!getDolGlobalInt('MAIN_PDF_DONOTREPEAT_HEAD')) $this->_pagehead($pdf, $object, 0, $outputlangs);
 								$pdf->setPage($pageposafter+1);
 							}
 						}
@@ -541,7 +541,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 					$pdf->SetFont('','', $default_font_size - 1);   // On repositionne la police par defaut
 
 					// VAT Rate
-					if (empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT) && empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT_COLUMN)
+					if (!getDolGlobalInt('MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT') && !getDolGlobalInt('MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT_COLUMN')
 						&& empty($object->lines[$i]->is_line_paiement))
 					{
 						$vat_rate = pdf_getlinevatrate($object, $i, $outputlangs, $hidedetails);
@@ -550,7 +550,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 					}
 
 					// Unit
-					if($conf->global->PRODUCT_USE_UNITS) {
+					if(getDolGlobalInt('PRODUCT_USE_UNITS')) {
 
 						$unit = pdf_getlineunit($object, $i, $outputlangs, $hidedetails, $hookmanager);
 						$pdf->SetXY($this->posxunit, $curY);
@@ -569,7 +569,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 						{
 							$pdf->MultiCell($this->posxprogress-$this->posxqty-0.8, 4, $qty, 0, 'R');
 						}
-						else if($conf->global->PRODUCT_USE_UNITS)
+						else if(getDolGlobalInt('PRODUCT_USE_UNITS'))
 						{
 							$pdf->MultiCell($this->posxup-$this->posxqty-0.8, 4, $qty, 0, 'R');
 						}
@@ -593,7 +593,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 					// "Sommes"
 					if(!class_exists('TSubtotal') || !TSubtotal::isModSubtotalLine($object->lines[$i])){
     					$pdf->SetXY($this->posxsommes, $curY);
-    					$pdf->MultiCell($this->posxprogress_current-$this->posxsommes-0.8, 4, price($TInfosLigneSituationPrecedente['total_ht_without_progress']), 0, 'L');
+    					$pdf->MultiCell($this->posxprogress_current-$this->posxsommes-0.8, 4, price($TInfosLigneSituationPrecedente['total_ht_without_progress'] ?? 0), 0, 'L');
 
 					// "Progession actuelle line"
         				$progress = pdf_getlineprogress($object, $i, $outputlangs, $hidedetails);
@@ -609,13 +609,13 @@ class pdf_crabe_btp extends ModelePDFFactures
 					// "Progession précédente line"
 					if(!class_exists('TSubtotal') || !TSubtotal::isModSubtotalLine($object->lines[$i])){
     					$pdf->SetXY($this->posxprogress_prec, $curY);
-    					$pdf->MultiCell($this->posxmonth_prec-$this->posxprogress_prec-0.8, 4, $TInfosLigneSituationPrecedente['progress_prec'].'%', 0, 'R');
+    					$pdf->MultiCell($this->posxmonth_prec-$this->posxprogress_prec-0.8, 4, ($TInfosLigneSituationPrecedente['progress_prec'] ?? 0).'%', 0, 'R');
 					}
 
 					// "Progession précédente mois"
 					if(!class_exists('TSubtotal') || !TSubtotal::isTitle($object->lines[$i])){
     					$pdf->SetXY($this->posxmonth_prec, $curY);
-    					$pdf->MultiCell($this->posxdiscount-$this->posxmonth_prec-0.8, 4, price($TInfosLigneSituationPrecedente['total_ht']), 0, 'R');
+    					$pdf->MultiCell($this->posxdiscount-$this->posxmonth_prec-0.8, 4, price($TInfosLigneSituationPrecedente['total_ht'] ?? 0), 0, 'R');
 					}
 
 					// correction de présentation (la ligne n'était pas grisée jusqu'au bout)
@@ -643,15 +643,15 @@ class pdf_crabe_btp extends ModelePDFFactures
 					}
 
 					$sign=1;
-					if (isset($object->type) && $object->type == 2 && ! empty($conf->global->INVOICE_POSITIVE_CREDIT_NOTE)) $sign=-1;
+					if (isset($object->type) && $object->type == 2 && getDolGlobalInt('INVOICE_POSITIVE_CREDIT_NOTE')) $sign=-1;
 					// Collecte des totaux par valeur de tva dans $this->tva["taux"]=total_tva
 					$prev_progress = $object->lines[$i]->get_prev_progress($object->id);
 					if ($prev_progress > 0) // Compute progress from previous situation
 					{
-						if ($conf->multicurrency->enabled && $object->multicurrency_tx != 1) $tvaligne = $sign * $object->lines[$i]->multicurrency_total_tva * ($object->lines[$i]->situation_percent - $prev_progress) / $object->lines[$i]->situation_percent;
+						if (!empty($conf->multicurrency->enabled) && $object->multicurrency_tx != 1) $tvaligne = $sign * $object->lines[$i]->multicurrency_total_tva * ($object->lines[$i]->situation_percent - $prev_progress) / $object->lines[$i]->situation_percent;
 						else $tvaligne = $sign * $object->lines[$i]->total_tva * ($object->lines[$i]->situation_percent - $prev_progress) / $object->lines[$i]->situation_percent;
 					} else {
-						if ($conf->multicurrency->enabled && $object->multicurrency_tx != 1) $tvaligne= $sign * $object->lines[$i]->multicurrency_total_tva;
+						if (!empty($conf->multicurrency->enabled) && $object->multicurrency_tx != 1) $tvaligne= $sign * $object->lines[$i]->multicurrency_total_tva;
 						else $tvaligne= $sign * $object->lines[$i]->total_tva;
 					}
 
@@ -690,7 +690,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 					if ($posYAfterImage > $posYAfterDescription) $nexY=$posYAfterImage;
 
 					// Add line
-					if (! empty($conf->global->MAIN_PDF_DASH_BETWEEN_LINES) && $i < ($nblignes - 1))
+					if (getDolGlobalInt('MAIN_PDF_DASH_BETWEEN_LINES') && $i < ($nblignes - 1))
 					{
 						$pdf->setPage($pageposafter);
 						$pdf->SetLineStyle(array('dash'=>'1,1','color'=>array(80,80,80)));
@@ -717,7 +717,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 						$pagenb++;
 						$pdf->setPage($pagenb);
 						$pdf->setPageOrientation('L', 1, 0);	// The only function to edit the bottom margin of current page to set it.
-						if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) $this->_pagehead($pdf, $object, 0, $outputlangs);
+						if (!getDolGlobalInt('MAIN_PDF_DONOTREPEAT_HEAD')) $this->_pagehead($pdf, $object, 0, $outputlangs);
 					}
 					if (isset($object->lines[$i+1]->pagebreak) && $object->lines[$i+1]->pagebreak)
 					{
@@ -734,7 +734,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 						$pdf->AddPage();
 						if (! empty($tplidx)) $pdf->useTemplate($tplidx);
 						$pagenb++;
-						if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) $this->_pagehead($pdf, $object, 0, $outputlangs);
+						if (!getDolGlobalInt('MAIN_PDF_DONOTREPEAT_HEAD')) $this->_pagehead($pdf, $object, 0, $outputlangs);
 					}
 				}
 
@@ -777,9 +777,8 @@ class pdf_crabe_btp extends ModelePDFFactures
 				global $action;
 				$reshook=$hookmanager->executeHooks('afterPDFCreation',$parameters,$this,$action);    // Note that $action and $object may have been modified by some hooks
 
-				if (! empty($conf->global->MAIN_UMASK))
-				@chmod($file, octdec($conf->global->MAIN_UMASK));
-
+				if (!empty(getDolGlobalString('MAIN_UMASK')))
+				@chmod($file, octdec(getDolGlobalString('MAIN_UMASK')));
 				return 1;   // No error
 			}
 			else
@@ -813,7 +812,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 		global $conf;
 
         $sign=1;
-        if ($object->type == 2 && ! empty($conf->global->INVOICE_POSITIVE_CREDIT_NOTE)) $sign=-1;
+        if ($object->type == 2 && getDolGlobalInt('INVOICE_POSITIVE_CREDIT_NOTE')) $sign=-1;
 
         $tab3_posx = 120;
 		$tab3_top = $posy + 8;
@@ -989,14 +988,14 @@ class pdf_crabe_btp extends ModelePDFFactures
 		{
 			// Check a payment mode is defined
 			if (empty($object->mode_reglement_code)
-			&& empty($conf->global->FACTURE_CHQ_NUMBER)
-			&& empty($conf->global->FACTURE_RIB_NUMBER))
+			&& !getDolGlobalString('FACTURE_CHQ_NUMBER')
+			&& !getDolGlobalString('FACTURE_RIB_NUMBER'))
 			{
 				$this->error = $outputlangs->transnoentities("ErrorNoPaiementModeConfigured");
 			}
 			// Avoid having any valid PDF with setup that is not complete
-			elseif (($object->mode_reglement_code == 'CHQ' && empty($conf->global->FACTURE_CHQ_NUMBER) && empty($object->fk_account) && empty($object->fk_bank))
-				|| ($object->mode_reglement_code == 'VIR' && empty($conf->global->FACTURE_RIB_NUMBER) && empty($object->fk_account) && empty($object->fk_bank)))
+			elseif (($object->mode_reglement_code == 'CHQ' && !getDolGlobalString('FACTURE_CHQ_NUMBER') && empty($object->fk_account) && empty($object->fk_bank))
+				|| ($object->mode_reglement_code == 'VIR' && !getDolGlobalString('FACTURE_RIB_NUMBER') && empty($object->fk_account) && empty($object->fk_bank)))
 			{
 				$outputlangs->load("errors");
 
@@ -1032,21 +1031,21 @@ class pdf_crabe_btp extends ModelePDFFactures
 			if (empty($object->mode_reglement_code) || $object->mode_reglement_code == 'CHQ')
 			{
 				// Si mode reglement non force ou si force a CHQ
-				if (! empty($conf->global->FACTURE_CHQ_NUMBER))
+				if (getDolGlobalString('FACTURE_CHQ_NUMBER'))
 				{
-					$diffsizetitle=(empty($conf->global->PDF_DIFFSIZE_TITLE)?3:$conf->global->PDF_DIFFSIZE_TITLE);
+					$diffsizetitle=getDolGlobalInt('PDF_DIFFSIZE_TITLE',3);
 
-					if ($conf->global->FACTURE_CHQ_NUMBER > 0)
+					if (getDolGlobalInt('FACTURE_CHQ_NUMBER') > 0)
 					{
 						$account = new Account($this->db);
-						$account->fetch($conf->global->FACTURE_CHQ_NUMBER);
+						$account->fetch(getDolGlobalInt('FACTURE_CHQ_NUMBER'));
 
 						$pdf->SetXY($this->marge_gauche, $posy);
 						$pdf->SetFont('','B', $default_font_size - $diffsizetitle);
 						$pdf->MultiCell(100, 3, $outputlangs->transnoentities('PaymentByChequeOrderedTo',$account->proprio),0,'L',0);
 						$posy=$pdf->GetY()+1;
 
-			            if (empty($conf->global->MAIN_PDF_HIDE_CHQ_ADDRESS))
+			            if (!getDolGlobalInt('MAIN_PDF_HIDE_CHQ_ADDRESS'))
 			            {
 							$pdf->SetXY($this->marge_gauche, $posy);
 							$pdf->SetFont('','', $default_font_size - $diffsizetitle);
@@ -1054,14 +1053,14 @@ class pdf_crabe_btp extends ModelePDFFactures
 							$posy=$pdf->GetY()+2;
 			            }
 					}
-					if ($conf->global->FACTURE_CHQ_NUMBER == -1)
+					if (getDolGlobalInt('FACTURE_CHQ_NUMBER') == -1)
 					{
 						$pdf->SetXY($this->marge_gauche, $posy);
 						$pdf->SetFont('','B', $default_font_size - $diffsizetitle);
 						$pdf->MultiCell(100, 3, $outputlangs->transnoentities('PaymentByChequeOrderedTo',$this->emetteur->name),0,'L',0);
 						$posy=$pdf->GetY()+1;
 
-			            if (empty($conf->global->MAIN_PDF_HIDE_CHQ_ADDRESS))
+			            if (!getDolGlobalInt('MAIN_PDF_HIDE_CHQ_ADDRESS'))
 			            {
 							$pdf->SetXY($this->marge_gauche, $posy);
 							$pdf->SetFont('','', $default_font_size - $diffsizetitle);
@@ -1075,9 +1074,9 @@ class pdf_crabe_btp extends ModelePDFFactures
 			// If payment mode not forced or forced to VIR, show payment with BAN
 			if (empty($object->mode_reglement_code) || $object->mode_reglement_code == 'VIR')
 			{
-				if (! empty($object->fk_account) || ! empty($object->fk_bank) || ! empty($conf->global->FACTURE_RIB_NUMBER))
+				if (! empty($object->fk_account) || ! empty($object->fk_bank) || getDolGlobalString('FACTURE_RIB_NUMBER'))
 				{
-					$bankid=(empty($object->fk_account)?$conf->global->FACTURE_RIB_NUMBER:$object->fk_account);
+					$bankid=(empty($object->fk_account) ? getDolGlobalString('FACTURE_RIB_NUMBER') : $object->fk_account);
 					if (! empty($object->fk_bank)) $bankid=$object->fk_bank;   // For backward compatibility when object->fk_account is forced with object->fk_bank
 					$account = new Account($this->db);
 					$account->fetch($bankid);
@@ -1111,7 +1110,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 		global $conf,$mysoc;
 
         $sign=1;
-        if ($object->type == 2 && ! empty($conf->global->INVOICE_POSITIVE_CREDIT_NOTE)) $sign=-1;
+        if ($object->type == 2 && getDolGlobalInt('INVOICE_POSITIVE_CREDIT_NOTE')) $sign=-1;
 
         $default_font_size = pdf_getPDFFontSize($outputlangs);
 
@@ -1218,7 +1217,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 		$pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
 		$pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("TotalHT"), 0, 'L', 1);
 
-		$total_ht = ($conf->multicurrency->enabled && $object->multicurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
+		$total_ht = (!empty($conf->multicurrency->enabled) && $object->multicurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
 		$pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
 		$pdf->MultiCell($largcol2, $tab2_hl, price($sign * ($total_ht + (! empty($object->remise)?$object->remise:0)), 0, $outputlangs), 0, 'R', 1);
 
@@ -1226,10 +1225,10 @@ class pdf_crabe_btp extends ModelePDFFactures
 		$pdf->SetFillColor(248,248,248);
 
 		$this->atleastoneratenotnull=0;
-		if (empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT))
+		if (!getDolGlobalInt('MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT'))
 		{
 			$tvaisnull=((! empty($this->tva) && count($this->tva) == 1 && isset($this->tva['0.000']) && is_float($this->tva['0.000'])) ? true : false);
-			if (! empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT_IFNULL) && $tvaisnull)
+			if (getDolGlobalInt('MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT_IFNULL') && $tvaisnull)
 			{
 				// Nothing to do
 			}
@@ -1420,7 +1419,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 				$pdf->SetFillColor(224,224,224);
 				$pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("TotalTTC"), $useborder, 'L', 1);
 
-				$total_ttc = ($conf->multicurrency->enabled && $object->multiccurency_tx != 1) ? $object->multicurrency_total_ttc : $object->total_ttc;
+				$total_ttc = (!empty($conf->multicurrency->enabled) && $object->multiccurency_tx != 1) ? $object->multicurrency_total_ttc : $object->total_ttc;
 				$pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
 				$pdf->MultiCell($largcol2, $tab2_hl, price($sign * $total_ttc, 0, $outputlangs), $useborder, 'R', 1);
 
@@ -1435,7 +1434,8 @@ class pdf_crabe_btp extends ModelePDFFactures
 				    $pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
 				    $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities('BtpTotalRayToRest'), 0, 'L', 1);
 
-				    $total_ht = ($conf->multicurrency->enabled && $object->multicurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
+
+				    $total_ht = (!empty($conf->multicurrency->enabled) && $object->multicurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
 				    $pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
 				    $pdf->MultiCell($largcol2, $tab2_hl, price($total_a_payer-$deja_paye-$object->total_ht, 0, $outputlangs), 0, 'R', 1);
 				}
@@ -1538,7 +1538,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 			$pdf->MultiCell(($pdf->GetStringWidth($titre) + 3), 2, $titre);
 
 			//$conf->global->MAIN_PDF_TITLE_BACKGROUND_COLOR='230,230,230';
-			if (! empty($conf->global->MAIN_PDF_TITLE_BACKGROUND_COLOR)) $pdf->Rect($this->marge_gauche, $tab_top, $this->page_largeur-$this->marge_droite-$this->marge_gauche, 5, 'F', null, explode(',',$conf->global->MAIN_PDF_TITLE_BACKGROUND_COLOR));
+			if (getDolGlobalString('MAIN_PDF_TITLE_BACKGROUND_COLOR')) $pdf->Rect($this->marge_gauche, $tab_top, $this->page_largeur-$this->marge_droite-$this->marge_gauche, 5, 'F', null, explode(',',getDolGlobalString('MAIN_PDF_TITLE_BACKGROUND_COLOR')));
 		}
 
 		$pdf->SetDrawColor(128,128,128);
@@ -1555,7 +1555,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 			$pdf->MultiCell(108,2, $outputlangs->transnoentities("Designation"),'','L');
 		}
 
-		if (! empty($conf->global->MAIN_GENERATE_INVOICES_WITH_PICTURE))
+		if (getDolGlobalInt('MAIN_GENERATE_INVOICES_WITH_PICTURE'))
 		{
 			$pdf->line($this->posxpicture-1, $tab_top, $this->posxpicture-1, $tab_top + $tab_height);
 			if (empty($hidetop))
@@ -1565,7 +1565,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 			}
 		}
 
-		if (empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT) && empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT_COLUMN))
+		if (!getDolGlobalInt('MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT') && !getDolGlobalInt('MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT_COLUMN'))
 		{
 			$pdf->line($this->posxtva-1, $tab_top, $this->posxtva-1, $tab_top + $tab_height);
 			if (empty($hidetop))
@@ -1591,7 +1591,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 			{
 				$pdf->MultiCell($this->posxprogress-$this->posxqty-1,2, $outputlangs->transnoentities("Qty"),'','C');
 			}
-			else */if($conf->global->PRODUCT_USE_UNITS)
+			else */if(getDolGlobalInt('PRODUCT_USE_UNITS'))
 			{
 				$pdf->MultiCell($this->posxup-$this->posxqty-1,2, $outputlangs->transnoentities("Qty"),'','C');
 			}
@@ -1668,7 +1668,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 		$pdf->line($this->posxmonth_prec, $tab_top, $this->posxmonth_prec, $tab_top + $tab_height);
 		if (empty($hidetop)) {
 			$pdf->SetXY($this->posxmonth_prec - 1, $tab_top + 1);
-			$pdf->MultiCell($this->posxdiscount - $this->posxmonth_prec, 2, $outputlangs->transnoentities(date('F', $this->TDataSituation['date_derniere_situation'])), '',
+			if(!empty($this->TDataSituation['date_derniere_situation'])) $pdf->MultiCell($this->posxdiscount - $this->posxmonth_prec, 2, $outputlangs->transnoentities(date('F', $this->TDataSituation['date_derniere_situation'])), '',
 				'C');
 		}
 
@@ -1738,10 +1738,10 @@ class pdf_crabe_btp extends ModelePDFFactures
 			$width = $this->page_largeur-$this->marge_gauche-$this->marge_droite-83;
 
 			//$conf->global->MAIN_PDF_TITLE_BACKGROUND_COLOR='230,230,230';
-			if (! empty($conf->global->MAIN_PDF_TITLE_BACKGROUND_COLOR))
+			if (getDolGlobalString('MAIN_PDF_TITLE_BACKGROUND_COLOR'))
 			{
-				$pdf->Rect($this->posx_new_cumul-1, $tab_top, $width, 5, 'F', null, explode(',',$conf->global->MAIN_PDF_TITLE_BACKGROUND_COLOR));
-				$pdf->Rect($this->marge_gauche, $tab_top+92.5, $this->page_largeur-$this->marge_gauche-$this->marge_droite, 5, 'F', null, explode(',',$conf->global->MAIN_PDF_TITLE_BACKGROUND_COLOR));
+				$pdf->Rect($this->posx_new_cumul-1, $tab_top, $width, 5, 'F', null, explode(',',getDolGlobalString('MAIN_PDF_TITLE_BACKGROUND_COLOR')));
+				$pdf->Rect($this->marge_gauche, $tab_top+92.5, $this->page_largeur-$this->marge_gauche-$this->marge_droite, 5, 'F', null, explode(',',getDolGlobalString('MAIN_PDF_TITLE_BACKGROUND_COLOR')));
 			}
 		}
 
@@ -1877,22 +1877,23 @@ class pdf_crabe_btp extends ModelePDFFactures
 		//reset($TPreviousIncoice);
 		$TDataSituation = array(
 									'derniere_situation'=>$facDerniereSituation
-									,'date_derniere_situation'=>$facDerniereSituation->date
+									,'date_derniere_situation'=>$facDerniereSituation->date ?? ''
 								);
 
 		$cumul_anterieur_ht = $cumul_anterieur_tva = $retenue_garantie = 0;
-
+		$retenue_garantie_anterieure = 0;
 		if(!empty($TPreviousIncoice)) {
 			foreach($TPreviousIncoice as $fac) {
 				$cumul_anterieur_ht += $fac->total_ht;
 				$cumul_anterieur_tva += $fac->total_tva;
-				$retenue_garantie_anterieure += $fac->total_ttc * $fac->array_options['options_retenue_garantie'] / 100;
+				$retenue_garantie_anterieure += $fac->total_ttc * ($fac->array_options['options_retenue_garantie'] ?? 0) / 100;
 			}
 		}
 
 		$nouveau_cumul = $cumul_anterieur_ht + $object->total_ht;
 		$nouveau_cumul_tva = $cumul_anterieur_tva + $object->total_tva;
-		$retenue_garantie = $retenue_garantie_anterieure + ($object->total_ttc * $object->array_options['options_retenue_garantie'] / 100);
+
+		$retenue_garantie = $retenue_garantie_anterieure + ($object->total_ttc * ($object->array_options['options_retenue_garantie'] ?? 0) / 100);
 
 		$TDataSituation['cumul_anterieur'] = $cumul_anterieur_ht;
 		$TDataSituation['cumul_anterieur_tva'] = $cumul_anterieur_tva;
@@ -1923,6 +1924,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 		$facDerniereSituation = &$this->TDataSituation['derniere_situation'];
 		//var_dump($current_line);exit;
 		// On cherche la ligne précédente de la ligne sur laquelle on se trouve :
+		$subtotal_ht = 0;
 		foreach($facDerniereSituation->lines as $l) {
 			if ($l->special_code == 9) continue;
 			$subtotal_ht += $l->total_ht;
@@ -2184,30 +2186,31 @@ class pdf_crabe_btp extends ModelePDFFactures
 	    }
 
 		// If rounding is not using base 10 (rare)
-		if (! empty($conf->global->MAIN_ROUNDING_RULE_TOT))
+		$roundingRule=getDolGlobalInt('MAIN_ROUNDING_RULE_TOT');
+        if ($roundingRule > 0)
 		{
 			if ($price_base_type == 'HT')
 			{
-				$result[0]=round($result[0]/$conf->global->MAIN_ROUNDING_RULE_TOT, 0)*$conf->global->MAIN_ROUNDING_RULE_TOT;
-				$result[1]=round($result[1]/$conf->global->MAIN_ROUNDING_RULE_TOT, 0)*$conf->global->MAIN_ROUNDING_RULE_TOT;
-				$result[2]=price2num($result[0]+$result[1], 'MT');
-				$result[9]=round($result[9]/$conf->global->MAIN_ROUNDING_RULE_TOT, 0)*$conf->global->MAIN_ROUNDING_RULE_TOT;
-				$result[10]=round($result[10]/$conf->global->MAIN_ROUNDING_RULE_TOT, 0)*$conf->global->MAIN_ROUNDING_RULE_TOT;
+				$result[0]  = round($result[0] / $roundingRule, 0) * $roundingRule;
+				$result[1]  = round($result[1] / $roundingRule, 0) * $roundingRule;
+				$result[2]  = price2num($result[0]+$result[1], 'MT');
+				$result[9]  = round($result[9] / $roundingRule, 0) * $roundingRule;
+				$result[10] = round($result[10] / $roundingRule, 0) * $roundingRule;
 			}
 			else
 			{
-				$result[1]=round($result[1]/$conf->global->MAIN_ROUNDING_RULE_TOT, 0)*$conf->global->MAIN_ROUNDING_RULE_TOT;
-				$result[2]=round($result[2]/$conf->global->MAIN_ROUNDING_RULE_TOT, 0)*$conf->global->MAIN_ROUNDING_RULE_TOT;
-				$result[0]=price2num($result[2]-$result[0], 'MT');
-				$result[9]=round($result[9]/$conf->global->MAIN_ROUNDING_RULE_TOT, 0)*$conf->global->MAIN_ROUNDING_RULE_TOT;
-				$result[10]=round($result[10]/$conf->global->MAIN_ROUNDING_RULE_TOT, 0)*$conf->global->MAIN_ROUNDING_RULE_TOT;
+				$result[1]  = round($result[1] / $roundingRule, 0) * $roundingRule;
+				$result[2]  = round($result[2] / $roundingRule, 0) * $roundingRule;
+				$result[0]  = price2num($result[2]-$result[0], 'MT');
+				$result[9]  = round($result[9] / $roundingRule, 0) * $roundingRule;
+				$result[10] = round($result[10] / $roundingRule, 0) * $roundingRule;
 			}
 		}
 
 		// initialize result array
 		//for ($i=0; $i <= 15; $i++) $result[$i] = (float) $result[$i];
 
-		dol_syslog('Price.lib::calcul_price_total MAIN_ROUNDING_RULE_TOT='.$conf->global->MAIN_ROUNDING_RULE_TOT.' pu='.$pu.' qty='.$qty.' price_base_type='.$price_base_type.' total_ht='.$result[0].'-total_vat='.$result[1].'-total_ttc='.$result[2]);
+		dol_syslog('Price.lib::calcul_price_total MAIN_ROUNDING_RULE_TOT=' . getDolGlobalInt('MAIN_ROUNDING_RULE_TOT').' pu='.$pu.' qty='.$qty.' price_base_type='.$price_base_type.' total_ht='.$result[0].'-total_vat='.$result[1].'-total_ttc='.$result[2]);
 
 		return $result;
 	}
@@ -2237,9 +2240,9 @@ class pdf_crabe_btp extends ModelePDFFactures
 		pdf_pagehead($pdf,$outputlangs,$this->page_hauteur);
 
 		// Show Draft Watermark
-		if($object->statut==0 && (! empty($conf->global->FACTURE_DRAFT_WATERMARK)) )
+		if($object->statut==0 && (!empty(getDolGlobalString('FACTURE_DRAFT_WATERMARK'))) )
         {
-		      pdf_watermark($pdf,$outputlangs,$this->page_hauteur,$this->page_largeur,'mm',$conf->global->FACTURE_DRAFT_WATERMARK);
+		      pdf_watermark($pdf,$outputlangs,$this->page_hauteur,$this->page_largeur,'mm',getDolGlobalString('FACTURE_DRAFT_WATERMARK'));
         }
 
 		$pdf->SetTextColor(0,0,60);
@@ -2345,7 +2348,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 		$pdf->SetTextColor(0,0,60);
 		$pdf->MultiCell($w, 3, $outputlangs->transnoentities("DateInvoice")." : " . dol_print_date($object->date,"day",false,$outputlangs), '', 'R');
 
-		if (! empty($conf->global->INVOICE_POINTOFTAX_DATE))
+		if (getDolGlobalInt('INVOICE_POINTOFTAX_DATE'))
 		{
 			$posy+=4;
 			$pdf->SetXY($posx,$posy);
@@ -2386,12 +2389,12 @@ class pdf_crabe_btp extends ModelePDFFactures
 			$carac_emetteur = pdf_build_address($outputlangs, $this->emetteur, $object->thirdparty);
 
 			// Show sender
-			$posy=!empty($conf->global->MAIN_PDF_USE_ISO_LOCATION) ? 40 : 42;
+			$posy=getDolGlobalInt('MAIN_PDF_USE_ISO_LOCATION') ? 40 : 42;
 			$posx=$this->marge_gauche;
-			if (! empty($conf->global->MAIN_INVERT_SENDER_RECIPIENT)) $posx=$this->page_largeur-$this->marge_droite-80;
+			if (getDolGlobalInt('MAIN_INVERT_SENDER_RECIPIENT')) $posx=$this->page_largeur-$this->marge_droite-80;
 
-			$hautcadre=!empty($conf->global->MAIN_PDF_USE_ISO_LOCATION) ? 38 : 40;
-			$widthrecbox=!empty($conf->global->MAIN_PDF_USE_ISO_LOCATION) ? 92 : 82;
+			$hautcadre=getDolGlobalInt('MAIN_PDF_USE_ISO_LOCATION') ? 38 : 40;
+			$widthrecbox=getDolGlobalInt('MAIN_PDF_USE_ISO_LOCATION') ? 92 : 82;
 
 
 			// Show sender frame
@@ -2428,7 +2431,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 
 			//Recipient name
 			// On peut utiliser le nom de la societe du contact
-			if ($usecontact && !empty($conf->global->MAIN_USE_COMPANY_NAME_OF_CONTACT)) {
+			if ($usecontact && getDolGlobalInt('MAIN_USE_COMPANY_NAME_OF_CONTACT')) {
 				$thirdparty = $object->contact;
 			} else {
 				$thirdparty = $object->thirdparty;
@@ -2439,11 +2442,11 @@ class pdf_crabe_btp extends ModelePDFFactures
 			$carac_client=pdf_build_address($outputlangs,$this->emetteur,$object->thirdparty,($usecontact?$object->contact:''),$usecontact,'target',$object);
 
 			// Show recipient
-			$widthrecbox=!empty($conf->global->MAIN_PDF_USE_ISO_LOCATION) ? 92 : 100;
+			$widthrecbox=getDolGlobalInt('MAIN_PDF_USE_ISO_LOCATION') ? 92 : 100;
 			if ($this->page_largeur < 210) $widthrecbox=84;	// To work with US executive format
-			$posy=!empty($conf->global->MAIN_PDF_USE_ISO_LOCATION) ? 40 : 42;
+			$posy=getDolGlobalInt('MAIN_PDF_USE_ISO_LOCATION') ? 40 : 42;
 			$posx=$this->page_largeur-$this->marge_droite-$widthrecbox;
-			if (! empty($conf->global->MAIN_INVERT_SENDER_RECIPIENT)) $posx=$this->marge_gauche;
+			if (getDolGlobalInt('MAIN_INVERT_SENDER_RECIPIENT')) $posx=$this->marge_gauche;
 
 			// Show recipient frame
 			$pdf->SetTextColor(0,0,0);
@@ -2480,7 +2483,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 	function _pagefoot(&$pdf, $object, $outputlangs, $hidefreetext=0)
 	{
 		global $conf;
-		$showdetails=$conf->global->MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS;
+		$showdetails=getDolGlobalInt('MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS');
 		return pdf_pagefoot($pdf,$outputlangs,'INVOICE_FREE_TEXT',$this->emetteur,$this->marge_basse,$this->marge_gauche,$this->page_hauteur,$object,$showdetails,$hidefreetext);
 	}
 
@@ -2521,8 +2524,8 @@ class pdf_crabe_btp extends ModelePDFFactures
 			$this->_pagefoot($pdf,$object,$outputlangs,1);
 			$pdf->addPage();
 			$pdf->setY($this->marge_haute);
-			if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) $posy = $this->_pagehead($pdf, $object, 0, $outputlangs);
-			$posy = (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD) ? 42 : 10);
+			if (!getDolGlobalInt('MAIN_PDF_DONOTREPEAT_HEAD')) $posy = $this->_pagehead($pdf, $object, 0, $outputlangs);
+			$posy = (getDolGlobalInt('MAIN_PDF_DONOTREPEAT_HEAD') ? 10 : 42);
 		}
 
 		return $posy;

@@ -25,7 +25,7 @@
 
 function btpAdminPrepareHead()
 {
-    global $langs, $conf;
+    global $langs, $conf, $object;
 
     $langs->load("btp@btp");
 
@@ -75,7 +75,7 @@ function printForecastProfitBoard(Project &$object, &$listofreferent, $dates, $d
 	foreach ($listofreferent as $key => $value) {
 		$name = $langs->trans($value['name']);
 		$qualified = $value['test'];
-		$margin = $value['margin'];
+		$margin = $value['margin'] ?? null;
 		if ($qualified && isset($margin)) {		// If this element must be included into profit calculation ($margin is 'minus' or 'add')
 			if ($margin == 'add') {
 				$tooltiponprofitplus .= ' &gt; '.$name." (+)<br>\n";
@@ -93,25 +93,26 @@ function printForecastProfitBoard(Project &$object, &$listofreferent, $dates, $d
 	print '<td align="right" width="100">'.$langs->trans("AmountHT").'</td>';
 	print '<td align="right" width="100">'.$langs->trans("AmountTTC").'</td>';
 	print '</tr>';
-
+    $total_revenue_ht = 0;
 	foreach($listofreferent as $key => $value) {
 		$name=$langs->trans($value['name']);
 		$classname=$value['class'];
 		$tablename=$value['table'];
 		$datefieldname=$value['datefieldname'];
 		$qualified=$value['test'];
-		$margin = $value['margin'];
+		$margin = $value['margin'] ?? 0;
+        $project_field = $value['project_field'] ?? 'fk_projet';
 		if($qualified && isset($margin)) {
 			$element = new $classname($db);
 
-			$elementarray = $object->get_element_list($key, $tablename, $datefieldname, $dates, $datee, !empty($project_field)?$project_field:'fk_projet');
+			$elementarray = $object->get_element_list($key, $tablename, $datefieldname, $dates, $datee, $project_field);
 			if($key == 'project_task' && empty($object->lines)) {
 				$object->getLinesArray($user);
 			}
 
 			if($key == 'project_task' && ! empty($object->lines)) {
 				$total_ht_by_line = $total_ttc_by_line = 0;
-				$thm = $conf->global->PROJECT_FORECAST_DEFAULT_THM;
+				$thm = getDolGlobalInt('PROJECT_FORECAST_DEFAULT_THM');
 				$i = count($object->lines);
 
 				foreach($object->lines as $l) {
@@ -145,7 +146,7 @@ function printForecastProfitBoard(Project &$object, &$listofreferent, $dates, $d
 				print '</td>';
 				print '</tr>';
 			}
-			else if (count($elementarray)>0 && is_array($elementarray))
+			else if (is_array($elementarray) && count($elementarray)>0)
 			{
 				$total_ht = 0;
 				$total_ttc = 0;
@@ -156,7 +157,7 @@ function printForecastProfitBoard(Project &$object, &$listofreferent, $dates, $d
 				{
 					$tmp=explode('_', $elementarray[$i]);
 					$idofelement=$tmp[0];
-					$idofelementuser=$tmp[1];
+					$idofelementuser=$tmp[1] ?? 0;
 
 					$element->fetch($idofelement);
 					if ($idofelementuser) $elementuser->fetch($idofelementuser);
@@ -195,7 +196,7 @@ function printForecastProfitBoard(Project &$object, &$listofreferent, $dates, $d
 					elseif ($tablename == 'stock_mouvement') $total_ht_by_line=$element->price*abs($element->qty);
 					elseif ($tablename == 'projet_task')
 					{
-						$thm = $conf->global->PROJECT_FORECAST_DEFAULT_THM;
+						$thm = getDolGlobalInt('PROJECT_FORECAST_DEFAULT_THM');
 						$total_ht_by_line = price2num(($element->planned_workload / 3600) * $thm, 'MT');
 					}
 					else $total_ht_by_line=$element->total_ht;
@@ -231,7 +232,7 @@ function printForecastProfitBoard(Project &$object, &$listofreferent, $dates, $d
 
 				// Each element with at least one line is output
 				$qualifiedforfinalprofit=true;
-				if ($key == 'intervention' && empty($conf->global->PROJECT_INCLUDE_INTERVENTION_AMOUNT_IN_PROFIT)) $qualifiedforfinalprofit=false;
+				if ($key == 'intervention' && !getDolGlobalInt('PROJECT_INCLUDE_INTERVENTION_AMOUNT_IN_PROFIT')) $qualifiedforfinalprofit=false;
 				//var_dump($key);
 
 				// Calculate margin

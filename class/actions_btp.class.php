@@ -27,7 +27,8 @@
 /**
  * Class ActionsMyModule
  */
-class ActionsBtp
+require_once __DIR__ . '/../backport/v19/core/class/commonhookactions.class.php';
+class ActionsBtp extends btp\RetroCompatCommonHookActions
 {
     /**
      * @var DoliDB Database handler.
@@ -122,7 +123,7 @@ class ActionsBtp
                 }
             });
             </script>
-            <?php
+<?php
             }
         }
 
@@ -181,7 +182,7 @@ class ActionsBtp
 	{
 		global $conf;
 
-		if (!empty($conf->global->PROJECT_SHOW_FORECAST_PROFIT_BOARD)) $this->listofreferent = $parameters['listofreferent'];
+		if (getDolGlobalInt('PROJECT_SHOW_FORECAST_PROFIT_BOARD')) $this->listofreferent = $parameters['listofreferent'];
 	}
 
 	public function printOverviewProfit($parameters, &$object, &$action, $hookmanager)
@@ -191,7 +192,7 @@ class ActionsBtp
 //		print 'lol';
 		dol_include_once('btp/lib/btp.lib.php');
 
-		if (!empty($conf->global->PROJECT_SHOW_FORECAST_PROFIT_BOARD) && ! $this->forecastProfitedPrinted)
+		if (getDolGlobalInt('PROJECT_SHOW_FORECAST_PROFIT_BOARD') && ! $this->forecastProfitedPrinted)
 		{
 			$this->listofreferent['propal']['margin'] = 'add';
 			$this->listofreferent['propal']['name'] = 'ProposalsExcludingRefused';
