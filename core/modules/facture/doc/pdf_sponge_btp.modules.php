@@ -2012,7 +2012,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 		$object->fetchObjectLinked();
 		// évite le dédoublement de la ref commande si plusieurs objets liés 'commande'
 
-		if (($showLinkedObject && is_array($object->linkedObjects['commande']) && count($object->linkedObjects['commande']) > 1) || (is_array($object->linkedObjects['commande']) && count($object->linkedObjects['commande'])) <= 1){
+		if (isset($object->linkedObjects['commande']) &&   (($showLinkedObject && is_array($object->linkedObjects['commande']) && count($object->linkedObjects['commande']) > 1) || (is_array($object->linkedObjects['commande']) && count($object->linkedObjects['commande'])) <= 1)){
 			$posy = pdf_writeLinkedObjects($pdf, $object, $outputlangs, $posx, $posy, $w, 3, 'R', $default_font_size);
 		}
 		if ($current_y < $pdf->getY())
@@ -2830,11 +2830,13 @@ class pdf_sponge_btp extends ModelePDFFactures
 				$i += 8;
 
 				// Total HT
-				$pdf->SetXY($x, $tab_top+21+$i);
-				$pdf->MultiCell(32,2, price($this->TDataSituation[$col][$tva_tx_formated]['HT']),'','R');
+				if(!empty($this->TDataSituation[$col][$tva_tx_formated])){
+					$pdf->SetXY($x, $tab_top+21+$i);
+					$pdf->MultiCell(32,2, price($this->TDataSituation[$col][$tva_tx_formated]['HT']),'','R');
+				}
 
 				// Total TVA
-				if(! empty($this->TDataSituation['mois'][$tva_tx_formated]['TVA'])) {
+				if(!empty($this->TDataSituation[$col][$tva_tx_formated]) && ! empty($this->TDataSituation['mois'][$tva_tx_formated]['TVA'])) {
 					$pdf->SetXY($x, $tab_top + 25 + $i);
 					$pdf->MultiCell(32, 2, price($this->TDataSituation[$col][$tva_tx_formated]['TVA']), '', 'R');
 				}
