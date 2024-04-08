@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file
 
 
 ## Release 1.5
+- FIX : Warnings lors de la génération du pdf Sponge - *08/04/2024* - 1.5.1
 - NEW : Add TechATM and rebuild About page + Update US translation - *08/01/2024* - 1.5.0
 - NEW : Dolibarr compatibility V19 - *04/12/2023* - 1.4.0 
   	Changed Dolibarr compatibility range to 15 min - 19 max  
