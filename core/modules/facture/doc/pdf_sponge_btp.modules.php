@@ -2957,6 +2957,10 @@ class pdf_sponge_btp extends ModelePDFFactures
 			}
 		}
 
+		// Retained warranty
+		$retenue_garantie = $this->getRetainedWarrantyAmount($object);
+		if($retenue_garantie == -1) $retenue_garantie = 0;
+
 		$TDataSituation['cumul_anterieur']['TTC'] = $TDataSituation['cumul_anterieur']['HT'] + $TDataSituation['cumul_anterieur']['TVA'];
 		$TDataSituation['cumul_anterieur']['HT'] -= $TDataSituation['cumul_anterieur']['travaux_sup'];
 		$TDataSituation['cumul_anterieur']['total_ttc'] = $TDataSituation['cumul_anterieur']['TTC'] - $retenue_garantie_anterieure;
@@ -3019,10 +3023,6 @@ class pdf_sponge_btp extends ModelePDFFactures
 			if(!empty($l->fk_prev_id) || empty($facDerniereSituation->lines)) $TDataSituation['nouveau_cumul']['HT'] += $calc_ht;
             if(!empty($l->fk_prev_id) || empty($facDerniereSituation->lines)) $TDataSituation['mois']['HT'] += $calc_ht;
 		}
-
-		// Retained warranty
-		$retenue_garantie = $this->getRetainedWarrantyAmount($object);
-		if($retenue_garantie == -1) $retenue_garantie = 0;
 
 		$TDataSituation['nouveau_cumul']['retenue_garantie'] = $retenue_garantie + $retenue_garantie_anterieure;
 		$TDataSituation['nouveau_cumul']['total_ttc'] = $TDataSituation['nouveau_cumul']['TTC'] - ($retenue_garantie + $retenue_garantie_anterieure);
