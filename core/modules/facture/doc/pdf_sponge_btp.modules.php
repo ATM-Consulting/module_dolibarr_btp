@@ -2957,6 +2957,8 @@ class pdf_sponge_btp extends ModelePDFFactures
 			}
 		}
 
+		$retenue_garantie = $this->getRetainedWarrantyAmount($object);
+
 		$TDataSituation['cumul_anterieur']['TTC'] = $TDataSituation['cumul_anterieur']['HT'] + $TDataSituation['cumul_anterieur']['TVA'];
 		$TDataSituation['cumul_anterieur']['HT'] -= $TDataSituation['cumul_anterieur']['travaux_sup'];
 		$TDataSituation['cumul_anterieur']['total_ttc'] = $TDataSituation['cumul_anterieur']['TTC'] - $retenue_garantie_anterieure;
@@ -3021,7 +3023,6 @@ class pdf_sponge_btp extends ModelePDFFactures
 		}
 
 		// Retained warranty
-		$retenue_garantie = $this->getRetainedWarrantyAmount($object);
 		if($retenue_garantie == -1) $retenue_garantie = 0;
 
 		$TDataSituation['nouveau_cumul']['retenue_garantie'] = $retenue_garantie + $retenue_garantie_anterieure;
