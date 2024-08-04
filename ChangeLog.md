@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file
 
 
 
+## Release 1.6
+
+- FIX : Compat v20
+  Changed Dolibarr compatibility range to 16 min - 20 max - *04/08/2024* - 1.6.0
+
 ## Release 1.5
 - FIX : sponge_btp: calcul de la retenue de garantie actuelle - *29/04/2024* - 1.5.2
 - FIX : Warnings lors de la génération du pdf Sponge - *08/04/2024* - 1.5.1
