@@ -217,7 +217,7 @@ class modBtp extends DolibarrModules
 		// 'user'             to add a tab in user view
 
 		// Dictionaries
-		if (! isset($conf->btp->enabled)) {
+		if (!isModEnabled('btp')) {
 			$conf->btp=new stdClass();
 			$conf->btp->enabled = 0;
 		}

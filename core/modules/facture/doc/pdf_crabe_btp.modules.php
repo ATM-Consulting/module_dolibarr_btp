@@ -35,7 +35,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
 // TSubtotal
-if (!empty($conf->subtotal->enabled)) dol_include_once('/subtotal/class/subtotal.class.php');
+if (isModEnabled('subtotal')) dol_include_once('/subtotal/class/subtotal.class.php');
 
 
 /**
@@ -377,7 +377,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 
 				// Incoterm
 				$height_incoterms = 0;
-				if (!empty($conf->incoterm->enabled))
+				if (isModEnabled('incoterm'))
 				{
 					$desc_incoterms = $object->getIncotermsForPDF();
 					if ($desc_incoterms)
@@ -648,10 +648,10 @@ class pdf_crabe_btp extends ModelePDFFactures
 					$prev_progress = $object->lines[$i]->get_prev_progress($object->id);
 					if ($prev_progress > 0) // Compute progress from previous situation
 					{
-						if (!empty($conf->multicurrency->enabled) && $object->multicurrency_tx != 1) $tvaligne = $sign * $object->lines[$i]->multicurrency_total_tva * ($object->lines[$i]->situation_percent - $prev_progress) / $object->lines[$i]->situation_percent;
+						if (isModEnabled('multicurrency') && $object->multicurrency_tx != 1) $tvaligne = $sign * $object->lines[$i]->multicurrency_total_tva * ($object->lines[$i]->situation_percent - $prev_progress) / $object->lines[$i]->situation_percent;
 						else $tvaligne = $sign * $object->lines[$i]->total_tva * ($object->lines[$i]->situation_percent - $prev_progress) / $object->lines[$i]->situation_percent;
 					} else {
-						if (!empty($conf->multicurrency->enabled) && $object->multicurrency_tx != 1) $tvaligne= $sign * $object->lines[$i]->multicurrency_total_tva;
+						if (isModEnabled('multicurrency') && $object->multicurrency_tx != 1) $tvaligne= $sign * $object->lines[$i]->multicurrency_total_tva;
 						else $tvaligne= $sign * $object->lines[$i]->total_tva;
 					}
 
@@ -1217,7 +1217,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 		$pdf->SetXY($col1x, $tab2_top + $tab2_hl * $index);
 		$pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("TotalHT"), 0, 'L', 1);
 
-		$total_ht = (!empty($conf->multicurrency->enabled) && $object->multicurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
+		$total_ht = (isModEnabled('multicurrency') && $object->multicurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
 		$pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
 		$pdf->MultiCell($largcol2, $tab2_hl, price($sign * ($total_ht + (! empty($object->remise)?$object->remise:0)), 0, $outputlangs), 0, 'R', 1);
 
@@ -1419,7 +1419,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 				$pdf->SetFillColor(224,224,224);
 				$pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("TotalTTC"), $useborder, 'L', 1);
 
-				$total_ttc = (!empty($conf->multicurrency->enabled) && $object->multiccurency_tx != 1) ? $object->multicurrency_total_ttc : $object->total_ttc;
+				$total_ttc = (isModEnabled('multicurrency') && $object->multiccurency_tx != 1) ? $object->multicurrency_total_ttc : $object->total_ttc;
 				$pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
 				$pdf->MultiCell($largcol2, $tab2_hl, price($sign * $total_ttc, 0, $outputlangs), $useborder, 'R', 1);
 
@@ -1435,7 +1435,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 				    $pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities('BtpTotalRayToRest'), 0, 'L', 1);
 
 
-				    $total_ht = (!empty($conf->multicurrency->enabled) && $object->multicurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
+				    $total_ht = (isModEnabled('multicurrency') && $object->multicurrency_tx != 1 ? $object->multicurrency_total_ht : $object->total_ht);
 				    $pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
 				    $pdf->MultiCell($largcol2, $tab2_hl, price($total_a_payer-$deja_paye-$object->total_ht, 0, $outputlangs), 0, 'R', 1);
 				}
