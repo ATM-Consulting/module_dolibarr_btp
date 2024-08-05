@@ -67,7 +67,7 @@ class modBtp extends DolibarrModules
 		// (where XXX is value of numeric property 'numero' of module)
 		$this->description = "Module ATM BTP: provides PDF templates specifically designed for the construction industry";
 		// Possible values for version are: 'development', 'experimental' or version
-		$this->version = '1.5.2';
+		$this->version = '1.6.0';
 		// Key used in llx_const table to save module status enabled/disabled
 		// (where MYMODULE is value of property name of module in uppercase)
 		$this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
@@ -167,7 +167,7 @@ class modBtp extends DolibarrModules
 		// Minimum version of PHP required by module
 		$this->phpmin = array(7, 0);
 		// Minimum version of Dolibarr required by module
-		$this->need_dolibarr_version = array(15, 0);
+		$this->need_dolibarr_version = array(16, 0);
 		// Language files list (langfiles@btp)
 		$this->langfiles = array("btp@btp");
 
@@ -217,7 +217,7 @@ class modBtp extends DolibarrModules
 		// 'user'             to add a tab in user view
 
 		// Dictionaries
-		if (! isset($conf->btp->enabled)) {
+		if (!isModEnabled('btp')) {
 			$conf->btp=new stdClass();
 			$conf->btp->enabled = 0;
 		}
