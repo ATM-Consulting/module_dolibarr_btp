@@ -2005,20 +2005,20 @@ class pdf_sponge_btp extends ModelePDFFactures
 		$posy+=1;
 
 		$top_shift = 0;
-		// Show list of linked objects
-		$current_y = $pdf->getY();
-
-
-		$object->fetchObjectLinked();
-		// évite le dédoublement de la ref commande si plusieurs objets liés 'commande'
-
-		if (isset($object->linkedObjects['commande']) &&   (($showLinkedObject && is_array($object->linkedObjects['commande']) && count($object->linkedObjects['commande']) > 1) || (is_array($object->linkedObjects['commande']) && count($object->linkedObjects['commande'])) <= 1)){
-			$posy = pdf_writeLinkedObjects($pdf, $object, $outputlangs, $posx, $posy, $w, 3, 'R', $default_font_size);
-		}
-		if ($current_y < $pdf->getY())
-		{
-			$top_shift = $pdf->getY() - $current_y;
-		}
+//		// Show list of linked objects
+//		$current_y = $pdf->getY();
+//
+//
+//		$object->fetchObjectLinked();
+//		// évite le dédoublement de la ref commande si plusieurs objets liés 'commande'
+//
+//		if (isset($object->linkedObjects['commande']) &&   (($showLinkedObject && is_array($object->linkedObjects['commande']) && count($object->linkedObjects['commande']) > 1) || (is_array($object->linkedObjects['commande']) && count($object->linkedObjects['commande'])) <= 1)){
+//			$posy = pdf_writeLinkedObjects($pdf, $object, $outputlangs, $posx, $posy, $w, 3, 'R', $default_font_size);
+//		}
+//		if ($current_y < $pdf->getY())
+//		{
+//			$top_shift = $pdf->getY() - $current_y;
+//		}
 
 		if ($showaddress)
 		{
