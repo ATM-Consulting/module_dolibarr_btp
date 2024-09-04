@@ -7,7 +7,8 @@ All notable changes to this project will be documented in this file
 
 ## Release 1.6
 
-- FIX : Compat v20
+- FIX : No depends on modules - *04/09/2024* - 1.6.1
+- NEW : Compat v20
   Changed Dolibarr compatibility range to 16 min - 20 max - *04/08/2024* - 1.6.0
 
 ## Release 1.5
