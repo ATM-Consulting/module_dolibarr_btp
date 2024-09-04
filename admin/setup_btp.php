@@ -124,11 +124,14 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
 
     if(getDolGlobalInt('INVOICE_USE_SITUATION')) {
         if(intval(DOL_VERSION) >= 11
-            || file_exists(DOL_DOCUMENT_ROOT . '/admin/facture_situation.php' ) // For X.x_btp compatible branch
+            || file_exists(DOL_DOCUMENT_ROOT . '/admin/facture_situation.php') 
+		|| file_exists(DOL_DOCUMENT_ROOT . '/admin/invoice_situation.php') // For X.x_btp compatible branch
         )
         {
+		if(intval(DOL_VERSION) >= 20) $link = dol_buildpath('admin/invoice_situation.php',1);
+		else $link =dol_buildpath('admin/facture_situation.php',1);
             print '<tr>';
-            print '<td colspan="3">'.$langs->trans('SituationParamsAvailablesHere').' <a href="'.dol_buildpath('admin/facture_situation.php',1).'" >'.$langs->trans("SetupSituationTitle").'</a></td>'."\n";
+            print '<td colspan="3">'.$langs->trans('SituationParamsAvailablesHere').' <a href="'.$link.'" >'.$langs->trans("SetupSituationTitle").'</a></td>'."\n";
             print '</tr>';
         }
         elseif(intval(DOL_VERSION) >= 8){
