@@ -67,7 +67,7 @@ class modBtp extends DolibarrModules
 		// (where XXX is value of numeric property 'numero' of module)
 		$this->description = "Module ATM BTP: provides PDF templates specifically designed for the construction industry";
 		// Possible values for version are: 'development', 'experimental' or version
-		$this->version = '1.6.1';
+		$this->version = '1.6.2';
 		// Key used in llx_const table to save module status enabled/disabled
 		// (where MYMODULE is value of property name of module in uppercase)
 		$this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
@@ -139,27 +139,7 @@ class modBtp extends DolibarrModules
 		$this->hidden = false;
 		// List of modules class name as string that must be enabled if this module is enabled
 		// Example : $this->depends('modAnotherModule', 'modYetAnotherModule')
-		$this->depends = array('modnomenclature','modSubtotal','modSociete'
-		                       ,'modPropale'
-		                       ,'modCommande'
-		                       ,'modFournisseur'
-		                       ,'modFacture'
-		                       ,'modMargin'
-		                       ,'modProduct'
-		                       /* sujet à discuter
-							   ,'modTarif'
-							   ,'modmetre'
-							   ,'modBanque'
-							   ,'modService'
-							   ,'modStock'
-							   ,'modProjet'
-							   ,'modCategorie'
-							   ,'modFckeditor'
-							   ,'modBookmark'
-							   ,'modDoc2Project'
-							   ,'modSearchProductCategory'*/
-
-		);
+		$this->depends = array();
 		// List of modules id to disable if this one is disabled
 		$this->requiredby = array();
 		// List of modules id this module is in conflict with
