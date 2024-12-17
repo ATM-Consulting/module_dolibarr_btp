@@ -67,7 +67,7 @@ class modBtp extends DolibarrModules
 		// (where XXX is value of numeric property 'numero' of module)
 		$this->description = "Module ATM BTP: provides PDF templates specifically designed for the construction industry";
 		// Possible values for version are: 'development', 'experimental' or version
-		$this->version = '1.6.2';
+		$this->version = '1.6.3';
 		// Key used in llx_const table to save module status enabled/disabled
 		// (where MYMODULE is value of property name of module in uppercase)
 		$this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
@@ -119,7 +119,7 @@ class modBtp extends DolibarrModules
 			// Implementation is up to you and is usually done in a trigger.
 			// 'workflow' => array(
 			//     'WORKFLOW_MODULE1_YOURACTIONTYPE_MODULE2' => array(
-			//         'enabled' => '! empty($conf->module1->enabled) && ! empty($conf->module2->enabled)',
+			//         'enabled' => 'isModEnabled("module1") && isModEnabled("module2")',
 			//         'picto' => 'yourpicto@btp',
 			//         'warning' => 'WarningTextTranslationKey',
 			//      ),
@@ -204,7 +204,7 @@ class modBtp extends DolibarrModules
 		$this->dictionaries = array();
 		/* Example:
 		  // This is to avoid warnings
-		  if (! isset($conf->btp->enabled)) $conf->btp->enabled=0;
+		  if (! isset($conf->global->btp)) $conf->btp->enabled=0;
 		  $this->dictionaries=array(
 			  'langs'=>'btp@btp',
 			  // List of tables we want to see into dictonnary editor
@@ -236,9 +236,9 @@ class modBtp extends DolibarrModules
 			  'tabrowid'=>array("rowid","rowid","rowid"),
 			  // Condition to show each dictionary
 			  'tabcond'=>array(
-				  $conf->btp->enabled,
-				  $conf->btp->enabled,
-				  $conf->btp->enabled
+				  isModEnabled("btp"),
+				  isModEnabled("btp"),
+				  isModEnabled("btp")
 			  )
 		  );
 		 */
@@ -269,10 +269,10 @@ class modBtp extends DolibarrModules
 		//// Permission by default for new user (0/1)
 		//$this->rights[$r][3] = 1;
 		//// In php code, permission will be checked by test
-		//// if ($user->rights->permkey->level1->level2)
+		//// if ($user->hasRight("permkey", "level1", "level2"))
 		//$this->rights[$r][4] = 'level1';
 		//// In php code, permission will be checked by test
-		//// if ($user->rights->permkey->level1->level2)
+		//// if ($user->hasRight("permkey", "level1", "level2"))
 		//$this->rights[$r][5] = 'level2';
 		//$r++;
 		// Main menu entries
@@ -297,9 +297,9 @@ class modBtp extends DolibarrModules
 		//	'langs'=>'mylangfile',
 		//	'position'=>100,
 		//	// Define condition to show or hide menu entry.
-		//	// Use '$conf->btp->enabled' if entry must be visible if module is enabled.
-		//	'enabled'=>'$conf->btp->enabled',
-		//	// Use 'perms'=>'$user->rights->btp->level1->level2'
+		//	// Use 'isModEnabled("btp")' if entry must be visible if module is enabled.
+		//	'enabled'=>'isModEnabled("btp")',
+		//	// Use 'perms'=>'$user->hasRight("btp", "level1", "level2")'
 		//	// if you want your menu with a permission rules
 		//	'perms'=>'1',
 		//	'target'=>'',
@@ -324,9 +324,9 @@ class modBtp extends DolibarrModules
 		//	'langs'=>'mylangfile',
 		//	'position'=>100,
 		//	// Define condition to show or hide menu entry.
-		//	// Use '$conf->btp->enabled' if entry must be visible if module is enabled.
-		//	'enabled'=>'$conf->btp->enabled',
-		//	// Use 'perms'=>'$user->rights->btp->level1->level2'
+		//	// Use 'isModEnabled("btp")' if entry must be visible if module is enabled.
+		//	'enabled'=>'isModEnabled("btp")',
+		//	// Use 'perms'=>'$user->hasRight("btp", "level1", "level2")'
 		//	// if you want your menu with a permission rules
 		//	'perms'=>'1',
 		//	'target'=>'',
@@ -352,10 +352,10 @@ class modBtp extends DolibarrModules
 		//	'langs'=>'mylangfile',
 		//	'position'=>100,
 		//	// Define condition to show or hide menu entry.
-		//	// Use '$conf->btp->enabled' if entry must be visible if module is enabled.
+		//	// Use 'isModEnabled("btp")' if entry must be visible if module is enabled.
 		//	// Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-		//	'enabled'=>'$conf->btp->enabled',
-		//	// Use 'perms'=>'$user->rights->btp->level1->level2'
+		//	'enabled'=>'isModEnabled("btp")',
+		//	// Use 'perms'=>'$user->hasRight("btp", "level1", "level2")'
 		//	// if you want your menu with a permission rules
 		//	'perms'=>'1',
 		//	'target'=>'',

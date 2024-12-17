@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file
 
 ## Release 1.6
 
+- FIX : Compat v21 - **17/12/2024** - 1.6.3
 - FIX : No depends on modules - *04/09/2024* - 1.6.2
 - FIX : DA025402 - L'encadré des objets liés dans le pdf sponge btp a été retiré - *30/08/2024* - 1.6.1
 - FIX : Compat v20
