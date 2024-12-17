@@ -1608,7 +1608,7 @@ class pdf_crabe_btp extends ModelePDFFactures
 
 				$pdf->SetXY($this->posxprogress, $tab_top+1);
 
-				if($conf->global->PRODUCT_USE_UNITS)
+				if(getDolGlobalInt('PRODUCT_USE_UNITS'))
 				{
 					$pdf->MultiCell($this->posxup-$this->posxprogress,2, $outputlangs->transnoentities("Progress"),'','C');
 				}
