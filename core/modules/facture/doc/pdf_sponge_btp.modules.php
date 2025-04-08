@@ -2801,7 +2801,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 		$pdf->SetXY($this->marge_gauche+2, $nextY);
 		$pdf->MultiCell(80,2, $outputlangs->transnoentities("BtpRayToRest"),'','L');
 		$pdf->SetFont('','', $default_font_size - 2);
-		/***********************************************************/
+
 
 		/**********************Données*******************************/
 		$TToDisplay = array(
@@ -2811,8 +2811,6 @@ class pdf_sponge_btp extends ModelePDFFactures
 		);
 
 		$x = $this->marge_gauche+85;
-//	    unset($this->TDataSituation['derniere_situation']);
-//	    var_dump($object->lines);exit;
 		foreach($TToDisplay as $col) {
 
 			// Travaux principaux
@@ -2874,18 +2872,61 @@ class pdf_sponge_btp extends ModelePDFFactures
 			$x+=36;
 
 		}
-		/************************************************************/
-
 	}
 
 
-	/*NOTE :
-	Travaux principaux : lignes de la facture de situation qui étaient déjà présentes sur la facture antérieure
-	Travaux supplémentaires : lignes de la facture de situation qui se sont ajoutées par rapport à la facture antérieure
-	Exemple : S1 avec l1 (tp), l2 (tp)
-	          S2 avec l1 (tp), l2 (tp), l3 (ts)
-	          S3 avec l1 (tp), l2 (tp), l3 (tp), l4 (ts)
-	*/
+
+	/**
+	 * Checks if an invoice line is a supplementary work.
+	 *
+	 * Main works: lines of the situation invoice that were already present in the previous invoice.
+	 * Supplementary works: lines of the invoice that are not part of invoice S1 (as discussed with Johan, new behavior).
+	 * Example:
+	 * S1 with l1 (main work), l2 (main work)
+	 * S2 with l1 (main work), l2 (main work), l3 (supplementary work)
+	 * S3 with l1 (main work), l2 (main work), l3 (supplementary work), l4 (supplementary work)
+	 *
+	 * @param object $line Invoice detail line (FactureDet)
+	 * @return bool True if it's supplementary work, False otherwise
+	 */
+	function isSupplementaryWork($line): bool {
+		// Build the recursive query to traverse the hierarchy of lines
+		$sql = "WITH RECURSIVE hierarchie_lignes AS (
+                SELECT rowid, fk_prev_id, fk_facture
+                FROM llx_facturedet
+                WHERE rowid = " . intval($line->fk_prev_id) . "
+                UNION ALL
+                SELECT d.rowid, d.fk_prev_id, d.fk_facture
+                FROM llx_facturedet d
+                INNER JOIN hierarchie_lignes h ON d.rowid = h.fk_prev_id
+            )
+            SELECT fk_facture
+            FROM hierarchie_lignes
+            WHERE fk_prev_id IS NULL
+            LIMIT 1";
+
+		// Execute the query
+		$result = $this->db->query($sql);
+
+		// Check the result of the query
+		if ($result && $this->db->num_rows($result) > 0) {
+			$obj = $this->db->fetch_object($result);
+			$fk_facture_origine = $obj->fk_facture;
+		} else {
+			// If no origin invoice is found, use the current invoice
+			$fk_facture_origine = $line->fk_facture;
+		}
+
+		// Load the origin invoice to check if it is the first in the cycle
+		$tmpFac = new Facture($this->db);
+		if ($tmpFac->fetch($fk_facture_origine) > 0) {
+			return !$tmpFac->is_first(); // Supplementary work if it's not the first invoice
+		}
+
+		return false; // By default, consider it as non-supplementary work
+	}
+
+
 	/**
 	 * @param $object Facture
 	 * @return array
@@ -2919,7 +2960,9 @@ class pdf_sponge_btp extends ModelePDFFactures
 			'total_ttc' => - 0,
 			'travaux_sup' => 0
 		);
-
+		//---------------------------------------
+		// FACTURES ANTERIEURES
+		//---------------------------------------
 		if(!empty($TPreviousInvoices)) {
             $isFirstSituation = false;
             foreach($TPreviousInvoices as $i => $previousInvoice) {
@@ -2934,21 +2977,22 @@ class pdf_sponge_btp extends ModelePDFFactures
 					if (!empty($l->fk_prev_id)){
 						$prevSituationPercent = $l->get_prev_progress($previousInvoice->id, true);
 					}
-					elseif(! array_key_exists($i+1, $TPreviousInvoices)) $isFirstSituation = true;
-
 					$calc_ht = $l->subprice * $l->qty * (1 - $l->remise_percent/100) * ($l->situation_percent - $prevSituationPercent)/100;
+
+
+					if ($this->isSupplementaryWork($l) && ! $isFirstSituation) {
+						$TDataSituation['cumul_anterieur']['travaux_sup'] += $calc_ht;
+					}
+
+					if(! array_key_exists($i+1, $TPreviousInvoices)) $isFirstSituation = true;
+
 					if(! isset($TDataSituation['cumul_anterieur'][$l->tva_tx])) {
 						$TDataSituation['cumul_anterieur'][$l->tva_tx] = array('HT' => $calc_ht, 'TVA' => $calc_ht * ($l->tva_tx/100));
-					}
-					else {
+					} else {
 						$TDataSituation['cumul_anterieur'][$l->tva_tx]['HT'] += $calc_ht;
 						$TDataSituation['cumul_anterieur'][$l->tva_tx]['TVA'] += $calc_ht * ($l->tva_tx/100);
 					}
 
-					if(empty($l->fk_prev_id) && ! $isFirstSituation) {
-						// TODO: à clarifier, mais pour moi, un facture de situation précédente qui a des progressions à 0% c'est pas logique
-						$TDataSituation['cumul_anterieur']['travaux_sup'] += $calc_ht;
-					}
 				}
 
 				if(! empty($previousInvoice->retained_warranty) && !getDolGlobalInt('USE_RETAINED_WARRANTY_ONLY_FOR_SITUATION_FINAL')){
@@ -2984,13 +3028,16 @@ class pdf_sponge_btp extends ModelePDFFactures
             'total_ttc' => $object->total_ht + $object->total_tva - $retenue_garantie,
             'travaux_sup' => 0
         );
-
+		//---------------------------------------
+		// FACTURE COURANTE
+		//---------------------------------------
 		foreach($object->lines as $k => $l) {
 			$total_ht = floatval($l->total_ht);
 			if (empty($total_ht)) continue;
 
 			// Si $prevSituationPercent vaut 0 c'est que la ligne $l est un travail supplémentaire
 			$prevSituationPercent = 0;
+			//@todo à modifier revoir la condition
 			if (!empty($l->fk_prev_id)) {
 				$prevSituationPercent = $l->get_prev_progress($object->id, true);
 			}
@@ -3016,30 +3063,17 @@ class pdf_sponge_btp extends ModelePDFFactures
                 $TDataSituation['mois'][$l->tva_tx]['TVA'] += $calc_ht * ($l->tva_tx/100);
             }
 
-			/* On veut juste les travaux principaux dans cette variable
-			 * Si on teste juste "! empty($prevSituationPercent)" toutes les lignes de la 1ere situation sont considérées comme travaux supplémentaires
-			 * Et vu qu'il ne peut pas y avoir de travaux supplémentaires dans la 1ere situation, ça donne ça :
-			 */
-			if(!empty($l->fk_prev_id) || empty($facDerniereSituation->lines)) $TDataSituation['nouveau_cumul']['HT'] += $calc_ht;
-            if(!empty($l->fk_prev_id) || empty($facDerniereSituation->lines)) $TDataSituation['mois']['HT'] += $calc_ht;
-		}
 
-		$TDataSituation['nouveau_cumul']['retenue_garantie'] = $retenue_garantie + $retenue_garantie_anterieure;
-		$TDataSituation['nouveau_cumul']['total_ttc'] = $TDataSituation['nouveau_cumul']['TTC'] - ($retenue_garantie + $retenue_garantie_anterieure);
-
-		if(! empty($facDerniereSituation->lines)) {
-			$TFacLinesKey = array_keys($facDerniereSituation->lines);
-			$TObjectLinesKey = array_keys($object->lines);
-			$TDiffKey = array_diff($TObjectLinesKey, $TFacLinesKey);
-
-			foreach($TDiffKey as $i) {
-				if(empty($object->lines[$i]->fk_prev_id)){
-					$TDataSituation['nouveau_cumul']['travaux_sup'] += $object->lines[$i]->total_ht;
-					$TDataSituation['mois']['travaux_sup'] += $object->lines[$i]->total_ht;
-				}
+			if (!$this->isSupplementaryWork($l)) {
+				$TDataSituation['nouveau_cumul']['HT'] += $calc_ht;
+				$TDataSituation['mois']['HT'] += $calc_ht;
+			}else{
+				$TDataSituation['nouveau_cumul']['travaux_sup'] += $calc_ht;
+				$TDataSituation['mois']['travaux_sup'] += $calc_ht;
 			}
 		}
-
+		$TDataSituation['nouveau_cumul']['retenue_garantie'] = $retenue_garantie + $retenue_garantie_anterieure;
+		$TDataSituation['nouveau_cumul']['total_ttc'] = $TDataSituation['nouveau_cumul']['TTC'] - ($retenue_garantie + $retenue_garantie_anterieure);
 
         // si c'est la première facture de situation alors il n'y a pas de raison que la situation actuelle et le nouveau cumul soit différents.
         if(empty($TDataSituation['derniere_situation'])) {
