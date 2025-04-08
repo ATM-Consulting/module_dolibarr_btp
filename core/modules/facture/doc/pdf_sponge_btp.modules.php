@@ -3037,7 +3037,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 			// Si $prevSituationPercent vaut 0 c'est que la ligne $l est un travail supplémentaire
 			$prevSituationPercent = 0;
-			//@todo à modifier revoir la condition
+
 			if (!empty($l->fk_prev_id)) {
 				$prevSituationPercent = $l->get_prev_progress($object->id, true);
 			}
