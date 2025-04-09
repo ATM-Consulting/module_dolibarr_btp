@@ -2890,20 +2890,32 @@ class pdf_sponge_btp extends ModelePDFFactures
 	 * @return bool True if it's supplementary work, False otherwise
 	 */
 	function isSupplementaryWork($line): bool {
-		// Build the recursive query to traverse the hierarchy of lines
-		$sql = "WITH RECURSIVE hierarchie_lignes AS (
-                SELECT rowid, fk_prev_id, fk_facture
-                FROM llx_facturedet
-                WHERE rowid = " . intval($line->fk_prev_id) . "
-                UNION ALL
-                SELECT d.rowid, d.fk_prev_id, d.fk_facture
-                FROM llx_facturedet d
-                INNER JOIN hierarchie_lignes h ON d.rowid = h.fk_prev_id
-            )
-            SELECT fk_facture
-            FROM hierarchie_lignes
-            WHERE fk_prev_id IS NULL
-            LIMIT 1";
+
+		// Déclaration d'une CTE (Common Table Expression) récursive.
+		// La CTE temporaire "hierarchie_lignes" est utilisée pour parcourir une structure hiérarchique dans la table "facturedet".
+		$query = "
+		WITH RECURSIVE hierarchie_lignes AS (
+			-- Étape 1 : Point de départ de la récursion.
+			-- On sélectionne la ligne ayant l'identifiant donné (fk_prev_id) dans la table facturedet.
+				SELECT rowid, fk_prev_id, fk_facture
+			FROM " . $this->db->prefix() . "facturedet
+			WHERE rowid = " . intval($line->fk_prev_id) . "
+
+			UNION ALL
+
+				-- Étape 2 : Récursion.
+				-- On recherche les lignes suivantes dans facturedet où l'identifiant correspond à fk_prev_id des résultats précédents.
+			SELECT d.rowid, d.fk_prev_id, d.fk_facture
+			FROM " . $this->db->prefix() . "facturedet d
+			INNER JOIN hierarchie_lignes h ON d.rowid = h.fk_prev_id
+		)
+
+		-- Sélection finale : On récupère la facture associée à la dernière ligne de la hiérarchie (celle où fk_prev_id est NULL).
+		SELECT fk_facture
+		FROM hierarchie_lignes
+		WHERE fk_prev_id IS NULL
+		LIMIT 1;
+		";
 
 		// Execute the query
 		$result = $this->db->query($sql);
