@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file
 
 
 ## Release 1.6
-
+- FIX : dDA024860 supplementary work revamp in pdf situation pdf_sponge_btp - *08/04/2025* - 1.6.4  
 - FIX : Compat v21 - **17/12/2024** - 1.6.3
 - FIX : No depends on modules - *04/09/2024* - 1.6.2
 - FIX : DA025402 - L'encadré des objets liés dans le pdf sponge btp a été retiré - *30/08/2024* - 1.6.1
