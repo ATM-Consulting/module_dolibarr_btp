@@ -123,8 +123,7 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
     setup_print_on_off('INVOICE_USE_SITUATION', false, '', false, 300, true);
 
     if(getDolGlobalInt('INVOICE_USE_SITUATION')) {
-        if(intval(DOL_VERSION) >= 11
-            || file_exists(DOL_DOCUMENT_ROOT . '/admin/facture_situation.php')
+        if(file_exists(DOL_DOCUMENT_ROOT . '/admin/facture_situation.php')
 		|| file_exists(DOL_DOCUMENT_ROOT . '/admin/invoice_situation.php') // For X.x_btp compatible branch
         )
         {
