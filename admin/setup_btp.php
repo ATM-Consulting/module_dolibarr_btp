@@ -134,6 +134,9 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
             print '</tr>';
         }
     }
+	elseif(intval(DOL_VERSION) >= 8){
+		setup_print_on_off('INVOICE_USE_SITUATION_CREDIT_NOTE');
+	}
 
 	if(floatval(DOL_VERSION) >= 9){
 		setup_print_on_off('INVOICE_USE_DEFAULT_DOCUMENT');
