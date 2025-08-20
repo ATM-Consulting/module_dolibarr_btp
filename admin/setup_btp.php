@@ -106,14 +106,9 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
 
     setup_print_on_off('BTP_SIMPLE_DISPLAY'); // je ne sais pas a quoi sert cette conf j'ai fait une recherche, utilisé par workstation
 
-    if(floatval(DOL_VERSION) >= 8){
-        setup_print_on_off('MAIN_ENABLE_IMPORT_LINKED_OBJECT_LINES', false, '', 'MAIN_ENABLE_IMPORT_LINKED_OBJECT_LINES_HELP');
-    }
+	setup_print_on_off('MAIN_ENABLE_IMPORT_LINKED_OBJECT_LINES', false, '', 'MAIN_ENABLE_IMPORT_LINKED_OBJECT_LINES_HELP');
 
-
-    if(floatval(DOL_VERSION) >= 10){
-        setup_print_on_off('INVOICE_KEEP_DISCOUNT_LINES_AS_IN_ORIGIN', false, '', 'INVOICE_KEEP_DISCOUNT_LINES_AS_IN_ORIGIN_HELP');
-    }
+ 	setup_print_on_off('INVOICE_KEEP_DISCOUNT_LINES_AS_IN_ORIGIN', false, '', 'INVOICE_KEEP_DISCOUNT_LINES_AS_IN_ORIGIN_HELP');
 
 
     // INVOICE_USE_SITUATION
@@ -134,23 +129,14 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
             print '</tr>';
         }
     }
-	elseif(intval(DOL_VERSION) >= 8){
-		setup_print_on_off('INVOICE_USE_SITUATION_CREDIT_NOTE');
-	}
 
-	if(floatval(DOL_VERSION) >= 9){
-		setup_print_on_off('INVOICE_USE_DEFAULT_DOCUMENT');
-	}
+	setup_print_on_off('INVOICE_USE_SITUATION_CREDIT_NOTE');
+	setup_print_on_off('INVOICE_USE_DEFAULT_DOCUMENT');
+	setup_print_on_off('BTP_USE_MARGINS_WITH_NOMENCLATURE_DETAILS');
+	setup_print_title($langs->trans("Project"));
+	setup_print_on_off('PROJECT_SHOW_FORECAST_PROFIT_BOARD');
+	setup_print_input_form_part('PROJECT_FORECAST_DEFAULT_THM');
 
-	if(floatval(DOL_VERSION) >= 15.0){
-		setup_print_on_off('BTP_USE_MARGINS_WITH_NOMENCLATURE_DETAILS');
-	}
-
-	if(floatval(DOL_VERSION) >= 13.0){
-		setup_print_title($langs->trans("Project"));
-		setup_print_on_off('PROJECT_SHOW_FORECAST_PROFIT_BOARD');
-		setup_print_input_form_part('PROJECT_FORECAST_DEFAULT_THM');
-	}
 
 
     print '</table>';
