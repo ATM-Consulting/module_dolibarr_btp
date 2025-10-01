@@ -171,9 +171,6 @@ class pdf_sponge_btp extends ModelePDFFactures
 		$this->atleastoneratenotnull=0;
 		$this->atleastonediscount=0;
 		$this->situationinvoice=false;
-
-
-		if (!empty($object)) $this->TDataSituation = $this->_getDataSituation($object);
 	}
 
 
@@ -188,9 +185,13 @@ class pdf_sponge_btp extends ModelePDFFactures
 	 *  @param		int			$hideref			Do not show ref
 	 *  @return     int         	    			1=OK, 0=KO
 	 */
-	function write_file($object,$outputlangs,$srctemplatepath='',$hidedetails=0,$hidedesc=0,$hideref=0)
+	function write_file($object, $outputlangs, $srctemplatepath = '', $hidedetails = 0, $hidedesc = 0, $hideref = 0)
 	{
-		global $user,$langs,$conf,$mysoc,$db,$hookmanager,$nblignes;
+		global $user, $langs, $conf, $mysoc, $db, $hookmanager, $nblignes;
+
+		if (!empty($object)) {
+			$this->TDataSituation = $this->_getDataSituation($object);
+		}
 
 		if (! is_object($outputlangs)) $outputlangs=$langs;
 		// For backward compatibility with FPDF, force output charset to ISO, because FPDF expect text to be encoded in ISO
@@ -398,7 +399,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 				$tab_height = 130;
 				$tab_height_newpage = 150;
 
-				$this->_tableauBtp($pdf, $tab_top, $this->page_hauteur - 100 - $heightforfreetext - $heightforfooter, 0, $outputlangs, 0, 0, $object->multicurrency_code);
+				$this->_tableauBtp($pdf, $tab_top, $this->page_hauteur - 100 - $heightforfreetext - $heightforfooter, 0, $outputlangs, 0, 0, $object->multicurrency_code, $object);
 				$bottomlasttab=$this->page_hauteur - $heightforinfotot - $heightforfreetext - $heightforfooter + 1;
 
 				$this->_pagefoot($pdf,$object,$outputlangs,1);
@@ -2669,9 +2670,9 @@ class pdf_sponge_btp extends ModelePDFFactures
 	 *   @param		string		$currency		Currency code
 	 *   @return	void
 	 */
-	function _tableauBtp(&$pdf, $tab_top, $tab_height, $nexY, $outputlangs, $hidetop=0, $hidebottom=0, $currency='')
+	function _tableauBtp(&$pdf, $tab_top, $tab_height, $nexY, $outputlangs, $hidetop = 0, $hidebottom = 0, $currency = '', $object = null)
 	{
-		global $conf, $object, $db;
+		global $conf, $db;
 
 		$form = new Form($db);
 
@@ -2893,7 +2894,7 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 		// Déclaration d'une CTE (Common Table Expression) récursive.
 		// La CTE temporaire "hierarchie_lignes" est utilisée pour parcourir une structure hiérarchique dans la table "facturedet".
-		$query = "
+		$sql= "
 		WITH RECURSIVE hierarchie_lignes AS (
 			-- Étape 1 : Point de départ de la récursion.
 			-- On sélectionne la ligne ayant l'identifiant donné (fk_prev_id) dans la table facturedet.
@@ -3049,12 +3050,9 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 			// Si $prevSituationPercent vaut 0 c'est que la ligne $l est un travail supplémentaire
 			$prevSituationPercent = 0;
+			$situation_percent = $l->situation_percent; // situation actuelle en %
 
-			if (!empty($l->fk_prev_id)) {
-				$prevSituationPercent = $l->get_prev_progress($object->id, true);
-			}
-
-			$calc_ht = $l->subprice * $l->qty * (1 - $l->remise_percent/100) * ($l->situation_percent - $prevSituationPercent)/100;
+			$calc_ht = $l->subprice * $l->qty * (1 - $l->remise_percent/100) * $situation_percent/100;
 			if(! isset($TDataSituation['nouveau_cumul'][$l->tva_tx])) {
 				$TDataSituation['nouveau_cumul'][$l->tva_tx] = array(
 					'HT' => ($TDataSituation['cumul_anterieur'][$l->tva_tx]['HT'] ?? 0) + $calc_ht,
