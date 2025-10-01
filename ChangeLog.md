@@ -4,8 +4,8 @@ All notable changes to this project will be documented in this file
 ## UNRELEASED
 
 
-
 ## Release 1.6
+- FIX : calculation of cumulative generation invoice totals - **01/10/2025** - 1.6.6
 - FIX : Compat v22 - **20/08/2025** - 1.6.5
 - FIX : dDA024860 supplementary work revamp in pdf situation pdf_sponge_btp - *08/04/2025* - 1.6.4  
 - FIX : Compat v21 - **17/12/2024** - 1.6.3
