@@ -67,7 +67,7 @@ class modBtp extends DolibarrModules
 		// (where XXX is value of numeric property 'numero' of module)
 		$this->description = "Module ATM BTP: provides PDF templates specifically designed for the construction industry";
 		// Possible values for version are: 'development', 'experimental' or version
-		$this->version = '1.6.5';
+		$this->version = '1.6.7';
 		// Key used in llx_const table to save module status enabled/disabled
 		// (where MYMODULE is value of property name of module in uppercase)
 		$this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
@@ -479,7 +479,8 @@ class modBtp extends DolibarrModules
 
 		// On active le modele
 		$ret = delDocumentModel('crabe_btp', 'invoice');
-		if ($ret > 0) {
+		if ($ret > 0)
+		{
 			$ret = addDocumentModel('crabe_btp', 'invoice', 'crabe_btp', null);
 		}
 
@@ -503,8 +504,9 @@ class modBtp extends DolibarrModules
 		$sql = array();
 
 		$ret = delDocumentModel('crabe_btp', 'invoice');
-		if ($ret > 0) {
-			if (getDolGlobalString('FACTURE_ADDON_PDF') == "crabe_btp") dolibarr_del_const($db, 'FACTURE_ADDON_PDF', $conf->entity);
+		if ($ret > 0)
+		{
+			if (getDolGlobalString('FACTURE_ADDON_PDF') == "crabe_btp") dolibarr_del_const($db, 'FACTURE_ADDON_PDF',$conf->entity);
 		}
 
 		return $this->_remove($sql, $options);
