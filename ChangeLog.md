@@ -4,7 +4,9 @@ All notable changes to this project will be documented in this file
 ## UNRELEASED
 
 
+
 ## Release 1.6
+- FIX : DA027220 - Implementation of the standard behavior for calculating the total cumulative progress - *20/10/2025* - 1.6.7
 - FIX : calculation of cumulative generation invoice totals - **01/10/2025** - 1.6.6
 - FIX : Compat v22 - **20/08/2025** - 1.6.5
 - FIX : dDA024860 supplementary work revamp in pdf situation pdf_sponge_btp - *08/04/2025* - 1.6.4  

@@ -1303,10 +1303,14 @@ class pdf_sponge_btp extends ModelePDFFactures
 		// pourcentage global d'avancement
 		$percent = 0;
 		$i=0;
-		foreach ($object->lines as $line)
-		{
-			if(!class_exists('TSubtotal') || !TSubtotal::isModSubtotalLine($line)){
-				$percent += $line->situation_percent;
+		foreach ($object->lines as $line) {
+			if (!class_exists('TSubtotal') || !TSubtotal::isModSubtotalLine($line)) {
+				if ($object->type == Facture::TYPE_CREDIT_NOTE) {
+					$percent += $line->situation_percent;
+				} else {
+					$prevProgress = $line->getAllPrevProgress($object->id);
+					$percent += $prevProgress + $line->situation_percent;
+				}
 				$i++;
 			}
 		}
