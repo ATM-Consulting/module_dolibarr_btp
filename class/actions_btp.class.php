@@ -73,28 +73,6 @@ class ActionsBtp extends btp\RetroCompatCommonHookActions
         $this->db = $db;
     }
 
-    /**
-     * Overloading the doActions function : replacing the parent's function with the one below
-     *
-     * @param   array()         $parameters     Hook metadatas (context, etc...)
-     * @param   CommonObject    $object         The object to process (an invoice if you are in invoice module, a propale in propale's module, etc...)
-     * @param   string          $action         Current action (if set). Generally create or edit or null
-     * @param   HookManager     $hookmanager    Hook manager propagated to allow calling another hook
-     * @return  int                             < 0 on error, 0 on success, 1 to replace standard code
-     */
-    public function doActions($parameters, &$object, &$action, $hookmanager)
-    {
-        global $conf, $user, $langs;
-
-        $error = 0; // Error counter
-
-        $contexts = explode(':', $parameters['context']);
-
-        if (in_array('invoicecard', $contexts)) {
-
-        }
-
-    }
 
     /**
      * Overloading the doActions function : replacing the parent's function with the one below
@@ -164,7 +142,7 @@ class ActionsBtp extends btp\RetroCompatCommonHookActions
             $this->listofreferent['propal']['name'] = 'ProposalsExcludingRefused';
             $this->listofreferent['order']['margin'] = 'add';
             $this->listofreferent['order_supplier']['margin'] = 'minus';
-            unset($this->listofreferent['invoice']['margin'], $this->listofreferent['invoice_supplier']['margin'], $this->listofreferent['invoice_predefined']['margin']);
+            unset($this->listofreferent['invoice'], $this->listofreferent['invoice_supplier'], $this->listofreferent['invoice_predefined']);
 
             printForecastProfitBoard($object, $this->listofreferent, $parameters['dates'], $parameters['datee']);
             $this->forecastProfitedPrinted = true;
