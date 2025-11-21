@@ -24,7 +24,7 @@
  * 	\brief		Description and activation file for module Btp
  */
 include_once DOL_DOCUMENT_ROOT . "/core/modules/DolibarrModules.class.php";
-require_once DOL_DOCUMENT_ROOT.'/core/lib/admin.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
 
 /**
  * Description and activation class for module Btp
@@ -67,7 +67,7 @@ class modBtp extends DolibarrModules
 		// (where XXX is value of numeric property 'numero' of module)
 		$this->description = "Module ATM BTP: provides PDF templates specifically designed for the construction industry";
 		// Possible values for version are: 'development', 'experimental' or version
-		$this->version = '1.6.7';
+		$this->version = '1.6.8';
 		// Key used in llx_const table to save module status enabled/disabled
 		// (where MYMODULE is value of property name of module in uppercase)
 		$this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
@@ -161,9 +161,11 @@ class modBtp extends DolibarrModules
 		// (name, type ['chaine' or ?], value, description, visibility, entity ['current' or 'allentities'], delete on unactive)
 		// Example:
 		$this->const = array(
-			array('MAIN_FORCELANGDIR','chaine','/btp/customlangs','Directory where custom translations will be stored',1,'current',1)
-			,array('INVOICE_USE_SITUATION','chaine','1','Enable invoice situation',1,'current',1)
-			,array('BTP_SIMPLE_DISPLAY','chaine','1','Display only the usefull informations for BTP users',1,'current',1)
+			array('MAIN_FORCELANGDIR', 'chaine', '/btp/customlangs', 'Directory where custom translations will be stored', 1, 'current', 1)
+			,
+			array('INVOICE_USE_SITUATION', 'chaine', '1', 'Enable invoice situation', 1, 'current', 1)
+			,
+			array('BTP_SIMPLE_DISPLAY', 'chaine', '1', 'Display only the usefull informations for BTP users', 1, 'current', 1)
 		);
 
 		// Array to add new pages in new tabs
@@ -198,7 +200,7 @@ class modBtp extends DolibarrModules
 
 		// Dictionaries
 		if (!isModEnabled('btp')) {
-			$conf->btp=new stdClass();
+			$conf->btp = new stdClass();
 			$conf->btp->enabled = 0;
 		}
 		$this->dictionaries = array();
@@ -479,8 +481,7 @@ class modBtp extends DolibarrModules
 
 		// On active le modele
 		$ret = delDocumentModel('crabe_btp', 'invoice');
-		if ($ret > 0)
-		{
+		if ($ret > 0) {
 			$ret = addDocumentModel('crabe_btp', 'invoice', 'crabe_btp', null);
 		}
 
@@ -504,9 +505,9 @@ class modBtp extends DolibarrModules
 		$sql = array();
 
 		$ret = delDocumentModel('crabe_btp', 'invoice');
-		if ($ret > 0)
-		{
-			if (getDolGlobalString('FACTURE_ADDON_PDF') == "crabe_btp") dolibarr_del_const($db, 'FACTURE_ADDON_PDF',$conf->entity);
+		if ($ret > 0) {
+			if (getDolGlobalString('FACTURE_ADDON_PDF') == "crabe_btp")
+				dolibarr_del_const($db, 'FACTURE_ADDON_PDF', $conf->entity);
 		}
 
 		return $this->_remove($sql, $options);

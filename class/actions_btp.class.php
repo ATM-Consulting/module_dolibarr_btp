@@ -54,13 +54,13 @@ class ActionsBtp extends btp\RetroCompatCommonHookActions
      */
     public $resprints;
 
-	/**
-	 * @var array list of elements linked to a project
-	 * used for projet/element.php customisation
-	 */
-	public $listofreferent;
+    /**
+     * @var array list of elements linked to a project
+     * used for projet/element.php customisation
+     */
+    public $listofreferent;
 
-	public $forecastProfitedPrinted = false;
+    public $forecastProfitedPrinted = false;
 
 
     /**
@@ -88,9 +88,9 @@ class ActionsBtp extends btp\RetroCompatCommonHookActions
 
         $error = 0; // Error counter
 
-        $contexts = explode(':',$parameters['context']);
+        $contexts = explode(':', $parameters['context']);
 
-        if (in_array('invoicecard',$contexts)) {
+        if (in_array('invoicecard', $contexts)) {
 
         }
 
@@ -111,10 +111,9 @@ class ActionsBtp extends btp\RetroCompatCommonHookActions
 
         $error = 0; // Error counter
 
-        if (in_array($parameters['currentcontext'], array('somecontext1','somecontext2'))) {  // do something only for the context 'somecontext1' or 'somecontext2'
+        if (in_array($parameters['currentcontext'], array('somecontext1', 'somecontext2'))) {  // do something only for the context 'somecontext1' or 'somecontext2'
 
-            foreach($parameters['toselect'] as $objectid)
-            {
+            foreach ($parameters['toselect'] as $objectid) {
                 // Do action on each object id
 
             }
@@ -138,41 +137,41 @@ class ActionsBtp extends btp\RetroCompatCommonHookActions
 
         $error = 0; // Error counter
 
-        if (in_array($parameters['currentcontext'], array('somecontext1','somecontext2')))  // do something only for the context 'somecontext'
+        if (in_array($parameters['currentcontext'], array('somecontext1', 'somecontext2')))  // do something only for the context 'somecontext'
         {
-            $this->resprints = '<option value="0"'.($disabled?' disabled="disabled"':'').'>'.$langs->trans("MyModuleMassAction").'</option>';
+            $disabled = 0;
+            $this->resprints = '<option value="0"' . ($disabled ? ' disabled="disabled"' : '') . '>' . $langs->trans("MyModuleMassAction") . '</option>';
         }
 
     }
 
-	public function completeListOfReferent($parameters, &$object, &$action, $hookmanager)
-	{
-		global $conf;
+    public function completeListOfReferent($parameters, &$object, &$action, $hookmanager)
+    {
+        global $conf;
 
-		if (getDolGlobalInt('PROJECT_SHOW_FORECAST_PROFIT_BOARD')) $this->listofreferent = $parameters['listofreferent'];
-	}
+        if (getDolGlobalInt('PROJECT_SHOW_FORECAST_PROFIT_BOARD'))
+            $this->listofreferent = $parameters['listofreferent'];
+    }
 
-	public function printOverviewProfit($parameters, &$object, &$action, $hookmanager)
-	{
-		global $conf, $user, $langs;
+    public function printOverviewProfit($parameters, &$object, &$action, $hookmanager)
+    {
+        global $conf, $user, $langs;
 
-//		print 'lol';
-		dol_include_once('btp/lib/btp.lib.php');
+        dol_include_once('btp/lib/btp.lib.php');
 
-		if (getDolGlobalInt('PROJECT_SHOW_FORECAST_PROFIT_BOARD') && ! $this->forecastProfitedPrinted)
-		{
-			$this->listofreferent['propal']['margin'] = 'add';
-			$this->listofreferent['propal']['name'] = 'ProposalsExcludingRefused';
-			$this->listofreferent['order']['margin'] = 'add';
-			$this->listofreferent['order_supplier']['margin'] = 'minus';
-			unset($this->listofreferent['invoice']['margin'], $this->listofreferent['invoice_supplier']['margin']);
+        if (getDolGlobalInt('PROJECT_SHOW_FORECAST_PROFIT_BOARD') && !$this->forecastProfitedPrinted) {
+            $this->listofreferent['propal']['margin'] = 'add';
+            $this->listofreferent['propal']['name'] = 'ProposalsExcludingRefused';
+            $this->listofreferent['order']['margin'] = 'add';
+            $this->listofreferent['order_supplier']['margin'] = 'minus';
+            unset($this->listofreferent['invoice']['margin'], $this->listofreferent['invoice_supplier']['margin'], $this->listofreferent['invoice_predefined']['margin']);
 
-			printForecastProfitBoard($object, $this->listofreferent, $parameters['dates'], $parameters['datee']);
-			$this->forecastProfitedPrinted = true;
-		}
+            printForecastProfitBoard($object, $this->listofreferent, $parameters['dates'], $parameters['datee']);
+            $this->forecastProfitedPrinted = true;
+        }
 
-		return 0;
-	}
+        return 0;
+    }
 
 
 }
