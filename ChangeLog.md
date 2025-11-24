@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file
 
 
 ## Release 1.6
+- FIX : T6292 - Exclusion of Predefined Invoices from the Forecast Profit Board - *21/11/2025* - 1.6.8
 - FIX : DA027220 - Implementation of the standard behavior for calculating the total cumulative progress - *20/10/2025* - 1.6.7
 - FIX : calculation of cumulative generation invoice totals - **01/10/2025** - 1.6.6
 - FIX : Compat v22 - **20/08/2025** - 1.6.5
