@@ -2945,7 +2945,8 @@ class pdf_sponge_btp extends ModelePDFFactures
 						$TDataSituation['cumul_anterieur'][$l->tva_tx]['TVA'] += $calc_ht * ($l->tva_tx/100);
 					}
 
-					if(empty($l->fk_prev_id) && ! $isFirstSituation) {
+					$isDeposit = $this->_isDepositLine($l);
+					if (empty($l->fk_prev_id) && !$isFirstSituation && !$isDeposit) {
 						// TODO: à clarifier, mais pour moi, un facture de situation précédente qui a des progressions à 0% c'est pas logique
 						$TDataSituation['cumul_anterieur']['travaux_sup'] += $calc_ht;
 					}
@@ -3048,6 +3049,23 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 		return $TDataSituation;
 	}
+
+	/**
+	 * Détermine si une ligne de facture correspond à un acompte (deposit).
+	 *
+	 * @param FactureLigne $line Ligne de facture à analyser
+	 * @return bool Retourne true si la ligne est identifiée comme un acompte, false sinon.
+	 */
+	private function _isDepositLine(FactureLigne $line) : bool
+	{
+		// Vérifie le code spécial (méthode standard Dolibarr)
+		if (!empty($line->special_code) && (int) $line->special_code === Facture::TYPE_DEPOSIT) {
+			return true;
+		}
+
+		return false;
+	}
+
 
 	/**
 	 * @param Facture $object
