@@ -3056,15 +3056,10 @@ class pdf_sponge_btp extends ModelePDFFactures
 	 * @param FactureLigne $line Ligne de facture à analyser
 	 * @return bool Retourne true si la ligne est identifiée comme un acompte, false sinon.
 	 */
-	private function _isDepositLine(FactureLigne $line)
+	private function _isDepositLine(FactureLigne $line) : bool
 	{
 		// Vérifie le code spécial (méthode standard Dolibarr)
 		if (!empty($line->special_code) && (int) $line->special_code === Facture::TYPE_DEPOSIT) {
-			return true;
-		}
-
-		// Vérifie la présence du mot "deposit" dans la description
-		if (!empty($line->description) && stripos($line->description, 'deposit') !== false) {
 			return true;
 		}
 
