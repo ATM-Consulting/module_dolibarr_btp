@@ -3051,21 +3051,26 @@ class pdf_sponge_btp extends ModelePDFFactures
 	}
 
 	/**
-	 * @param $line Deposite line
-	 * @return array
+	 * Détermine si une ligne de facture correspond à un acompte (deposit).
+	 *
+	 * @param FactureLigne $line Ligne de facture à analyser
+	 * @return bool Retourne true si la ligne est identifiée comme un acompte, false sinon.
 	 */
-	private function _isDepositLine($line)
+	private function _isDepositLine(FactureLigne $line)
 	{
-		if (!empty($line->special_code) && (int) $line->special_code === 3) {
+		// Vérifie le code spécial (méthode standard Dolibarr)
+		if (!empty($line->special_code) && (int) $line->special_code === Facture::TYPE_DEPOSIT) {
 			return true;
 		}
 
+		// Vérifie la présence du mot "deposit" dans la description
 		if (!empty($line->description) && stripos($line->description, 'deposit') !== false) {
 			return true;
 		}
 
 		return false;
 	}
+
 
 	/**
 	 * @param Facture $object
