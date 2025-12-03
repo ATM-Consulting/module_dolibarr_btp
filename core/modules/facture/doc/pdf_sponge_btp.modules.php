@@ -2945,7 +2945,8 @@ class pdf_sponge_btp extends ModelePDFFactures
 						$TDataSituation['cumul_anterieur'][$l->tva_tx]['TVA'] += $calc_ht * ($l->tva_tx/100);
 					}
 
-					if(empty($l->fk_prev_id) && ! $isFirstSituation) {
+					$isDeposit = $this->_isDepositLine($l);
+					if (empty($l->fk_prev_id) && !$isFirstSituation && !$isDeposit) {
 						// TODO: à clarifier, mais pour moi, un facture de situation précédente qui a des progressions à 0% c'est pas logique
 						$TDataSituation['cumul_anterieur']['travaux_sup'] += $calc_ht;
 					}
@@ -3047,6 +3048,23 @@ class pdf_sponge_btp extends ModelePDFFactures
         }
 
 		return $TDataSituation;
+	}
+
+	/**
+	 * @param $line Deposite line
+	 * @return array
+	 */
+	private function _isDepositLine($line)
+	{
+		if (!empty($line->special_code) && (int) $line->special_code === 3) {
+			return true;
+		}
+
+		if (!empty($line->description) && stripos($line->description, 'deposit') !== false) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
