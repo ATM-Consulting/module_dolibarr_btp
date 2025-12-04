@@ -3058,12 +3058,27 @@ class pdf_sponge_btp extends ModelePDFFactures
 	 */
 	private function _isDepositLine(FactureLigne $line) : bool
 	{
-		// Vérifie le code spécial (méthode standard Dolibarr)
-		if (!empty($line->special_code) && (int) $line->special_code === Facture::TYPE_DEPOSIT) {
-			return true;
-		}
+		// info_bits est un champ très peu documenté. C'est un bitfield (autrement dit,
+		// on ne le lit pas comme un entier mais comme des bits individuels, chacun
+		// pouvant renseigner sur une option différente).
 
-		return false;
+		// Voici ce que j'ai déduit sur la signification des bits à partir du code
+		// existant du cœur (on part de la droite, c'est à dire des bits de poids faible):
+		//  - bit 1 = la TVA de cette ligne est une TVA NPR (non perçue récupérable)
+		//  - bit 2 = cette ligne est une remise
+		//  - suivants: non alloués
+
+		// Pour récupérer la valeur d'un bit individuel, plusieurs méthodes sont
+		// possibles, mais une méthode simple est de faire un bitwise AND
+		// (`&` et non `&&`) avec la puissance de 2 qui correspond au bit recherché
+		// (1 pour le premier, 2 pour le second, 4 pour le troisième, 8, 16, 32, etc.)
+
+		$infoBits = $line->info_bits ?? 0;
+		$description = $line->description ?? '';
+
+		// La chaîne est en dur dans tout Dolibarr. Elle n'est pas traduite en BDD.
+		// Le champ description est déprécié, mais c'est toujours lui qui est utilisé.
+		return ($infoBits & 2) && $description === '(DEPOSIT)';
 	}
 
 
@@ -3524,6 +3539,5 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 		return $posy;
 	}
-
 
 }
