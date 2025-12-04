@@ -3058,12 +3058,9 @@ class pdf_sponge_btp extends ModelePDFFactures
 	 */
 	private function _isDepositLine(FactureLigne $line) : bool
 	{
-		// Vérifie le code spécial (méthode standard Dolibarr)
-		if (!empty($line->special_code) && (int) $line->special_code === Facture::TYPE_DEPOSIT) {
-			return true;
-		}
-
-		return false;
+		// Vérifie le 2e bit (par poids ascendant) d'info_bits et la description
+		// (c'est comme ça que fait objectline_view.tpl.php)
+		return ($line->info_bits ?? 0) & 2 && ($line->description ?? '') === '(DEPOSIT)';
 	}
 
 
@@ -3524,6 +3521,5 @@ class pdf_sponge_btp extends ModelePDFFactures
 
 		return $posy;
 	}
-
 
 }

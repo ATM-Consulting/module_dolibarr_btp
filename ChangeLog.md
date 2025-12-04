@@ -6,7 +6,8 @@ All notable changes to this project will be documented in this file
 
 
 ## Release 1.5
-- FIX : sponge_btp: Ligne d'acompte retirée des travaux supplémentaires car incohérent - *03/12/2025* - 1.5.3
+- FIX : DA027367 pb de détection des lignes d'acompte  - *04/12/2025* - 1.5.4
+- FIX : DA027367 sponge_btp: Ligne d'acompte retirée des travaux supplémentaires car incohérent - *03/12/2025* - 1.5.3
 - FIX : sponge_btp: calcul de la retenue de garantie actuelle - *29/04/2024* - 1.5.2
 - FIX : Warnings lors de la génération du pdf Sponge - *08/04/2024* - 1.5.1
 - NEW : Add TechATM and rebuild About page + Update US translation - *08/01/2024* - 1.5.0
